@@ -1,10 +1,9 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-	<meta name="google-site-verification" content="fDFFO3a6EaI3c3peZYlieJB9znJmDacQkPgvMo5KYNc" />
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Ancall Premium - Update 1.2</title>
+    <title>Ancall Premium - Siêu Cập Nhật 1.3</title>
     <style>
         :root {
             --primary: #0288d1;
@@ -13,101 +12,134 @@
             --success: #4caf50;
             --danger: #ef4444;
             --bg-grad: linear-gradient(135deg, #0f172a, #1e293b);
-            --card-bg: rgba(255, 255, 255, 0.95);
+            --card-bg: rgba(255, 255, 255, 0.98);
+            --text-main: #1e293b;
         }
+
+        /* Rank Colors */
+        .rank-newbie { color: #94a3b8; font-weight: bold; }
+        .rank-common { color: #22c55e; font-weight: bold; }
+        .rank-race { color: #3b82f6; font-weight: bold; }
+        .rank-epic { color: #a855f7; font-weight: bold; }
+        .rank-legendary { color: #eab308; font-weight: bold; font-shadow: 0 0 5px rgba(234,179,8,0.3); }
+        .rank-vip { color: #ec4899; font-weight: bold; animation: pulse 1.5s infinite; }
+        .rank-admin-rainbow {
+            font-weight: bold;
+            background: linear-gradient(to right, #ef4444, #ff9800, #ffeb3b, #4caf50, #00bcd4, #2196f3, #9c27b0);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-size: 400% 400%;
+            animation: rainbowChat 6s ease infinite;
+        }
+
+        @keyframes rainbowChat {
+            0%{background-position:0% 50%} 50%{background-position:100% 50%} 100%{background-position:0% 50%}
+        }
+        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.03); } }
 
         html, body { 
             margin: 0; padding: 0; width: 100%; height: 100%; 
             overflow: hidden; font-family: 'Segoe UI', system-ui, sans-serif;
-            background: #f1f5f9; color: #1e293b;
+            background: #0f172a; color: var(--text-main);
             -webkit-user-select: none; user-select: none;
         }
 
-        /* Tiêu chuẩn hóa các Input và Button hiện đại */
-        input, button, textarea, select { font-size: 14px; border-radius: 10px; box-sizing: border-box; transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); }
+        input, button, textarea, select { font-size: 14px; border-radius: 12px; box-sizing: border-box; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); }
         input, textarea, select { -webkit-user-select: text; user-select: text; border: 1px solid #cbd5e1; padding: 12px; width: 100%; margin: 6px 0; background: #fff; }
         input:focus, textarea:focus { border-color: var(--primary); outline: none; box-shadow: 0 0 0 3px rgba(2, 136, 209, 0.2); }
+        
         button { font-weight: 600; color: white; border: none; cursor: pointer; padding: 12px 20px; margin: 6px 0; display: inline-flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-        button:active { transform: scale(0.98); opacity: 0.9; }
+        button:active { transform: scale(0.97); opacity: 0.9; }
         
         .btn-blue { background: linear-gradient(135deg, #0288d1, #0091ea); }
         .btn-green { background: linear-gradient(135deg, #4caf50, #43a047); }
         .btn-red { background: linear-gradient(135deg, #f44336, #e53935); }
         .btn-orange { background: linear-gradient(135deg, #ff9800, #fb8c00); }
+        .btn-purple { background: linear-gradient(135deg, #a855f7, #9333ea); }
         .hidden { display: none !important; }
 
-        /* MÀN HÌNH GIỚI THIỆU */
-        .intro-screen { width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; background: var(--bg-grad); color: white; text-align: center; padding: 20px; box-sizing: border-box; animation: fadeIn 0.5s ease; }
-        .intro-card { background: rgba(255, 255, 255, 0.1); padding: 30px; border-radius: 20px; max-width: 380px; backdrop-filter: blur(12px); margin-bottom: 30px; border: 1px solid rgba(255,255,255,0.15); box-shadow: 0 20px 40px rgba(0,0,0,0.3); }
-        .credit-text { font-size: 13px; color: rgba(255,255,255,0.5); margin-top: 25px; font-weight: bold; letter-spacing: 1.5px; text-transform: uppercase; }
+        /* INTRO */
+        .intro-screen { width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; background: var(--bg-grad); color: white; text-align: center; padding: 20px; box-sizing: border-box; }
+        .intro-card { background: rgba(255, 255, 255, 0.08); padding: 30px; border-radius: 24px; max-width: 400px; backdrop-filter: blur(16px); margin-bottom: 25px; border: 1px solid rgba(255,255,255,0.12); box-shadow: 0 20px 40px rgba(0,0,0,0.4); animation: slideUp 0.5s ease; }
+        .credit-text { font-size: 14px; color: rgba(255,255,255,0.4); margin-top: 20px; font-weight: bold; letter-spacing: 1px; }
 
-        /* BÀN PHÍM SỐ BẢO MẬT (MÃ PIN) */
-        .pin-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-grad); z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; }
-        .pin-dots { display: flex; gap: 15px; margin: 30px 0; }
-        .pin-dot { width: 16px; height: 16px; border-radius: 50%; border: 2px solid #fff; transition: background 0.15s; }
-        .pin-dot.filled { background: #fff; }
-        .pin-keyboard { display: grid; grid-template-columns: repeat(3, 75px); gap: 15px; justify-content: center; }
-        .pin-key { width: 75px; height: 75px; border-radius: 50%; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.1); color: white; font-size: 24px; font-weight: 600; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: background 0.2s; }
-        .pin-key:active { background: rgba(255,255,255,0.3); }
+        /* BÀN PHÍM SỐ PIN & MÁY TÍNH */
+        .pin-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-grad); z-index: 99999; display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; animation: fadeIn 0.3s ease; }
+        .pin-dots { display: flex; gap: 20px; margin: 25px 0; }
+        .pin-dot { width: 18px; height: 18px; border-radius: 50%; border: 2px solid #fff; transition: all 0.15s; }
+        .pin-dot.filled { background: #fff; box-shadow: 0 0 10px #fff; transform: scale(1.1); }
+        .pin-keyboard { display: grid; grid-template-columns: repeat(3, 80px); gap: 15px; justify-content: center; }
+        .pin-key { width: 80px; height: 80px; border-radius: 50%; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.05); color: white; font-size: 26px; font-weight: 600; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: background 0.2s; }
+        .pin-key:active { background: rgba(255,255,255,0.25); }
 
-        /* KHUNG CHỨNG THỰC AUTH */
-        .auth-screen { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: #f8fafc; }
-        .box { max-width: 400px; width: 90%; background: var(--card-bg); padding: 30px; border-radius: 20px; box-shadow: 0 15px 35px rgba(0,0,0,0.06); border: 1px solid #e2e8f0; animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
-        .status { font-weight: bold; font-size: 13px; text-align: center; min-height: 20px; margin: 6px 0; }
+        /* AUTH BOX */
+        .auth-screen { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: #0f172a; }
+        .box { max-width: 400px; width: 90%; background: var(--card-bg); padding: 30px; border-radius: 24px; box-shadow: 0 20px 40px rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1); color: #1e293b; }
+        .status { font-weight: bold; font-size: 13px; text-align: center; min-height: 20px; margin: 8px 0; }
 
-        /* GIAO DIỆN CHÍNH */
-        .app-container { width: 100%; height: 100%; display: flex; flex-direction: column; position: relative; }
-        .app-header { height: 65px; background: linear-gradient(135deg, #0288d1, #01579b); color: white; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); z-index: 10; }
-        .header-btn { background: none; border: none; font-size: 26px; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        /* APP VIEWPORT cấu trúc v1.3 */
+        .app-container { width: 100%; height: 100%; display: flex; flex-direction: column; background: #f8fafc; position: relative; }
+        
+        /* 1. THANH TÁC VỤ PHỤ PHÍA TRÊN */
+        .sub-top-bar { height: 45px; background: #1e293b; color: #94a3b8; display: flex; align-items: center; justify-content: space-between; padding: 0 16px; font-size: 12.5px; font-weight: 600; border-bottom: 1px solid #334155; }
+        .sub-top-bar .active-tab-title { color: #f8fafc; font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .sub-top-bar .top-user-area { display: flex; align-items: center; gap: 8px; cursor: pointer; color: #e2e8f0; }
+        .top-avatar { width: 26px; height: 26px; border-radius: 50%; object-fit: cover; border: 1.5px solid var(--primary); background: #cbd5e1; }
 
-        /* MENU SIDEBAR 3 GẠCH */
-        .sidebar { position: absolute; top: 0; left: -280px; width: 280px; height: 100%; background: #0f172a; color: white; z-index: 100; transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1); display: flex; flex-direction: column; box-shadow: 10px 0 30px rgba(0,0,0,0.25); }
-        .sidebar.open { left: 0; }
-        .sidebar-header { padding: 30px 20px; background: #1e293b; font-size: 22px; font-weight: bold; border-bottom: 1px solid #334155; }
-        .sidebar-menu { list-style: none; padding: 0; margin: 0; }
-        .sidebar-item { padding: 16px 20px; border-bottom: 1px solid #1e293b; cursor: pointer; font-weight: 500; display: flex; align-items: center; gap: 12px; }
-        .sidebar-item:hover, .sidebar-item.active { background: var(--primary); }
-        .sidebar-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 99; display: none; backdrop-filter: blur(4px); }
-
-        /* NỘI DUNG TAB */
-        .app-content { flex: 1; padding: 20px; overflow-y: auto; box-sizing: border-box; background: #f8fafc; }
-        .tab-panel { display: none; width: 100%; height: 100%; animation: fadeIn 0.3s ease; }
+        /* CONTENT AREA */
+        .app-content { flex: 1; padding: 16px; overflow-y: auto; box-sizing: border-box; background: #f1f5f9; padding-bottom: 80px; }
+        .tab-panel { display: none; width: 100%; height: 100%; animation: fadeIn 0.25s ease; }
         .tab-panel.active { display: block; }
 
-        /* ĐỘI TƯỢNG DANH SÁCH */
-        .item-card { background: white; padding: 15px; margin: 10px 0; border-radius: 14px; border: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 6px rgba(0,0,0,0.01); }
-        .item-info { display: flex; flex-direction: column; gap: 3px; }
-        .status-dot { width: 11px; height: 11px; border-radius: 50%; display: inline-block; margin-right: 6px; }
-        .status-online { background-color: var(--success); box-shadow: 0 0 10px #4caf50; }
-        .status-offline { background-color: #94a3b8; }
-        .rank-admin { background: var(--danger); color: white; font-size: 11px; padding: 3px 8px; border-radius: 6px; font-weight: bold; }
+        /* 2. THANH TAB BAR ĐÁY MỚI (V1.3) */
+        .bottom-tab-bar { position: absolute; bottom: 0; left: 0; width: 100%; height: 65px; background: #ffffff; border-top: 1px solid #e2e8f0; display: flex; justify-content: space-around; align-items: center; z-index: 999; box-shadow: 0 -4px 20px rgba(0,0,0,0.04); }
+        .tab-btn { display: flex; flex-direction: column; align-items: center; justify-content: center; background: none; border: none; padding: 0; margin: 0; color: #64748b; font-size: 11px; font-weight: bold; width: 22%; height: 100%; box-shadow: none; border-radius: 0; transition: color 0.2s; }
+        .tab-btn i { font-size: 20px; margin-bottom: 3px; }
+        .tab-btn.active { color: var(--primary); }
 
-        /* CẤU TRÚC PHÒNG CHAT BẢO MẬT */
-        .chat-container { display: flex; flex-direction: column; height: 100%; background: white; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.03); border: 1px solid #e2e8f0; overflow: hidden; }
-        .chat-messages { flex: 1; background: #f1f5f9; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
-        .msg { padding: 12px 16px; border-radius: 14px; max-width: 75%; width: fit-content; font-size: 14.5px; word-break: break-all; display: flex; flex-direction: column; box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
+        /* MENU THÊM POPUP */
+        .more-menu-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15,23,42,0.4); backdrop-filter: blur(4px); z-index: 1000; display: none; animation: fadeIn 0.2s; }
+        .more-menu-content { position: absolute; bottom: 75px; right: 16px; background: white; border-radius: 20px; width: 220px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); border: 1px solid #e2e8f0; padding: 8px; animation: slideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1); }
+        .more-item { display: flex; align-items: center; gap: 12px; padding: 12px 16px; font-size: 14px; font-weight: 600; color: #334155; cursor: pointer; border-radius: 12px; transition: background 0.2s; }
+        .more-item:hover { background: #f1f5f9; color: var(--primary); }
+
+        /* TÀI KHOẢN POPUP OVERLAY */
+        .account-popup-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15,23,42,0.4); backdrop-filter: blur(4px); z-index: 1001; display: none; }
+        .account-popup-content { position: absolute; top: 50px; right: 16px; background: white; border-radius: 24px; width: 300px; box-shadow: 0 15px 40px rgba(0,0,0,0.18); border: 1px solid #e2e8f0; padding: 16px; animation: slideUp 0.25s ease; }
+        
+        /* CARDS & UI ELEMENTS */
+        .item-card { background: white; padding: 14px; margin: 8px 0; border-radius: 16px; border: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 6px rgba(0,0,0,0.01); }
+        .item-info { display: flex; flex-direction: column; gap: 3px; }
+        .status-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; margin-right: 6px; }
+        .status-online { background-color: var(--success); box-shadow: 0 0 8px #4caf50; }
+        .status-offline { background-color: #94a3b8; }
+        
+        /* CHAT ROOM */
+        .chat-container { display: flex; flex-direction: column; height: 100%; background: white; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.02); border: 1px solid #e2e8f0; overflow: hidden; }
+        .chat-messages { flex: 1; background: #f8fafc; padding: 16px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; }
+        .msg { padding: 10px 14px; border-radius: 16px; max-width: 75%; width: fit-content; font-size: 14px; word-break: break-all; display: flex; flex-direction: column; position: relative; box-shadow: 0 1px 3px rgba(0,0,0,0.02); }
         .msg.me { background: linear-gradient(135deg, #0288d1, #0091ea); color: white; align-self: flex-end; border-bottom-right-radius: 2px; }
         .msg.other { background: white; color: #1e293b; align-self: flex-start; border-bottom-left-radius: 2px; border: 1px solid #e2e8f0; }
-        .msg-time { font-size: 10px; opacity: 0.6; align-self: flex-end; margin-top: 5px; }
-        .msg-del-btn { color: var(--danger); background: none; border: none; padding: 0; margin: 4px 0 0 0; font-size: 11px; cursor: pointer; text-align: left; text-decoration: underline; font-weight: normal; }
-        .chat-input-area { display: flex; gap: 10px; padding: 15px; background: white; border-top: 1px solid #e2e8f0; }
+        .msg-time { font-size: 9px; opacity: 0.6; align-self: flex-end; margin-top: 4px; }
+        .msg-del-btn { color: #f87171; background: none; border: none; padding: 0; margin: 4px 0 0 0; font-size: 11px; cursor: pointer; text-align: left; text-decoration: underline; font-weight: normal; box-shadow: none; }
+        
+        .chat-input-area { display: flex; gap: 8px; padding: 12px; background: white; border-top: 1px solid #e2e8f0; }
         .chat-input-area input { flex: 1; margin: 0; }
-        .chat-input-area button { margin: 0; width: auto; padding: 0 25px; }
+        .chat-input-area button { margin: 0; width: auto; padding: 0 20px; border-radius: 10px; }
 
-        /* POPUP MODAL TÙY CHỌN TRONG CHAT */
-        .chat-settings-panel { background: #f8fafc; padding: 15px; border-bottom: 1px solid #e2e8f0; display: flex; flex-direction: column; gap: 8px; font-size: 13.5px; }
+        .chat-settings-panel { background: #f8fafc; padding: 12px; border-bottom: 1px solid #e2e8f0; display: flex; flex-direction: column; gap: 8px; font-size: 13px; }
 
-        /* KHUNG QUẢN LÝ DATABASE */
-        #adminBox { position: absolute; z-index: 99999; border: 3px solid var(--danger); top: 5%; left: 5%; width: 90%; max-width: 380px; background: #fff; border-radius: 16px; box-shadow: 0 20px 50px rgba(0,0,0,0.3); padding: 20px; }
+        #adminBox { position: fixed; z-index: 999999; border: 3px solid var(--danger); top: 10%; left: 5%; width: 90%; max-width: 380px; background: #fff; border-radius: 20px; box-shadow: 0 20px 6px rgba(0,0,0,0.3); padding: 20px; color:#1e293b; }
+        .switch-acc-item { display: flex; justify-content: space-between; align-items: center; background: #f1f5f9; padding: 8px 12px; margin: 4px 0; border-radius: 10px; font-size: 13px; font-weight: bold; }
 
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        @keyframes slideUp { from { transform: translateY(25px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
     </style>
 </head>
 <body>
 
     <div id="pinLockScreen" class="pin-screen hidden">
-        <h2 id="pinLockTitle">Nhập Mã PIN Để Mở Khóa Ancall</h2>
+        <h3 id="pinLockTitle">Nhập Mã PIN Bảo Mật</h3>
         <div class="pin-dots">
             <div class="pin-dot" id="dot0"></div>
             <div class="pin-dot" id="dot1"></div>
@@ -128,125 +160,141 @@
             <div class="pin-key" onclick="pressPinKey('0')">0</div>
             <div class="pin-key" onclick="pressPinKey('⌫')">⌫</div>
         </div>
-        <button id="btnForgotPin" class="btn-orange" style="margin-top:20px; font-size:13px; padding:6px 15px; border-radius:20px;">Quên Mã PIN?</button>
+        <button id="btnForgotPin" class="btn-orange" style="margin-top:15px; font-size:12px; padding:6px 14px; border-radius:20px;">Quên Mã PIN?</button>
     </div>
 
     <div id="introScreen" class="intro-screen">
-        <h1>Ancall Premium</h1>
+        <h1 style="letter-spacing: 1px; margin-bottom: 5px;">Ancall App</h1>
+        <div style="font-size: 13px; color: var(--primary); font-weight: bold; margin-bottom: 25px;">SIÊU CẬP NHẬT PHIÊN BẢN 1.3</div>
         <div class="intro-card">
-            <h3>Trò Chuyện Bảo Mật 1.2</h3>
-            <p>• Nhắn tin giao lưu bằng văn bản mã hóa cực nhanh.</p>
-            <p>• An toàn tuyệt đối: Chặn truyền tải Ảnh, Video và Tiệp tin rác.</p>
-            <p>• <b>Xóa tự động:</b> Mọi dữ liệu hội thoại biến mất sau 24 giờ!</p>
+            <h3 style="margin-top:0; color:var(--primary)">Giao Lưu Kết Nối Toàn Diện</h3>
+            <p style="text-align:left; font-size:13.5px; line-height:1.6; margin:0; color:#cbd5e1;">
+                • Hệ thống Chat dọn sạch dữ liệu tự động sau đúng <b>2 ngày (48 giờ)</b>.<br>
+                • An toàn tuyệt đối: Chặn truyền tải Ảnh, Video và Tiệp tin.<br>
+                • Hệ thống Rank tích lũy Kent nâng cấp diện mạo cá nhân.<br>
+                • Đa tài khoản: Chuyển đổi siêu tốc trên một thiết bị máy máy.
+            </p>
         </div>
-        <button id="startAppBtn" class="btn-green" style="padding: 14px 40px; font-size: 16px; border-radius: 30px; box-shadow: 0 4px 15px rgba(76,175,80,0.4);">Bắt Đầu Trải Nghiệm</button>
+        <button id="startAppBtn" class="btn-blue" style="padding: 14px 45px; font-size: 15px; border-radius: 30px; box-shadow: 0 4px 15px rgba(2,136,209,0.4);">Khám Phá Ngay</button>
         <div class="credit-text">Web by: Nguyễn trọng an</div>
     </div>
 
     <div id="authScreen" class="auth-screen hidden">
         <div id="registerForm" class="box">
-            <h2>Đăng Ký Tài Khoản</h2>
-            <input type="text" id="regFullName" placeholder="Họ và tên thật (3-16 ký tự)">
+            <h2 style="margin-top:0;">Đăng Ký Thành Viên</h2>
+            <input type="text" id="regFullName" placeholder="Họ và tên hiển thị (3-16 ký tự)">
             <input type="text" id="regUsername" placeholder="Tên người dùng (không dấu, 6-12 ký tự)">
             <input type="password" id="regPassword" placeholder="Mật khẩu (không dấu, 6-12 ký tự)">
-            <button id="regBtn" class="btn-blue" style="width:100%; margin-top:10px;">Tạo Tài Khoản Mới</button>
+            <button id="regBtn" class="btn-blue" style="width:100%; margin-top:10px;">Khởi Tạo Tài Khoản</button>
             <p id="regStatus" class="status"></p>
-            <p style="text-align: center; font-size: 14px; margin-bottom:0; color:#64748b;">Đã có tài khoản? <a href="#" id="toLogin" style="color:var(--primary); font-weight:bold;">Đăng nhập</a></p>
+            <p style="text-align: center; font-size: 13px; margin-bottom:0; color:#64748b;">Đã có tài khoản? <a href="#" id="toLogin" style="color:var(--primary); font-weight:bold; text-decoration:none;">Đăng nhập</a></p>
         </div>
 
         <div id="loginForm" class="box hidden">
-            <h2 id="loginTitle">Đăng Nhập Ancall</h2>
+            <h2 id="loginTitle" style="margin-top:0;">Đăng Nhập Ancall</h2>
             <input type="text" id="loginUsername" placeholder="Tên người dùng">
             <input type="password" id="loginPassword" placeholder="Mật khẩu">
             <button id="loginBtn" class="btn-green" style="width:100%; margin-top:10px;">Đăng Nhập Hệ Thống</button>
             <p id="loginStatus" class="status"></p>
-            <p style="text-align: center; font-size: 14px; margin-bottom:0; color:#64748b;">Chưa có tài khoản? <a href="#" id="toRegister" style="color:var(--primary); font-weight:bold;">Đăng ký ngay</a></p>
+            <p style="text-align: center; font-size: 13px; margin-bottom:0; color:#64748b;">Chưa có tài khoản? <a href="#" id="toRegister" style="color:var(--primary); font-weight:bold; text-decoration:none;">Đăng ký ngay</a></p>
         </div>
     </div>
 
     <div id="adminBox" class="box hidden">
-        <h3 style="margin-top:0;">Hệ Quản Trị Trung Tâm</h3>
+        <h3 style="margin-top:0; color:var(--danger)">Hệ Quản Trị Hệ Thống Tối Cao</h3>
         <div style="background:#f1f5f9; padding:10px; border-radius:10px; margin-bottom:10px;">
-            <b style="font-size:12px;">Cấp tốc tạo tài khoản:</b>
+            <b style="font-size:12px;">Ép tạo tài khoản nhanh:</b>
             <input type="text" id="admUser" placeholder="Username (6-12)">
-            <input type="text" id="admName" placeholder="Họ tên (3-16)">
+            <input type="text" id="admName" placeholder="Họ tên hiển thị (3-16)">
             <input type="text" id="admPass" placeholder="Mật khẩu (6-12)">
-            <button id="admCreateBtn" class="btn-green" style="width:100%; padding:6px; font-size:12px;">Ép Tạo Tài Khoản</button>
+            <button id="admCreateBtn" class="btn-green" style="width:100%; padding:8px; font-size:12px;">Tạo Ép Buộc</button>
         </div>
-        <b style="font-size:12px;">Danh sách tài khoản & Cấu hình Admin vĩnh viễn:</b>
-        <div id="adminUserList" style="max-height: 130px; overflow-y:auto; border:1px solid #cbd5e1; padding:5px; margin-top:5px; background:#f8fafc;"></div>
-        <button id="exitAdminBtn" class="btn-red" style="width:100%; margin-top:10px;">Đóng Bảng Quản Lý</button>
+        <b style="font-size:12px;">Cấu hình Admin Vĩnh Viễn:</b>
+        <div id="adminUserList" style="max-height: 120px; overflow-y:auto; border:1px solid #cbd5e1; padding:5px; margin-top:5px; background:#f8fafc; border-radius:8px;"></div>
+        <button id="exitAdminBtn" class="btn-red" style="width:100%; margin-top:10px; padding:8px;">Đóng Bảng Quản Lý</button>
     </div>
 
     <div id="appScreen" class="app-container hidden">
-        <div class="app-header">
-            <button class="header-btn" id="menuBtn">☰</button>
-            <h3 id="appHeaderTitle">Ancall Trang Chủ</h3>
-            <button class="header-btn" id="profileMenuBtn">👤</button>
+        
+        <div class="sub-top-bar">
+            <div class="active-tab-title" id="txtSubTopTitle">Trang chủ</div>
+            <div id="txtSubTopTime">00:00:00</div>
+            <div class="top-user-area" id="topUserAreaTrigger">
+                <img src="" id="imgTopAvatar" class="top-avatar" alt="avt">
+                <span id="txtTopDisplayUser">User</span>
+            </div>
         </div>
 
-        <div class="sidebar-overlay" id="sidebarOverlay"></div>
-        <div class="sidebar" id="sidebar">
-            <div class="sidebar-header">Ancall Menu</div>
-            <ul class="sidebar-menu">
-                <li class="sidebar-item active" data-tab="tabHome">🏠 Trang chủ</li>
-                <li class="sidebar-item" data-tab="tabPay">💳 Pay (Ví Kent)</li>
-                <li class="sidebar-item" data-tab="tabFriends">👥 Bạn bè & Thành viên</li>
-                <li class="sidebar-item" data-tab="tabMailBox">📥 Hộp thư yêu cầu</li>
-                <li class="sidebar-item" data-tab="tabTeam">🛡️ Team (Nhóm bảo mật)</li>
-                <li class="sidebar-item hidden" id="menuAdminTab" data-tab="tabAdminPanel" style="background:rgba(239,68,68,0.15); color:#f87171;">⚡ QUẢN TRỊ ADMIN</li>
-            </ul>
-            <div style="margin: auto; text-align: center; font-size: 11px; color: #64748b; font-weight: bold;">Web by: Nguyễn trọng an</div>
-            <button id="logoutBtn" class="btn-red" style="margin: 15px;">Đăng Xuất</button>
+        <div class="account-popup-overlay" id="accountPopupOverlay">
+            <div class="account-popup-content">
+                <h4 style="margin-top:0; border-bottom:1px solid #e2e8f0; padding-bottom:8px; margin-bottom:10px;">Tác vụ tài khoản</h4>
+                <div class="more-item" id="actGoProfile">👤 Hồ sơ tài khoản</div>
+                <div class="more-item" id="actGoSetting">⚙️ Cài đặt (Settings)</div>
+                <div class="more-item" id="actLogout" style="color:var(--danger)">🚪 Đăng xuất khỏi thiết bị</div>
+                
+                <h5 style="margin:10px 0 5px 0; color:#64748b; border-top:1px solid #e2e8f0; padding-top:8px;">Chuyển đổi tài khoản nhanh</h5>
+                <div id="boxSwitchAccounts"></div>
+            </div>
         </div>
 
         <div class="app-content">
             
             <div id="tabHome" class="tab-panel active">
-                <h2>Chào mừng bạn đến với Hệ sinh thái Ancall! <span id="homeAdminBadge"></span></h2>
-                <p>Nền tảng giao lưu, trò chuyện và trao đổi Kent an toàn. Hãy mở thanh menu bên trái để bắt đầu khám phá các phân hệ tính năng.</p>
-                <div style="background:#e0f2fe; padding:20px; border-radius:14px; margin-top:25px; border-left:5px solid var(--primary); box-shadow:0 4px 6px rgba(0,0,0,0.02);">
-                    <h4 style="margin-top:0;">🛡️ Chu kỳ dọn dẹp bộ nhớ tự động:</h4>
-                    <p style="font-size:13.5px; color:#334155; margin-bottom:0; line-height:1.5;">Toàn bộ tin nhắn phát sinh trong các cuộc trò chuyện Bạn bè và Đội nhóm (Team) được cấu trúc thời gian và sẽ tự động biến mất vĩnh viễn sau đúng 24 giờ kể từ thời điểm gửi.</p>
+                <h2>Chào mừng bạn đến với Ancall! <span id="homeAdminBadge"></span></h2>
+                <div style="background:white; padding:15px; border-radius:16px; border:1px solid #e2e8f0; margin-bottom:15px;">
+                    <b>Cấp bậc hiện tại của bạn:</b> <span id="txtHomeUserRank">Loading...</span>
+                </div>
+
+                <div style="background:#f8fafc; border-left:4px solid var(--primary); padding:15px; border-radius:12px; margin-bottom:15px; box-shadow:0 2px 4px rgba(0,0,0,0.02);">
+                    <h4 style="margin:0 0 6px 0; color:var(--primary)">📋 Nhật Ký Cập Nhật (Log Update 1.3)</h4>
+                    <p style="font-size:12.5px; color:#475569; margin:0; line-height:1.5;">
+                        • Thiết lập lại chu kỳ dọn kho dữ liệu: Reset toàn bộ tin nhắn chat bạn bè và chat nhóm sau mỗi <b>2 ngày</b> thay vì 24h.<br>
+                        • Nâng cấp giao diện cấu trúc Tab Bar đáy và Top Bar hiển thị giờ thực.<br>
+                        • Tích hợp tính năng mua và nâng cấp 6 cấp độ Rank bằng tiền tệ Kent.<br>
+                        • Cho phép liên kết và hoán đổi nhanh đa tài khoản trực tiếp trên máy tính/điện thoại.<br>
+                        • Bổ sung tùy chọn Cài đặt Chat tự động xóa tin nhắn theo phút/giờ cấu hình.
+                    </p>
                 </div>
             </div>
 
             <div id="tabPay" class="tab-panel">
                 <h2>Ví Điện Tử Ancall Pay</h2>
-                <div style="background: linear-gradient(135deg, #fffbeb, #fef3c7); border: 2px dashed #f59e0b; padding: 25px; border-radius:16px; text-align:center; margin-bottom:20px; box-shadow: 0 4px 12px rgba(245,158,11,0.08);">
-                    <span style="font-size:12px; color:#78350f; font-weight:bold; letter-spacing:1.5px;">SỐ DƯ ĐANG SỞ HỮU</span>
-                    <h1 style="margin:8px 0; color:#d97706; font-size:36px;"><span id="txtKentBal">0</span> KENT</h1>
+                <div style="background: linear-gradient(135deg, #fffbeb, #fef3c7); border: 2px dashed #f59e0b; padding: 20px; border-radius:20px; text-align:center; margin-bottom:15px;">
+                    <span style="font-size:11px; color:#78350f; font-weight:bold; letter-spacing:1px;">SỐ DƯ SỞ HỮU</span>
+                    <h1 style="margin:6px 0; color:#d97706; font-size:32px;"><span id="txtKentBal">0</span> KENT</h1>
                 </div>
-                <button id="btnClaimKent" class="btn-orange" style="width:100%; border-radius:10px;">🎁 Điểm danh nhận thưởng 5 Kent (Hàng giờ)</button>
-                <p id="claimTimerStatus" style="font-size:13px; font-weight:bold; text-align:center; color:var(--success); min-height:18px;"></p>
-                <hr style="border:none; border-top:1px solid #e2e8f0; margin:20px 0;">
+                <button id="btnClaimKent" class="btn-orange" style="width:100%;">🎁 Nhận Kent Mỗi Giờ (+5 Kent)</button>
+                <p id="claimTimerStatus" style="font-size:12px; font-weight:bold; text-align:center; color:var(--success); min-height:16px; margin:4px 0;"></p>
+                
+                <hr style="border:none; border-top:1px solid #e2e8f0; margin:15px 0;">
+                
                 <h4>Chuyển khoản Kent siêu tốc:</h4>
-                <input type="text" id="payTarget" placeholder="Nhập tên người dùng đích nhận tiền...">
-                <input type="number" id="payAmount" placeholder="Số lượng Kent chuyển đi...">
-                <button id="btnTransferKent" class="btn-blue" style="width:100%;">Xác Nhận Chuyển Khoản</button>
+                <input type="text" id="payTarget" placeholder="Tên người dùng nhận...">
+                <input type="number" id="payAmount" placeholder="Số lượng Kent...">
+                <button id="btnTransferKent" class="btn-blue" style="width:100%;">Xác Nhận Chuyển Tiền</button>
                 <p id="payResultStatus" class="status"></p>
             </div>
 
             <div id="tabFriends" class="tab-panel">
                 <div id="friendMainView">
-                    <div style="background:white; padding:15px; border-radius:14px; border:1px solid #e2e8f0; margin-bottom:20px;">
-                        <b style="font-size:14px; display:block; margin-bottom:5px;">Gửi lời mời kết bạn mới:</b>
-                        <div style="display:flex; gap:8px;">
-                            <input type="text" id="reqTargetUser" placeholder="Nhập chính xác username người nhận..." style="margin:0;">
-                            <button id="btnSendRequest" class="btn-blue" style="margin:0; width:auto;">Gửi Lời Mời</button>
+                    <div style="background:white; padding:12px; border-radius:16px; border:1px solid #e2e8f0; margin-bottom:15px;">
+                        <b style="font-size:13px; display:block; margin-bottom:4px;">Gửi lời mời kết bạn:</b>
+                        <div style="display:flex; gap:6px;">
+                            <input type="text" id="reqTargetUser" placeholder="Nhập username chính xác..." style="margin:0;">
+                            <button id="btnSendRequest" class="btn-blue" style="margin:0; width:auto;">Gửi Lời</button>
                         </div>
-                        <p id="reqActionStatus" class="status" style="margin-top:5px;"></p>
+                        <p id="reqActionStatus" class="status" style="margin:4px 0 0 0; font-size:12px;"></p>
                     </div>
 
-                    <h4>👥 Danh Sách Bạn Bè</h4>
-                    <div id="boxFriendItems" style="margin-bottom:25px;"></div>
+                    <h4>👥 Bạn Bè Của Bạn</h4>
+                    <div id="boxFriendItems" style="margin-bottom:20px;"></div>
 
-                    <h4>🌐 Thành Viên Hệ Thống (Người Lạ)</h4>
+                    <h4>🌐 Danh Sách Người Lạ</h4>
                     <div id="boxStrangerItems"></div>
                 </div>
 
                 <div id="friendChatView" class="chat-container hidden">
-                    <div style="display:flex; justify-content:space-between; align-items:center; background:#fff; padding:5px 10px; border-bottom:1px solid #e2e8f0;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; background:#fff; padding:6px 10px; border-bottom:1px solid #e2e8f0;">
                         <button id="btnExitFriendChat" class="btn-red" style="padding:6px 12px; font-size:12px;">← Trở Lại</button>
                         <h4 id="txtFriendChatHeader" style="margin:0;">Hội thoại</h4>
                         <button id="btnToggleFriendChatSettings" class="btn-orange" style="padding:6px 12px; font-size:12px;">⚙️ Cài đặt</button>
@@ -254,131 +302,186 @@
 
                     <div id="friendChatSettingsPanel" class="chat-settings-panel hidden">
                         <div>
-                            <b>Biệt danh riêng tư (Chỉ mình bạn thấy):</b>
-                            <div style="display:flex; gap:5px; margin-top:3px;">
-                                <input type="text" id="cfgFriendNickname" placeholder="Nhập biệt danh độc bản..." style="margin:0; padding:6px;">
+                            <b>Biệt danh riêng tư (Chỉ bạn nhìn thấy):</b>
+                            <div style="display:flex; gap:5px; margin-top:2px;">
+                                <input type="text" id="cfgFriendNickname" placeholder="Nhập biệt danh độc nhất..." style="margin:0; padding:6px;">
                                 <button id="btnSaveFriendNickname" class="btn-blue" style="margin:0; padding:4px 12px;">Lưu</button>
                             </div>
                         </div>
-                        <div style="margin-top:5px; border-top:1px solid #e2e8f0; padding-top:8px;">
-                            <b>Khóa bảo mật phòng chat (Mã PIN 4 số):</b>
-                            <div style="display:flex; gap:5px; align-items:center; margin-top:3px;">
-                                <input type="password" id="cfgFriendChatPass" placeholder="Nhập 4 số số..." maxlength="4" style="margin:0; padding:6px; width:140px;">
-                                <button id="btnSaveFriendChatPass" class="btn-green" style="margin:0; padding:4px 10px;">Bật/Đổi khóa</button>
-                                <button id="btnDisableFriendChatPass" class="btn-red" style="margin:0; padding:4px 10px;">Tắt khóa</button>
+                        <div style="margin-top:4px; border-top:1px solid #e2e8f0; padding-top:6px;">
+                            <b>Mật khẩu bảo mật phòng chat (4 chữ số):</b>
+                            <div style="display:flex; gap:5px; align-items:center; margin-top:2px;">
+                                <input type="password" id="cfgFriendChatPass" placeholder="Mã khóa 4 số" maxlength="4" style="margin:0; padding:6px; width:120px;">
+                                <button id="btnSaveFriendChatPass" class="btn-green" style="margin:0; padding:4px 10px;">Bật/Đổi</button>
+                                <button id="btnDisableFriendChatPass" class="btn-red" style="margin:0; padding:4px 10px;">Tắt</button>
                             </div>
                         </div>
-                        <div style="margin-top:5px; border-top:1px solid #e2e8f0; padding-top:8px;">
+                        <div style="margin-top:4px; border-top:1px solid #e2e8f0; padding-top:6px;">
                             <button id="btnDeleteFriendShip" class="btn-red" style="width:100%; padding:6px; margin:0; font-size:12px;">❌ HỦY KẾT BẠN (XÓA BẠN BÈ)</button>
                         </div>
                     </div>
 
                     <div class="chat-messages" id="areaFriendMessages"></div>
                     <div class="chat-input-area">
-                        <input type="text" id="inputFriendMsg" placeholder="Nhập nội dung tin nhắn văn bản...">
+                        <input type="text" id="inputFriendMsg" placeholder="Nhập nội dung văn bản... (Enter để gửi)">
                         <button id="btnSendFriendMsg" class="btn-blue">Gửi</button>
                     </div>
                 </div>
             </div>
 
             <div id="tabMailBox" class="tab-panel">
-                <h2>📥 Hộp Thư Lời Mời Kết Bạn</h2>
+                <h2>📥 Hộp Thư Hệ Thống</h2>
                 <div id="boxMailRequests"></div>
             </div>
 
             <div id="tabTeam" class="tab-panel">
                 <div id="teamMainView">
-                    <div style="background:white; padding:15px; border-radius:14px; border:1px solid #e2e8f0; margin-bottom:20px;">
-                        <b style="font-size:14px; display:block; margin-bottom:5px;">Sáng lập đội nhóm mới:</b>
-                        <div style="display:flex; gap:8px;">
-                            <input type="text" id="inputTeamName" placeholder="Đặt tên nhóm hội quân..." style="margin:0;">
-                            <button id="btnCreateTeam" class="btn-green" style="margin:0; width:auto;">Khởi Tạo Nhóm</button>
+                    <div style="background:white; padding:12px; border-radius:16px; border:1px solid #e2e8f0; margin-bottom:15px;">
+                        <b style="font-size:13px; display:block; margin-bottom:4px;">Sáng lập nhóm chat mới:</b>
+                        <div style="display:flex; gap:6px;">
+                            <input type="text" id="inputTeamName" placeholder="Đặt tên nhóm quân hội..." style="margin:0;">
+                            <button id="btnCreateTeam" class="btn-green" style="margin:0; width:auto;">Tạo Nhóm</button>
                         </div>
-                        <p id="teamActionStatus" class="status" style="margin-top:5px;"></p>
+                        <p id="teamActionStatus" class="status" style="margin:4px 0 0 0; font-size:12px;"></p>
                     </div>
 
-                    <h4>🛡️ Phòng Nhóm Đang Tham Gia</h4>
+                    <h4>🛡️ Nhóm Bạn Đang Tham Gia</h4>
                     <div id="boxTeamItems"></div>
                 </div>
 
                 <div id="teamChatView" class="chat-container hidden">
-                    <div style="display:flex; justify-content:space-between; align-items:center; background:#fff; padding:5px 10px; border-bottom:1px solid #e2e8f0;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; background:#fff; padding:6px 10px; border-bottom:1px solid #e2e8f0;">
                         <button id="btnExitTeamChat" class="btn-red" style="padding:6px 12px; font-size:12px;">← Rời Phòng</button>
                         <h4 id="txtTeamChatHeader" style="margin:0;">Nhóm Chat</h4>
-                        <button id="btnToggleTeamManage" class="btn-orange" style="padding:6px 12px; font-size:12px; display:none;" id="btnTeamManageTrigger">⚙️ Quản trị</button>
+                        <button id="btnToggleTeamManage" class="btn-orange" style="padding:6px 12px; font-size:12px; display:none;">⚙️ Quản trị</button>
                     </div>
                     
                     <div id="teamManagePanel" class="chat-settings-panel hidden">
-                        <b style="color:var(--primary)">🛠️ BẢN ĐIỀU HÀNH NHÓM NÂNG CAO:</b>
-                        <div style="display:flex; gap:4px; align-items:center;">
-                            <input type="text" id="teamInviteUser" placeholder="Nhập username thành viên mời..." style="margin:0; padding:6px;">
-                            <button id="btnTeamInvite" class="btn-blue" style="margin:0; padding:6px 12px;">Mời Vào Nhóm</button>
+                        <b style="color:var(--primary)">🛠️ ĐIỀU HÀNH NHÓM NÂNG CAO:</b>
+                        <div style="display:flex; gap:4px;">
+                            <input type="text" id="teamInviteUser" placeholder="Username mời..." style="margin:0; padding:6px;">
+                            <button id="btnTeamInvite" class="btn-blue" style="margin:0; padding:6px 12px;">Mời</button>
                         </div>
-                        <div style="display:flex; gap:4px; margin-top:3px;">
-                            <input type="text" id="nickTargetUser" placeholder="Username..." style="margin:0; padding:6px; width:30%;">
-                            <input type="text" id="nickValue" placeholder="Biệt danh nhóm..." style="margin:0; padding:6px; width:50%;">
-                            <button id="btnSetNickname" class="btn-orange" style="margin:0; padding:6px; font-size:12px; width:20%;">Đặt tên</button>
+                        <div style="display:flex; gap:4px; margin-top:2px;">
+                            <input type="text" id="nickTargetUser" placeholder="User..." style="margin:0; padding:6px; width:30%;">
+                            <input type="text" id="nickValue" placeholder="Biệt danh..." style="margin:0; padding:6px; width:50%;">
+                            <button id="btnSetNickname" class="btn-orange" style="margin:0; padding:6px; font-size:11px; width:20%;">Đặt</button>
                         </div>
-                        <div style="display:flex; gap:5px; margin-top:3px; background:#fff; padding:6px; border-radius:8px; border:1px solid #ddd;">
-                            <input type="text" id="teamMemberActionUser" placeholder="Username thành viên..." style="margin:0; padding:6px; width:40%;">
-                            <button id="btnTeamKick" class="btn-red" style="margin:0; padding:6px; font-size:12px; width:20%;">Kích</button>
-                            <button id="btnTeamSetPho" class="btn-blue" style="margin:0; padding:6px; font-size:11px; width:20%;">Lên Phó</button>
-                            <button id="btnTeamDemotePho" class="btn-orange" style="margin:0; padding:6px; font-size:11px; width:20%;">Bãi Phó</button>
+                        <div style="display:flex; gap:4px; margin-top:2px; background:#fff; padding:4px; border-radius:8px; border:1px solid #ddd;">
+                            <input type="text" id="teamMemberActionUser" placeholder="Username đích..." style="margin:0; padding:6px; width:40%;">
+                            <button id="btnTeamKick" class="btn-red" style="margin:0; padding:6px; font-size:11px; width:20%;">Kích</button>
+                            <button id="btnTeamSetPho" class="btn-blue" style="margin:0; padding:6px; font-size:10px; width:20%;">Lên Phó</button>
+                            <button id="btnTeamDemotePho" class="btn-orange" style="margin:0; padding:6px; font-size:10px; width:20%;">Bãi Phó</button>
                         </div>
-                        <div style="display:flex; gap:5px; margin-top:3px; border-top:1px solid #ddd; padding-top:8px;">
-                            <input type="text" id="teamNewNameInput" placeholder="Nhập tên nhóm mới..." style="margin:0; padding:6px; flex:1;">
-                            <button id="btnChangeTeamName" class="btn-green" style="margin:0; padding:6px;">Đổi tên nhóm</button>
+                        <div style="display:flex; gap:4px; margin-top:2px;">
+                            <input type="text" id="teamNewNameInput" placeholder="Tên nhóm mới..." style="margin:0; padding:6px; flex:1;">
+                            <button id="btnChangeTeamName" class="btn-green" style="margin:0; padding:6px;">Đổi tên</button>
                         </div>
-                        <button id="btnDeleteTeam" class="btn-red" style="width:100%; padding:6px; margin-top:4px; font-size:12px;">💥 GIẢI TÁN / XÓA HOÀN TOÀN NHÓM</button>
+                        <button id="btnDeleteTeam" class="btn-red" style="width:100%; padding:6px; margin-top:2px; font-size:12px;">💥 XÓA / GIẢI TÁN HOÀN TOÀN NHÓM</button>
                     </div>
 
                     <div class="chat-messages" id="areaTeamMessages"></div>
                     <div class="chat-input-area">
-                        <input type="text" id="inputTeamMsg" placeholder="Gõ văn bản trò chuyện nhóm...">
+                        <input type="text" id="inputTeamMsg" placeholder="Gõ văn bản trò chuyện... (Enter gửi)">
                         <button id="btnSendTeamMsg" class="btn-green">Gửi</button>
                     </div>
                 </div>
             </div>
 
+            <div id="tabRankShop" class="tab-panel">
+                <h2>Cửa Hàng Cấp Bậc Rank Ancall</h2>
+                <p>Tích lũy đủ số lượng tài nguyên Kent để tiến hành giao dịch nâng cấp vĩnh viễn danh hiệu hiển thị của bạn:</p>
+                <div id="boxRankShopList"></div>
+            </div>
+
             <div id="tabAdminPanel" class="tab-panel">
-                <h2>⚡ Bảng Điều Hành ADMIN Tối Cao</h2>
-                <p>Bạn đang có quyền lực cấp cao nhất: <span class="rank-admin">[ADMIN]</span>. Bạn sở hữu tài nguyên **Vô Hạn Kent**.</p>
-                <div style="background:white; padding:20px; border-radius:14px; border:1px solid #cbd5e1;">
-                    <h4>Phát / Tặng Kent cho thành viên:</h4>
-                    <input type="text" id="admGiftTarget" placeholder="Nhập username nhận Kent...">
-                    <input type="number" id="admGiftAmount" placeholder="Số lượng Kent muốn bơm tặng...">
-                    <button id="btnAdmGiftKent" class="btn-green" style="width:100%;">Thực Thi Bơm Phát Kent</button>
-                    <p id="admGiftStatus" class="status" style="margin-top:5px;"></p>
+                <h2>⚡ Bảng Điều Hành Tối Cao ADMIN</h2>
+                <p>Bạn đang sở hữu đặc quyền tối cao: <span class="rank-admin-rainbow">ADMIN</span>. Bạn được cấp nguồn tài nguyên **Vô Hạn Kent**.</p>
+                <div style="background:white; padding:15px; border-radius:16px; border:1px solid #cbd5e1;">
+                    <h4>Bơm phát Kent cho thành viên toàn hệ thống:</h4>
+                    <input type="text" id="admGiftTarget" placeholder="Nhập username đích nhận tiền...">
+                    <input type="number" id="admGiftAmount" placeholder="Số lượng Kent mong muốn...">
+                    <button id="btnAdmGiftKent" class="btn-green" style="width:100%;">Thực Thi Phát Cấp Kent</button>
+                    <p id="admGiftStatus" class="status" style="margin-top:4px;"></p>
                 </div>
             </div>
 
             <div id="tabProfile" class="tab-panel">
-                <h2>Thiết Lập Tài Khoản 👤</h2>
-                <p>Tên tài khoản: <strong id="lblProfUsername">---</strong> | Rank: <span id="lblProfRank" style="font-weight:bold; color:gray;">Thành viên</span></p>
-                
-                <label><b>Đổi họ và tên hiển thị (3-16 ký tự):</b></label>
-                <input type="text" id="txtProfName" placeholder="Họ và tên">
+                <h2>Thiết Lập Hồ Sơ Cá Nhân</h2>
+                <div style="background:white; padding:15px; border-radius:16px; border:1px solid #e2e8f0; margin-bottom:15px;">
+                    <label><b>Đổi hình đại diện (Dán link ảnh trực tiếp):</b></label>
+                    <input type="text" id="txtProfAvatarLink" placeholder="https://example.com/image.png">
+                    
+                    <label><b>Họ và tên hiển thị mới (3-16 chữ):</b></label>
+                    <input type="text" id="txtProfName" placeholder="Họ và tên">
 
-                <label><b>Tiểu sử cá nhân:</b></label>
-                <textarea id="txtProfBio" placeholder="Viết gì đó về bạn..." rows="2"></textarea>
-                
-                <label><b>Mật khẩu đăng nhập mới (6-12 ký tự không dấu):</b></label>
-                <input type="password" id="txtProfPass" placeholder="Để trống nếu không thay đổi">
+                    <label><b>Tiểu sử cá nhân:</b></label>
+                    <textarea id="txtProfBio" placeholder="Viết vài dòng giới thiệu..." rows="2"></textarea>
+                    
+                    <label><b>Đổi mật khẩu mới (Cần có mã PIN xác thực):</b></label>
+                    <input type="password" id="txtProfPass" placeholder="Bỏ trống nếu không thay đổi">
 
-                <hr style="border:none; border-top:1px solid #cbd5e1; margin:15px 0;">
-                <div style="background:#f1f5f9; padding:15px; border-radius:12px; border:1px solid #cbd5e1;">
-                    <b style="color:var(--primary-dark)">🔒 Thiết lập Mã PIN bảo mật ứng dụng (4 Chữ số):</b>
-                    <p style="font-size:12.5px; margin:4px 0; color:#475569;">Mã PIN dùng để khóa ứng dụng khi bạn vào lại app, không lộ cho bất kỳ ai.</p>
-                    <input type="password" id="txtProfPin" placeholder="Nhập 4 số mã PIN mới" maxlength="4" style="font-weight:bold; letter-spacing:4px;">
-                    <button id="btnUpdatePin" class="btn-orange" style="width:100%; margin:5px 0 0 0; padding:8px;">Cập Nhật Mã PIN Khóa Máy</button>
-                    <p id="pinSetupStatus" class="status" style="margin:0; font-size:12px;"></p>
+                    <button id="btnUpdateProfile" class="btn-blue" style="width:100%; margin-top:10px;">Lưu Cập Nhật Dữ Liệu</button>
+                    <p id="profActionStatus" class="status"></p>
                 </div>
 
-                <button id="btnUpdateProfile" class="btn-green" style="width:100%; margin-top:15px;">Lưu Thay Đổi Hồ Sơ</button>
-                <p id="profActionStatus" class="status"></p>
+                <div style="background:white; padding:15px; border-radius:16px; border:1px solid #cbd5e1;">
+                    <b style="color:var(--primary-dark)">🔒 Quản trị mã PIN bảo mật máy máy (4 Chữ số):</b>
+                    <p style="font-size:12px; margin:4px 0; color:#64748b;">Mã PIN dùng mở khóa khi vào ứng dụng. Đổi liên tục sẽ bị hệ thống cảnh báo cấm (Banned).</p>
+                    <input type="password" id="txtProfPin" placeholder="Nhập 4 số mã PIN" maxlength="4" style="font-weight:bold; letter-spacing:4px;">
+                    <button id="btnUpdatePin" class="btn-orange" style="width:100%; margin:5px 0 0 0; padding:8px;">Thiết Lập Mã PIN</button>
+                    <p id="pinSetupStatus" class="status" style="margin:0; font-size:12px;"></p>
+                </div>
+            </div>
+
+            <div id="tabSettings" class="tab-panel">
+                <h2>Hệ Thống Tùy Chọn Cài Đặt (Settings) <button class="btn-orange" id="btnSettingHelp" style="padding:4px 10px; font-size:12px; border-radius:8px;">Tìm hiểu 💡</button></h2>
+                
+                <div style="background:white; padding:15px; border-radius:16px; border:1px solid #e2e8f0; margin-bottom:15px;">
+                    <h4 style="margin-top:0;">1. Cấu hình tự động xóa tin nhắn Chat (Của mình)</h4>
+                    <label><input type="checkbox" id="chkAutoDeleteMsg"> Kích hoạt tự động xóa tin</label>
+                    <div style="margin-top:6px;">
+                        <span style="font-size:13px;">Thời gian hẹn giờ biến mất:</span>
+                        <select id="selAutoDeleteTime" style="padding:8px; margin-top:4px;">
+                            <option value="1">1 phút</option>
+                            <option value="15">15 phút</option>
+                            <option value="60">1 giờ</option>
+                            <option value="300">5 giờ</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div style="background:white; padding:15px; border-radius:16px; border:1px solid #e2e8f0; margin-bottom:15px;">
+                    <h4 style="margin-top:0;">2. Trạng thái hiển thị Hộp thư thông báo</h4>
+                    <label><input type="checkbox" id="chkShowMailBox" checked> Kích hoạt hiển thị Tab Hộp thư thông báo</label>
+                </div>
+
+                <div style="background:rgba(239,68,68,0.05); padding:15px; border-radius:16px; border:1px solid var(--danger);">
+                    <h4 style="margin-top:0; color:var(--danger)">3. Vùng Nguy Hiểm: Hủy Bỏ Tài Khoản</h4>
+                    <p style="font-size:12px; margin:4px 0; color:#64748b;">Hành động này sẽ xóa sổ hoàn toàn tài khoản của bạn khỏi hệ thống Cloud.</p>
+                    <input type="password" id="txtDeleteAccConfirmPass" placeholder="Nhập chính xác mật khẩu để thực thi...">
+                    <button id="btnDeleteAccountPermanently" class="btn-red" style="width:100%; margin-top:5px; padding:8px;">XÁC NHẬN XÓA TÀI KHOẢN</button>
+                </div>
             </div>
 
         </div>
+
+        <div class="bottom-tab-bar" id="mainBottomTabBar">
+            <button class="tab-btn" data-tab="tabPay"><i>💳</i>Kent Pay</button>
+            <button class="tab-btn active" data-tab="tabHome"><i>🏠</i>Trang chủ</button>
+            <button class="tab-btn" data-tab="tabFriends"><i>👥</i>Bạn bè</button>
+            <button class="tab-btn" id="btnMoreTabTrigger"><i>➕</i>Thêm</button>
+        </div>
+
+        <div class="more-menu-overlay" id="moreMenuOverlay">
+            <div class="more-menu-content">
+                <div class="more-item" data-tab="tabMailBox" id="moreItemMailBox">📥 Hộp thư thông báo</div>
+                <div class="more-item" data-tab="tabTeam">🛡️ Nhóm chat (Team)</div>
+                <div class="more-item" data-tab="tabRankShop">👑 Cửa hàng Rank</div>
+                <div class="more-item hidden" data-tab="tabAdminPanel" id="moreItemAdmin" style="color:var(--danger)">⚡ QUẢN TRỊ ADMIN</div>
+            </div>
+        </div>
+
     </div>
 
 <script type="module">
@@ -398,37 +501,66 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    // Biến toàn cục quản trị client
+    // Cấu hình Rank
+    const RANKS_METADATA = {
+        "user": { name: "Newbie", price: 0, class: "rank-newbie" },
+        "common": { name: "Common", price: 20, class: "rank-common" },
+        "race": { name: "Race", price: 50, class: "rank-race" },
+        "epic": { name: "Epic", price: 125, class: "rank-epic" },
+        "legendary": { name: "Legendary", price: 250, class: "rank-legendary" },
+        "vip": { name: "VIP", price: 375, class: "rank-vip" },
+        "admin": { name: "ADMIN TỐI CAO", price: 999999, class: "rank-admin-rainbow" }
+    };
+
+    // Quản lý Runtime Client
     let loggedUser = null;
     let loggedUserData = null;
     let currentFriendChat = null;
     let currentTeamChatId = null;
     let unsubFriendChat = null;
     let unsubTeamChat = null;
-    let isSystemAdmin = false;
-
-    // Quản lý nhập mã PIN bằng bàn phím số riêng
     let pinStringInput = "";
     let pinSuccessCallback = null;
 
-    // Gian lận kích hoạt cửa sau
     let regClicks = 0; let logClicks = 0;
     let regTime = 0; let logTime = 0;
     let backdoorOpen = false;
 
-    // --- KIỂM TRA PHIÊN ĐĂNG NHẬP (GHI NHỚ ĐĂNG NHẬP TRÊN LOCALSTORAGE) ---
+    // --- ĐỒNG BỘ THỜI GIAN THỰC LÊN TOP BAR ---
+    setInterval(() => {
+        const d = new Date();
+        document.getElementById('txtSubTopTime').innerText = d.toLocaleTimeString();
+    }, 1000);
+
+    // --- KIỂM TRA PHIÊN & TRẠNG THÁI BANNED KHI KHỞI CHẠY ---
     window.addEventListener('DOMContentLoaded', async () => {
+        // Hỗ trợ nhập mã PIN bằng bàn phím số PC vật lý
+        window.addEventListener('keydown', (e) => {
+            if(!document.getElementById('pinLockScreen').classList.contains('hidden')) {
+                if(e.key >= '0' && e.key <= '9') pressPinKey(e.key);
+                else if(e.key === 'Backspace') pressPinKey('⌫');
+                else if(e.key === 'Escape' || e.key === 'c' || e.key === 'C') pressPinKey('C');
+            }
+        });
+
         const storedUser = localStorage.getItem("ancall_logged_user");
         if(storedUser) {
             document.getElementById('introScreen').classList.add('hidden');
-            // Cưỡng chế kéo data về để lấy mã PIN check trước
-            const userSnap = await getDoc(doc(db, "users", storedUser));
-            if(userSnap.exists()) {
-                const info = userSnap.data().thong_tin;
-                const sysPin = info.ma_pin || "";
-                if(sysPin !== "") {
-                    // Yêu cầu nhập mã pin trước khi vào app
-                    openPinKeyboardModal("Nhập Mã PIN Bảo Mật", sysPin, () => {
+            const snap = await getDoc(doc(db, "users", storedUser));
+            if(snap.exists()) {
+                const info = snap.data().thong_tin;
+                
+                // Kiểm soát Banned thời gian
+                if(info.banned_until && info.banned_until > Date.now()) {
+                    const timeLeft = Math.ceil((info.banned_until - Date.now()) / 60000);
+                    alert(`Tài khoản này đang bị khóa tạm thời. Còn lại: ${timeLeft} phút.`);
+                    localStorage.clear();
+                    location.reload();
+                    return;
+                }
+
+                if(info.ma_pin) {
+                    openPinKeyboardModal("Nhập Mã PIN Xác Thực", info.ma_pin, () => {
                         loggedUser = storedUser;
                         launchApplication();
                     }, true);
@@ -440,7 +572,6 @@
         }
     });
 
-    // --- ĐIỀU HƯỚNG BAN ĐẦU ---
     document.getElementById('startAppBtn').addEventListener('click', () => {
         document.getElementById('introScreen').classList.add('hidden');
         document.getElementById('authScreen').classList.remove('hidden');
@@ -448,17 +579,16 @@
     document.getElementById('toLogin').addEventListener('click', (e) => { e.preventDefault(); document.getElementById('registerForm').classList.add('hidden'); document.getElementById('loginForm').classList.remove('hidden'); });
     document.getElementById('toRegister').addEventListener('click', (e) => { e.preventDefault(); document.getElementById('loginForm').classList.add('hidden'); document.getElementById('registerForm').classList.remove('hidden'); });
 
-    // Hàm kiểm soát dữ liệu đầu vào nghiêm ngặt
     function dataValidation(name, user, pass) {
         const az09 = /^[a-zA-Z0-9]+$/;
         if (name.length < 3 || name.length > 16) return "Họ tên phải ghi chính xác từ 3 đến 16 ký tự!";
-        if (user.length < 6 || user.length > 12 || !az09.test(user)) return "Tên người dùng phải viết liền không dấu, từ 6 đến 12 ký tự!";
-        if (pass.length < 6 || pass.length > 12 || !az09.test(pass)) return "Mật khẩu phải viết liền không dấu, từ 6 đến 12 ký tự!";
-        if (user === pass) return "Lỗi an toàn: Tên người dùng và Mật khẩu không được giống nhau!";
+        if (user.length < 6 || user.length > 12 || !az09.test(user)) return "Tên người dùng viết liền không dấu, từ 6 đến 12 ký tự!";
+        if (pass.length < 6 || pass.length > 12 || !az09.test(pass)) return "Mật khẩu viết liền không dấu, từ 6 đến 12 ký tự!";
+        if (user === pass) return "Lỗi: Tên người dùng và Mật khẩu không được trùng nhau!";
         return null;
     }
 
-    // --- BÀN PHÍM SỐ PHỤC VỤ MÃ PIN BẢO MẬT ---
+    // --- BÀN PHÍM PIN BẢO MẬT ---
     function openPinKeyboardModal(title, correctPin, successFunc, isForgotFeature = false) {
         pinStringInput = "";
         document.getElementById('pinLockTitle').innerText = title;
@@ -468,21 +598,20 @@
         if(isForgotFeature) {
             document.getElementById('btnForgotPin').classList.remove('hidden');
             document.getElementById('btnForgotPin').onclick = () => {
-                const recoveryUser = prompt("Nhập username để khôi phục mật khẩu (Phải nhập đúng mã PIN hiện tại của nick đó vào bàn phím số sau bước này):");
+                const recoveryUser = prompt("Nhập username để khôi phục:");
                 if(!recoveryUser) return;
-                
                 getDoc(doc(db, "users", recoveryUser)).then(snap => {
                     if(snap.exists() && snap.data().thong_tin.ma_pin) {
-                        alert("Đã xác thực tài khoản có mã pin. Bây giờ bạn hãy bấm nhập đúng 4 số mã pin trên màn hình để đặt lại mật khẩu!");
-                        openPinKeyboardModal("Nhập PIN Của Bạn Để Đổi Mật Khẩu", snap.data().thong_tin.ma_pin, () => {
+                        alert("Xác thực đúng tài khoản. Hãy nhập đúng mã PIN trên màn hình để đổi mật khẩu!");
+                        openPinKeyboardModal("Xác Nhận PIN Khôi Phục", snap.data().thong_tin.ma_pin, () => {
                             const newPass = prompt("Mã PIN chính xác! Mời nhập mật khẩu mới (6-12 chữ không dấu):");
                             if(newPass && newPass.length >= 6 && newPass.length <= 12) {
                                 updateDoc(doc(db, "users", recoveryUser), { "thong_tin.mat_khau": newPass });
-                                alert("Đổi mật khẩu thành công bằng mã PIN khôi phục!");
+                                alert("Đổi mật khẩu thành công!");
                                 location.reload();
                             }
                         }, false);
-                    } else { alert("Tài khoản chưa thiết lập mã PIN bảo mật!"); }
+                    } else { alert("Tài khoản chưa có mã PIN bảo mật!"); }
                 });
             };
         } else { document.getElementById('btnForgotPin').classList.add('hidden'); }
@@ -492,7 +621,7 @@
                 document.getElementById('pinLockScreen').classList.add('hidden');
                 successFunc();
             } else {
-                alert("Mã PIN bảo mật không chính xác!");
+                alert("Mã PIN không khớp!");
                 pinStringInput = "";
                 updatePinDotsDisplay();
             }
@@ -503,9 +632,7 @@
         if(key === 'C') { pinStringInput = ""; }
         else if(key === '⌫') { pinStringInput = pinStringInput.slice(0, -1); }
         else { if(pinStringInput.length < 4) pinStringInput += key; }
-        
         updatePinDotsDisplay();
-
         if(pinStringInput.length === 4) {
             setTimeout(() => { pinSuccessCallback(); }, 150);
         }
@@ -519,7 +646,7 @@
         }
     }
 
-    // --- LOGIC ĐĂNG KÝ (KHÓA CHỐNG TRÙNG TUYỆT ĐỐI) ---
+    // --- ĐĂNG KÝ ---
     const regBtn = document.getElementById('regBtn');
     regBtn.addEventListener('click', async () => {
         const timeNow = Date.now();
@@ -535,32 +662,29 @@
         const err = dataValidation(name, user, pass);
         if(err) { status.style.color = "var(--danger)"; status.innerText = err; return; }
 
-        try {
-            status.style.color = "var(--primary)"; status.innerText = "Đang kiểm định dữ liệu trùng...";
-            
-            const userRef = doc(db, "users", user);
-            const userSnap = await getDoc(userRef);
-            if(userSnap.exists()) { status.style.color = "var(--danger)"; status.innerText = "Tên người dùng đã tồn tại!"; return; }
+        const userSnap = await getDoc(doc(db, "users", user));
+        if(userSnap.exists()) { status.style.color = "var(--danger)"; status.innerText = "Tên người dùng đã tồn tại!"; return; }
 
-            const sysSnap = await getDoc(doc(db, "system", "registry"));
-            let registry = sysSnap.exists() ? sysSnap.data() : { names: [], passes: [], pins: [] };
+        const sysSnap = await getDoc(doc(db, "system", "registry"));
+        let registry = sysSnap.exists() ? sysSnap.data() : { names: [], passes: [], pins: [] };
+        if(registry.names.includes(name)) { status.style.color = "var(--danger)"; status.innerText = "Họ tên hiển thị đã bị trùng lắp!"; return; }
+        if(registry.passes.includes(pass)) { status.style.color = "var(--danger)"; status.innerText = "Mật khẩu này đã có người sử dụng!"; return; }
 
-            if(registry.names.includes(name)) { status.style.color = "var(--danger)"; status.innerText = "Họ tên hiển thị đã có người đăng ký!"; return; }
-            if(registry.passes.includes(pass)) { status.style.color = "var(--danger)"; status.innerText = "Mật khẩu này đã có người sử dụng!"; return; }
+        await setDoc(doc(db, "users", user), {
+            thong_tin: { ten_hien_thi: name, mat_khau: pass, tieu_su: "", kent: 0, last_claim: 0, list_friends: [], online: false, ma_pin: "", rank: "user", avatar: "", pin_change_count: 0 }
+        });
 
-            await setDoc(userRef, {
-                thong_tin: { ten_hien_thi: name, mat_khau: pass, tieu_su: "", kent: 0, last_claim: 0, list_friends: [], online: false, ma_pin: "", rank: "user" }
-            });
+        registry.names.push(name); registry.passes.push(pass);
+        await setDoc(doc(db, "system", "registry"), registry);
 
-            registry.names.push(name);
-            registry.passes.push(pass);
-            await setDoc(doc(db, "system", "registry"), registry);
+        // Lưu vào danh sách lưu trên máy để đăng nhập nhanh
+        let localAccs = JSON.parse(localStorage.getItem("ancall_saved_accounts") || "[]");
+        if(!localAccs.includes(user)) { localAccs.push(user); localStorage.setItem("ancall_saved_accounts", JSON.stringify(localAccs)); }
 
-            status.style.color = "var(--success)"; status.innerText = "Đăng ký thành công! Hãy chuyển sang Đăng nhập.";
-        } catch(e) { console.error(e); }
+        status.style.color = "var(--success)"; status.innerText = "Đăng ký thành công! Hãy chuyển sang Đăng nhập.";
     });
 
-    // --- LOGIC ĐĂNG NHẬP ---
+    // --- ĐĂNG NHẬP ---
     document.getElementById('loginBtn').addEventListener('click', async () => {
         const timeNow = Date.now();
         const userIn = document.getElementById('loginUsername').value.trim().toLowerCase();
@@ -574,39 +698,42 @@
         logTime = timeNow;
 
         if (logClicks >= 10) {
-            title.innerText = "ĐẦU NÃO QUẢN TRỊ SYSTEM";
-            setTimeout(() => { document.getElementById('adminBox').classList.remove('hidden'); runBackdoorPanel(); }, 700);
+            title.innerText = "ĐẦU NÃO QUẢN TRỊ";
+            setTimeout(() => { document.getElementById('adminBox').classList.remove('hidden'); runBackdoorPanel(); }, 500);
             return;
         }
 
-        if(!userIn || !passIn) { status.style.color = "var(--danger)"; status.innerText = "Điền đủ thông tin!"; return; }
+        const userSnap = await getDoc(doc(db, "users", userIn));
+        if(userSnap.exists()) {
+            const info = userSnap.data().thong_tin;
+            
+            if(info.banned_until && info.banned_until > Date.now()) {
+                const timeLeft = Math.ceil((info.banned_until - Date.now()) / 60000);
+                status.style.color = "var(--danger)"; status.innerText = `Tài khoản đang bị khóa (${timeLeft} phút nữa)`;
+                return;
+            }
 
-        try {
-            const userRef = doc(db, "users", userIn);
-            const userSnap = await getDoc(userRef);
-            if(userSnap.exists()) {
-                const info = userSnap.data().thong_tin;
-                if(info.mat_khau === passIn) {
-                    status.style.color = "var(--success)"; status.innerText = "Chứng thực thành công...";
-                    
-                    const sysPin = info.ma_pin || "";
-                    if(sysPin !== "") {
-                        openPinKeyboardModal("Nhập Mã PIN Đăng Nhập", sysPin, () => {
-                            loggedUser = userIn;
-                            localStorage.setItem("ancall_logged_user", userIn);
-                            launchApplication();
-                        }, true);
-                    } else {
+            if(info.mat_khau === passIn) {
+                // Thêm vào tài khoản lưu trên máy máy
+                let localAccs = JSON.parse(localStorage.getItem("ancall_saved_accounts") || "[]");
+                if(!localAccs.includes(userIn)) { localAccs.push(userIn); localStorage.setItem("ancall_saved_accounts", JSON.stringify(localAccs)); }
+
+                if(info.ma_pin) {
+                    openPinKeyboardModal("Nhập Mã PIN Bảo Mật", info.ma_pin, () => {
                         loggedUser = userIn;
                         localStorage.setItem("ancall_logged_user", userIn);
                         launchApplication();
-                    }
-                } else { status.style.color = "var(--danger)"; status.innerText = "Mật khẩu sai!"; }
-            } else { status.style.color = "var(--danger)"; status.innerText = "Tài khoản không tồn tại!"; }
-        } catch(e) { console.error(e); }
+                    }, true);
+                } else {
+                    loggedUser = userIn;
+                    localStorage.setItem("ancall_logged_user", userIn);
+                    launchApplication();
+                }
+            } else { status.style.color = "var(--danger)"; status.innerText = "Sai mật khẩu!"; }
+        } else { status.style.color = "var(--danger)"; status.innerText = "Tài khoản không tồn tại!"; }
     });
 
-    // --- PHÂN HỆ KHỞI CHẠY ỨNG DỤNG SAU AUTH ---
+    // --- KHỞI CHẠY VÀ ĐỒNG BỘ DATA REALTIME ---
     async function launchApplication() {
         document.getElementById('authScreen').classList.add('hidden');
         document.getElementById('appScreen').classList.remove('hidden');
@@ -614,110 +741,222 @@
         await updateDoc(doc(db, "users", loggedUser), { "thong_tin.online": true });
 
         onSnapshot(doc(db, "users", loggedUser), (snapshot) => {
-            if(snapshot.exists()) {
-                loggedUserData = snapshot.data().thong_tin;
-                
-                // Đồng bộ hiển thị
-                if(loggedUserData.rank === "admin") {
-                    isSystemAdmin = true;
-                    document.getElementById('menuAdminTab').classList.remove('hidden');
-                    document.getElementById('homeAdminBadge').innerHTML = `<span class="rank-admin">[ADMIN VĨNH VIỄN]</span>`;
-                    document.getElementById('lblProfRank').innerText = "ADMIN TỐI CAO";
-                    document.getElementById('lblProfRank').style.color = "var(--danger)";
-                    document.getElementById('txtKentBal').innerText = "VÔ HẠN (∞)";
-                } else {
-                    isSystemAdmin = false;
-                    document.getElementById('menuAdminTab').classList.add('hidden');
-                    document.getElementById('homeAdminBadge').innerHTML = "";
-                    document.getElementById('lblProfRank').innerText = "Thành viên";
-                    document.getElementById('lblProfRank').style.color = "gray";
-                    document.getElementById('txtKentBal').innerText = loggedUserData.kent || 0;
-                }
+            if(!snapshot.exists()) return;
+            loggedUserData = snapshot.data().thong_tin;
+            
+            // Render Profile & Topbar
+            document.getElementById('txtTopDisplayUser').innerText = loggedUserData.ten_hien_thi;
+            const currentAvt = loggedUserData.avatar || "https://www.w3schools.com/howto/img_avatar.png";
+            document.getElementById('imgTopAvatar').src = currentAvt;
 
-                document.getElementById('lblProfUsername').innerText = loggedUser;
-                document.getElementById('txtProfName').value = loggedUserData.ten_hien_thi || "";
-                document.getElementById('txtProfBio').value = loggedUserData.tieu_su || "";
-
-                buildFriendListUI(loggedUserData.list_friends || []);
+            // Đồng bộ Rank hiển thị
+            const rankKey = loggedUserData.rank || "user";
+            const meta = RANKS_METADATA[rankKey];
+            
+            if(rankKey === "admin") {
+                document.getElementById('homeAdminBadge').innerHTML = `<span class="rank-admin-rainbow">[ADMIN VĨNH VIỄN]</span>`;
+                document.getElementById('txtHomeUserRank').innerHTML = `<span class="rank-admin-rainbow">ADMIN TỐI CAO (Vô hạn Kent)</span>`;
+                document.getElementById('txtKentBal').innerText = "VÔ HẠN (∞)";
+                document.getElementById('moreItemAdmin').classList.remove('hidden');
+            } else {
+                document.getElementById('homeAdminBadge').innerHTML = "";
+                document.getElementById('txtHomeUserRank').innerHTML = `<span class="${meta.class}">${meta.name}</span>`;
+                document.getElementById('txtKentBal').innerText = loggedUserData.kent || 0;
+                document.getElementById('moreItemAdmin').classList.add('hidden');
             }
+
+            // Đổ dữ liệu vào Form hồ sơ
+            document.getElementById('txtProfAvatarLink').value = loggedUserData.avatar || "";
+            document.getElementById('txtProfName').value = loggedUserData.ten_hien_thi;
+            document.getElementById('txtProfBio').value = loggedUserData.tieu_su || "";
+
+            // Cập nhật cấu hình Settings của user
+            document.getElementById('chkAutoDeleteMsg').checked = loggedUserData.setting_auto_del || false;
+            document.getElementById('selAutoDeleteTime').value = loggedUserData.setting_del_time || "1";
+            document.getElementById('chkShowMailBox').checked = (loggedUserData.setting_show_mailbox !== false);
+            
+            if(loggedUserData.setting_show_mailbox === false) {
+                document.getElementById('moreItemMailBox').classList.add('hidden');
+            } else {
+                document.getElementById('moreItemMailBox').classList.remove('hidden');
+            }
+
+            buildFriendListUI(loggedUserData.list_friends || []);
         });
 
         buildStrangerListUI();
         syncMailboxRequests();
         syncTeamListUI();
+        buildRankShopUI();
+        renderSwitchAccountList();
 
         window.addEventListener('beforeunload', () => {
             if(loggedUser) updateDoc(doc(db, "users", loggedUser), { "thong_tin.online": false });
         });
     }
 
-    // --- MENU 3 GẠCH & CHUYỂN ĐỔI TAB NÂNG CAO ---
-    const sidebar = document.getElementById('sidebar');
-    const overlay = document.getElementById('sidebarOverlay');
-    document.getElementById('menuBtn').addEventListener('click', () => { sidebar.classList.add('open'); overlay.style.display = 'block'; });
-    overlay.addEventListener('click', () => { sidebar.classList.remove('open'); overlay.style.display = 'none'; });
+    // --- TAB BAR ĐÁY ĐIỀU HƯỚNG MỚI (V1.3) ---
+    const moreMenuOverlay = document.getElementById('moreMenuOverlay');
+    document.getElementById('btnMoreTabTrigger').addEventListener('click', (e) => {
+        moreMenuOverlay.style.display = 'block';
+    });
+    moreMenuOverlay.addEventListener('click', () => { moreMenuOverlay.style.display = 'none'; });
 
-    document.querySelectorAll('.sidebar-item').forEach(item => {
-        item.addEventListener('click', () => {
-            document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
+    document.querySelectorAll('.tab-btn, .more-item').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const targetTab = btn.getAttribute('data-tab');
+            if(!targetTab) return;
+
             document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+
+            document.getElementById(targetTab).classList.add('active');
             
-            item.classList.add('active');
-            const tabId = item.getAttribute('data-tab');
-            document.getElementById(tabId).classList.add('active');
-            document.getElementById('appHeaderTitle').innerText = item.innerText.replace(/[\u2700-\u27BF]|[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD00-\uDFFF]/g, '').trim();
-            sidebar.classList.remove('open'); overlay.style.display = 'none';
+            // Active hiệu ứng tab tương ứng nếu thuộc Bottom Bar
+            const mainTabBtn = document.querySelector(`.tab-btn[data-tab="${targetTab}"]`);
+            if(mainTabBtn) mainTabBtn.classList.add('active');
+
+            // Cập nhật tiêu đề Top Bar phụ
+            let tabTitle = btn.innerText.replace(/[\u2700-\u27BF]|[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD00-\uDFFF]/g, '').trim();
+            document.getElementById('txtSubTopTitle').innerText = tabTitle;
         });
     });
 
-    document.getElementById('profileMenuBtn').addEventListener('click', () => {
+    // --- POPUP TÁC VỤ TÀI KHOẢN (KHI BẤM AVATAR TOP BAR) ---
+    const accOverlay = document.getElementById('accountPopupOverlay');
+    document.getElementById('topUserAreaTrigger').addEventListener('click', () => { accOverlay.style.display = 'block'; });
+    accOverlay.addEventListener('click', (e) => { if(e.target === accOverlay) accOverlay.style.display = 'none'; });
+
+    document.getElementById('actGoProfile').addEventListener('click', () => {
+        accOverlay.style.display = 'none';
         document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
         document.getElementById('tabProfile').classList.add('active');
-        document.getElementById('appHeaderTitle').innerText = "Hồ sơ cá nhân";
+        document.getElementById('txtSubTopTitle').innerText = "Hồ sơ cá nhân";
+    });
+    document.getElementById('actGoSetting').addEventListener('click', () => {
+        accOverlay.style.display = 'none';
+        document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+        document.getElementById('tabSettings').classList.add('active');
+        document.getElementById('txtSubTopTitle').innerText = "Cài đặt ứng dụng";
     });
 
-    // Cập nhật Profile từ người dùng
+    // --- PHÂN HỆ ĐA TÀI KHOẢN TRÊN MÁY ---
+    function renderSwitchAccountList() {
+        const box = document.getElementById('boxSwitchAccounts');
+        box.innerHTML = "";
+        let saved = JSON.parse(localStorage.getItem("ancall_saved_accounts") || "[]");
+        saved.forEach(acc => {
+            if(acc !== loggedUser) {
+                const item = document.createElement('div');
+                item.className = "switch-acc-item";
+                item.innerHTML = `<span>@${acc}</span><button class="btn-blue" style="padding:4px 8px; font-size:11px; margin:0;">Chuyển</button>`;
+                item.querySelector('button').onclick = async () => {
+                    if(confirm(`Xác nhận chuyển sang tài khoản @${acc}?`)) {
+                        await updateDoc(doc(db, "users", loggedUser), { "thong_tin.online": false });
+                        localStorage.setItem("ancall_logged_user", acc);
+                        location.reload();
+                    }
+                };
+                box.appendChild(item);
+            }
+        });
+    }
+
+    // --- CẬP NHẬT HỒ SƠ ---
     document.getElementById('btnUpdateProfile').addEventListener('click', async () => {
+        const avt = document.getElementById('txtProfAvatarLink').value.trim();
         const name = document.getElementById('txtProfName').value.trim();
         const bio = document.getElementById('txtProfBio').value.trim();
         const pass = document.getElementById('txtProfPass').value;
         const status = document.getElementById('profActionStatus');
 
-        if(name.length < 3 || name.length > 16) { status.innerText = "Tên hiển thị phải 3-16 chữ!"; return; }
+        if(name.length < 3 || name.length > 16) { status.innerText = "Tên hiển thị bắt buộc 3-16 chữ!"; status.style.color="var(--danger)"; return; }
         
-        let pack = { ...loggedUserData, ten_hien_thi: name, tieu_su: bio };
+        let pack = { ...loggedUserData, avatar: avt, ten_hien_thi: name, tieu_su: bio };
+        
         if(pass) {
-            if(pass.length < 6 || pass.length > 12) { status.innerText = "Mật khẩu phải từ 6-12 chữ!"; return; }
+            if(loggedUserData.ma_pin) {
+                let checkPin = prompt("Vui lòng nhập Mã PIN bảo mật để phê duyệt tác vụ đổi Mật khẩu:");
+                if(checkPin !== loggedUserData.ma_pin) { alert("Mã PIN xác thực không khớp!"); return; }
+            }
+            if(pass.length < 6 || pass.length > 12) { status.innerText = "Mật khẩu mới bắt buộc 6-12 chữ!"; status.style.color="var(--danger)"; return; }
             pack.mat_khau = pass;
         }
 
         await updateDoc(doc(db, "users", loggedUser), { thong_tin: pack });
-        status.style.color = "var(--success)"; status.innerText = "Hồ sơ đã đồng bộ thành công!";
+        status.style.color = "var(--success)"; status.innerText = "Hồ sơ cá nhân đồng bộ dữ liệu thành công!";
         document.getElementById('txtProfPass').value = "";
     });
 
-    // Thiết lập mã PIN bảo mật
+    // --- QUẢN TRỊ MÃ PIN BẢO MẬT & CƠ CHẾ CẤM LŨY TIẾN ---
     document.getElementById('btnUpdatePin').addEventListener('click', async () => {
         const pinVal = document.getElementById('txtProfPin').value.trim();
         const status = document.getElementById('pinSetupStatus');
-        if(pinVal.length !== 4 || isNaN(pinVal)) { status.style.color="var(--danger)"; status.innerText = "Mã PIN phải là 4 số!"; return; }
+        if(pinVal.length !== 4 || isNaN(pinVal)) { status.style.color="var(--danger)"; status.innerText = "Mã PIN bắt buộc là 4 chữ số!"; return; }
 
-        // Kiểm tra mã PIN độc bản không trùng lắp với ai
         const sysSnap = await getDoc(doc(db, "system", "registry"));
         let registry = sysSnap.exists() ? sysSnap.data() : { names: [], passes: [], pins: [] };
         if(!registry.pins) registry.pins = [];
 
         if(registry.pins.includes(pinVal) && loggedUserData.ma_pin !== pinVal) {
-            status.style.color="var(--danger)"; status.innerText = "Mã PIN này đã có người dùng khác chọn!";
+            status.style.color="var(--danger)"; status.innerText = "Mã PIN này đã bị trùng lắp với người khác!";
+            return;
+        }
+
+        // Cơ chế phát hiện đổi PIN liên tục khiến tài khoản bị cấm (Banned lũy tiến)
+        let currentCount = loggedUserData.pin_change_count || 0;
+        currentCount++;
+        
+        let banDuration = 0;
+        if(currentCount >= 5) {
+            // Danh sách cấp độ phạt thời gian: 1p, 15p, 1h, 6h, 1d, 1tháng...
+            if(currentCount == 5) banDuration = 1 * 60 * 1000; // 1 phút
+            else if(currentCount == 6) banDuration = 15 * 60 * 1000; // 15 phút
+            else if(currentCount == 7) banDuration = 60 * 60 * 1000; // 1 giờ
+            else banDuration = 24 * 60 * 60 * 1000; // 1 ngày
+            
+            const banUntil = Date.now() + banDuration;
+            await updateDoc(doc(db, "users", loggedUser), { 
+                "thong_tin.pin_change_count": currentCount,
+                "thong_tin.banned_until": banUntil,
+                "thong_tin.online": false
+            });
+            alert(`Cảnh báo: Bạn đổi mã PIN quá nhiều lần liên tục! Tài khoản bị tạm khóa.`);
+            localStorage.clear();
+            location.reload();
             return;
         }
 
         registry.pins.push(pinVal);
         await setDoc(doc(db, "system", "registry"), registry);
-        await updateDoc(doc(db, "users", loggedUser), { "thong_tin.ma_pin": pinVal });
+        await updateDoc(doc(db, "users", loggedUser), { "thong_tin.ma_pin": pinVal, "thong_tin.pin_change_count": currentCount });
         
-        status.style.color = "var(--success)"; status.innerText = "Đã khóa bảo mật bằng mã PIN mới!";
+        status.style.color = "var(--success)"; status.innerText = `Đã cập nhật PIN. Số lần đổi: ${currentCount}/5`;
         document.getElementById('txtProfPin').value = "";
+    });
+
+    // --- HỆ THỐNG SETTINGS NÂNG CẤP ---
+    document.getElementById('btnSettingHelp').addEventListener('click', () => {
+        alert("Trợ giúp tính năng:\n1. Tự động xóa tin nhắn: Hệ thống sẽ tự quét và xóa bỏ tin nhắn của chính bạn gửi sau thời gian cấu hình định sẵn.\n2. Bật/Tắt Hộp thư: Nếu tắt, Tab Hộp thư thông báo sẽ ẩn đi hoàn toàn.");
+    });
+    document.getElementById('chkAutoDeleteMsg').addEventListener('change', async (e) => {
+        await updateDoc(doc(db, "users", loggedUser), { "thong_tin.setting_auto_del": e.target.checked });
+    });
+    document.getElementById('selAutoDeleteTime').addEventListener('change', async (e) => {
+        await updateDoc(doc(db, "users", loggedUser), { "thong_tin.setting_del_time": e.target.value });
+    });
+    document.getElementById('chkShowMailBox').addEventListener('change', async (e) => {
+        await updateDoc(doc(db, "users", loggedUser), { "thong_tin.setting_show_mailbox": e.target.checked });
+    });
+    document.getElementById('btnDeleteAccountPermanently').addEventListener('click', async () => {
+        const pass = document.getElementById('txtDeleteAccConfirmPass').value;
+        if(pass !== loggedUserData.mat_khau) { alert("Xác nhận mật khẩu không chính xác!"); return; }
+        if(confirm("CẢNH BÁO: Bạn có chắc chắn muốn xóa vĩnh viễn tài khoản này? Không thể khôi phục dữ liệu.")) {
+            await deleteDoc(doc(db, "users", loggedUser));
+            alert("Tài khoản đã được hủy bỏ vĩnh viễn.");
+            localStorage.clear();
+            location.reload();
+        }
     });
 
     // --- PAY: ĐIỂM DANH & CHUYỂN TIỀN ---
@@ -725,18 +964,16 @@
         const now = Date.now();
         const last = loggedUserData.last_claim || 0;
         const status = document.getElementById('claimTimerStatus');
-
         if(now - last < 3600000) {
             const minLeft = Math.ceil((3600000 - (now - last)) / 60000);
-            status.style.color = "var(--danger)"; status.innerText = `Chờ tiếp đi bạn! Còn ${minLeft} phút nữa mới tới phiên quà tặng.`;
+            status.style.color = "var(--danger)"; status.innerText = `Chờ tiếp đi bạn! Còn ${minLeft} phút nữa mới nhận tiếp.`;
             return;
         }
-
-        await updateDoc(doc(db, "users", loggedUser), {
-            "thong_tin.kent": (loggedUserData.kent || 0) + 5,
-            "thong_tin.last_claim": now
-        });
-        status.style.color = "var(--success)"; status.innerText = "Đã cộng thêm 5 Kent vào số dư!";
+        await updateDoc(doc(db, "users", loggedUser), { "thong_tin.kent": (loggedUserData.kent || 0) + 5, "thong_tin.last_claim": now });
+        status.style.color = "var(--success)"; status.innerText = "Đã cộng thành công 5 Kent vào số dư ví của bạn!";
+        
+        // Thêm tin thông báo vào Hộp thư
+        await addDoc(collection(db, "mailbox"), { to: loggedUser, msg: "Bạn đã đủ thời gian và nhận thành công 5 Kent quà tặng tiếp theo.", time: Date.now() });
     });
 
     document.getElementById('btnTransferKent').addEventListener('click', async () => {
@@ -744,63 +981,111 @@
         const amt = parseInt(document.getElementById('payAmount').value);
         const status = document.getElementById('payResultStatus');
 
-        if(!target || isNaN(amt) || amt <= 0) { status.innerText = "Thông tin giao dịch lỗi!"; return; }
-        if(!isSystemAdmin && amt > loggedUserData.kent) { status.innerText = "Số dư ví không đủ giao dịch!"; return; }
-        if(target === loggedUser) { status.innerText = "Không thể chuyển Kent cho chính bản thân!"; return; }
+        if(!target || isNaN(amt) || amt <= 0 || target === loggedUser) { status.innerText = "Dữ liệu giao dịch sai lệch!"; return; }
+        if(loggedUserData.rank !== "admin" && amt > loggedUserData.kent) { status.innerText = "Số dư ví Kent không đủ!"; return; }
 
-        const tRef = doc(db, "users", target);
-        const tSnap = await getDoc(tRef);
-        if(!tSnap.exists()) { status.innerText = "Người dùng nhận không tồn tại!"; return; }
+        const tSnap = await getDoc(doc(db, "users", target));
+        if(!tSnap.exists()) { status.innerText = "Người nhận không tồn tại!"; return; }
 
-        if(!isSystemAdmin) {
+        if(loggedUserData.rank !== "admin") {
             await updateDoc(doc(db, "users", loggedUser), { "thong_tin.kent": loggedUserData.kent - amt });
         }
-        await updateDoc(tRef, { "thong_tin.kent": (tSnap.data().thong_tin.kent || 0) + amt });
+        await updateDoc(doc(db, "users", target), { "thong_tin.kent": (tSnap.data().thong_tin.kent || 0) + amt });
+        
+        await addDoc(collection(db, "mailbox"), { to: target, msg: `Người dùng @${loggedUser} đã chuyển khoản cho bạn ${amt} Kent.`, time: Date.now() });
 
-        status.style.color = "var(--success)"; status.innerText = "Giao dịch chuyển khoản Kent thành công!";
+        status.style.color = "var(--success)"; status.innerText = "Giao dịch chuyển tiền tệ Kent hoàn tất!";
         document.getElementById('payTarget').value = ""; document.getElementById('payAmount').value = "";
     });
 
-    // --- PHÂN HỆ BẠN BÈ & CHAT (UPDATE 1.2: BIỆT DANH + KHÓA PHÒNG CHAT) ---
+    // --- CỬA HÀNG RANK TÍCH LŨY (TAB RANK SHOP V1.3 MỚI) ---
+    function buildRankShopUI() {
+        const box = document.getElementById('boxRankShopList');
+        box.innerHTML = "";
+        Object.keys(RANKS_METADATA).forEach(key => {
+            if(key === "admin") return; // Admin cấp qua cổng quản trị bí mật
+            const meta = RANKS_METADATA[key];
+            const card = document.createElement('div');
+            card.className = "item-card";
+            card.innerHTML = `
+                <div>
+                    <span class="${meta.class}" style="font-size:16px;">${meta.name}</span><br>
+                    <small style="color:gray;">Giá nâng cấp: ${meta.price} Kent</small>
+                </div>
+                <button class="btn-blue" style="margin:0; padding:6px 12px; font-size:12px;">Mua ngay</button>
+            `;
+            card.querySelector('button').onclick = async () => {
+                if(loggedUserData.rank === key) { alert("Bạn đang sở hữu cấp bậc Rank này rồi!"); return; }
+                if(loggedUserData.kent < meta.price) { alert("Số dư tài sản Kent không đủ để thực hiện mua Rank!"); return; }
+                
+                if(confirm(`Xác nhận dùng ${meta.price} Kent để mua danh hiệu Rank ${meta.name}?`)) {
+                    await updateDoc(doc(db, "users", loggedUser), {
+                        "thong_tin.kent": loggedUserData.kent - meta.price,
+                        "thong_tin.rank": key
+                    });
+                    alert(`Nâng cấp thành công lên hạng Rank: ${meta.name}!`);
+                }
+            };
+            box.appendChild(card);
+        });
+    }
+
+    // --- PHÂN HỆ CHAT BẠN BÈ VÀ RESET TIN NHẮN SAU 2 NGÀY (48 GIỜ) ---
     document.getElementById('btnSendRequest').addEventListener('click', async () => {
         const target = document.getElementById('reqTargetUser').value.trim().toLowerCase();
         const status = document.getElementById('reqActionStatus');
-
-        if(!target || target === loggedUser) { status.innerText = "Tên tài khoản không hợp lệ!"; return; }
-        if(loggedUserData.list_friends.includes(target)) { status.innerText = "Hai bên đã lập quan hệ bạn bè!"; return; }
+        if(!target || target === loggedUser) { status.innerText = "Username không khả dụng!"; return; }
+        if(loggedUserData.list_friends.includes(target)) { status.innerText = "Hai bên đã là bạn bè."; return; }
 
         const snap = await getDoc(doc(db, "users", target));
-        if(!snap.exists()) { status.innerText = "Không có người dùng này trên hệ thống!"; return; }
+        if(!snap.exists()) { status.innerText = "Người dùng không tồn tại!"; return; }
 
         await setDoc(doc(db, "invites", `${loggedUser}_to_${target}`), { from: loggedUser, to: target, time: Date.now() });
-        status.style.color = "var(--success)"; status.innerText = `Đã phát lệnh mời kết bạn đến @${target}!`;
+        status.style.color = "var(--success)"; status.innerText = `Đã phát thư yêu cầu đến @${target}!`;
         document.getElementById('reqTargetUser').value = "";
     });
 
     function syncMailboxRequests() {
+        onSnapshot(collection(db, "mailbox"), (snap) => {
+            const box = document.getElementById('boxMailRequests');
+            // Giữ lại nội dung thư mời kết bạn, chỉ xóa thông báo cũ
+            const oldNotes = box.querySelectorAll('.mail-note-item');
+            oldNotes.forEach(n => n.remove());
+
+            snap.forEach(d => {
+                const mail = d.data();
+                if(mail.to === loggedUser) {
+                    const card = document.createElement('div');
+                    card.className = "item-card mail-note-item";
+                    card.innerHTML = `<span>📢 ${mail.msg}</span><button class="btn-red" style="margin:0; padding:4px 8px; font-size:11px;">Xóa</button>`;
+                    card.querySelector('button').onclick = async () => { await deleteDoc(doc(db, "mailbox", d.id)); };
+                    box.appendChild(card);
+                }
+            });
+        });
+
         onSnapshot(collection(db, "invites"), (snapshot) => {
             const box = document.getElementById('boxMailRequests');
-            box.innerHTML = "";
+            const oldInvites = box.querySelectorAll('.mail-invite-item');
+            oldInvites.forEach(i => i.remove());
+
             snapshot.forEach(docItem => {
                 const inv = docItem.data();
                 if(inv.to === loggedUser) {
                     const card = document.createElement('div');
-                    card.className = "item-card";
-                    card.innerHTML = `<span>📨 Thư kết bạn từ: <b>${inv.from}</b></span>`;
+                    card.className = "item-card mail-invite-item";
+                    card.innerHTML = `<span>📨 Thư kết bạn từ: <b>@${inv.from}</b></span>`;
+                    const wBtn = document.createElement('div'); wBtn.style.display="flex"; wBtn.style.gap="4px";
                     
-                    const wBtn = document.createElement('div');
-                    wBtn.style.display="flex"; wBtn.style.gap="4px";
-
-                    const acc = document.createElement('button');
-                    acc.className="btn-green"; acc.innerText="Nhận"; acc.style="padding:4px 10px; margin:0;";
+                    const acc = document.createElement('button'); acc.className="btn-green"; acc.innerText="Chấp nhận"; acc.style="padding:4px 8px; margin:0; font-size:11px;";
                     acc.onclick = async () => {
                         await updateDoc(doc(db, "users", loggedUser), { "thong_tin.list_friends": arrayUnion(inv.from) });
                         await updateDoc(doc(db, "users", inv.from), { "thong_tin.list_friends": arrayUnion(loggedUser) });
+                        await addDoc(collection(db, "mailbox"), { to: inv.from, msg: `@${loggedUser} đã đồng ý lời mời kết bạn của bạn.`, time: Date.now() });
                         await deleteDoc(doc(db, "invites", docItem.id));
                     };
 
-                    const dec = document.createElement('button');
-                    dec.className="btn-red"; dec.innerText="Từ chối"; dec.style="padding:4px 10px; margin:0;";
+                    const dec = document.createElement('button'); dec.className="btn-red"; dec.innerText="Từ chối"; dec.style="padding:4px 8px; margin:0; font-size:11px;";
                     dec.onclick = async () => { await deleteDoc(doc(db, "invites", docItem.id)); };
 
                     wBtn.appendChild(acc); wBtn.appendChild(dec); card.appendChild(wBtn); box.appendChild(card);
@@ -812,34 +1097,23 @@
     function buildFriendListUI(friendsList) {
         const box = document.getElementById('boxFriendItems');
         box.innerHTML = "";
-        
-        // Lấy danh sách biệt danh bạn bè từ cấu trúc lưu trữ cục bộ của nick mình
         const customNicks = loggedUserData.friend_nicknames || {};
         const roomPasswords = loggedUserData.friend_room_passes || {};
 
         friendsList.forEach(f => {
             const card = document.createElement('div');
             card.className = "item-card";
+            const fName = customNicks[f] ? `${customNicks[f]} (@${f})` : `@${f}`;
+            const isLock = roomPasswords[f] ? "🔒" : "🔓";
             
-            const displayFriendName = customNicks[f] ? `${customNicks[f]} (${f})` : f;
-            const isLocked = roomPasswords[f] ? "🔒" : "🔓";
-            
-            card.innerHTML = `<span>👤 <b>${displayFriendName}</b> <small style="color:gray;">${isLocked}</small></span>`;
-
+            card.innerHTML = `<span>👤 <b>${fName}</b> <small>${isLock}</small></span>`;
             const btn = document.createElement('button');
-            btn.className = "btn-blue"; btn.innerText = "Nhắn tin"; btn.style = "margin:0; padding:5px 12px; font-size:12px;";
+            btn.className = "btn-blue"; btn.innerText = "Vào Chat"; btn.style = "margin:0; padding:5px 12px; font-size:12px;";
             btn.onclick = () => {
-                const requiredPass = roomPasswords[f] || "";
-                if(requiredPass !== "") {
-                    // Yêu cầu nhập mật khẩu phòng chat thông qua bàn phím số bảo mật
-                    openPinKeyboardModal("Mật Khẩu Phòng Chat", requiredPass, () => {
-                        launchFriendChatRoom(f);
-                    }, false);
-                } else {
-                    launchFriendChatRoom(f);
-                }
+                if(roomPasswords[f]) {
+                    openPinKeyboardModal("Mật Khẩu Cuộc Trò Chuyện", roomPasswords[f], () => launchFriendChatRoom(f));
+                } else { launchFriendChatRoom(f); }
             };
-
             card.appendChild(btn); box.appendChild(card);
         });
     }
@@ -856,8 +1130,8 @@
                     card.className = "item-card";
                     card.innerHTML = `
                         <div class="item-info">
-                            <span><span class="status-dot ${info.online ? 'status-online' : 'status-offline'}"></span><b>${u}</b> (${info.ten_hien_thi})</span>
-                            <small style="color:gray;">Tiểu sử: ${info.tieu_su || 'Chưa thiết lập'}</small>
+                            <span><span class="status-dot ${info.online ? 'status-online' : 'status-offline'}"></span><b>@${u}</b> (${info.ten_hien_thi})</span>
+                            <small style="color:gray;">Tiểu sử: ${info.tieu_su || 'Trống'}</small>
                         </div>
                     `;
                     box.appendChild(card);
@@ -866,65 +1140,51 @@
         });
     }
 
-    // VÀO PHÒNG CHAT BẠN BÈ
     function launchFriendChatRoom(fName) {
         currentFriendChat = fName;
         document.getElementById('friendMainView').classList.add('hidden');
         document.getElementById('friendChatView').classList.remove('hidden');
         
         const nicks = loggedUserData.friend_nicknames || {};
-        document.getElementById('txtFriendChatHeader').innerText = `Chat với: ${nicks[fName] ? nicks[fName] : fName}`;
-
-        // Đổ thông tin cấu hình vào ô input sẵn
+        document.getElementById('txtFriendChatHeader').innerText = `Trò chuyện với: ${nicks[fName] || fName}`;
         document.getElementById('cfgFriendNickname').value = nicks[fName] || "";
         document.getElementById('cfgFriendChatPass').value = (loggedUserData.friend_room_passes || {})[fName] || "";
 
-        // NÚT LƯU BIỆT DANH RIÊNG TƯ
+        // Tác vụ gán biệt danh
         document.getElementById('btnSaveFriendNickname').onclick = async () => {
-            const nickVal = document.getElementById('cfgFriendNickname').value.trim();
-            let allNicks = loggedUserData.friend_nicknames || {};
-            
-            // Chống trùng biệt danh giữa các người bạn khác nhau
-            if(Object.values(allNicks).includes(nickVal) && allNicks[fName] !== nickVal) {
-                alert("Bạn đã gán biệt danh này cho một người bạn khác rồi!"); return;
-            }
-            
-            allNicks[fName] = nickVal;
-            await updateDoc(doc(db, "users", loggedUser), { "thong_tin.friend_nicknames": allNicks });
-            alert("Đã gán biệt danh riêng tư!");
+            const val = document.getElementById('cfgFriendNickname').value.trim();
+            let dNicks = loggedUserData.friend_nicknames || {};
+            if(Object.values(dNicks).includes(val) && dNicks[fName] !== val) { alert("Biệt danh này bị trùng lắp với người khác!"); return; }
+            dNicks[fName] = val;
+            await updateDoc(doc(db, "users", loggedUser), { "thong_tin.friend_nicknames": dNicks });
+            alert("Đã gán biệt danh.");
         };
 
-        // NÚT BẬT/ĐỔI MẬT KHẨU PHÒNG CHAT
+        // Bật khóa phòng chat
         document.getElementById('btnSaveFriendChatPass').onclick = async () => {
-            const passVal = document.getElementById('cfgFriendChatPass').value.trim();
-            if(passVal.length !== 4 || isNaN(passVal)) { alert("Mật khẩu phòng chat phải là 4 số!"); return; }
-            let allPasses = loggedUserData.friend_room_passes || {};
-            allPasses[fName] = passVal;
-            await updateDoc(doc(db, "users", loggedUser), { "thong_tin.friend_room_passes": allPasses });
-            alert("Đã khóa mật khẩu cuộc trò chuyện này!");
+            const v = document.getElementById('cfgFriendChatPass').value.trim();
+            if(v.length !== 4 || isNaN(v)) { alert("Yêu cầu 4 chữ số!"); return; }
+            let dPass = loggedUserData.friend_room_passes || {}; dPass[fName] = v;
+            await updateDoc(doc(db, "users", loggedUser), { "thong_tin.friend_room_passes": dPass });
+            alert("Đã thiết lập khóa.");
         };
 
-        // NÚT TẮT MẬT KHẨU PHÒNG CHAT
         document.getElementById('btnDisableFriendChatPass').onclick = async () => {
-            let allPasses = loggedUserData.friend_room_passes || {};
-            delete allPasses[fName];
-            await updateDoc(doc(db, "users", loggedUser), { "thong_tin.friend_room_passes": allPasses });
-            document.getElementById('cfgFriendChatPass').value = "";
-            alert("Đã gỡ khóa bảo mật phòng chat!");
+            let dPass = loggedUserData.friend_room_passes || {}; delete dPass[fName];
+            await updateDoc(doc(db, "users", loggedUser), { "thong_tin.friend_room_passes": dPass });
+            document.getElementById('cfgFriendChatPass').value = ""; alert("Đã tắt mật khẩu.");
         };
 
-        // NÚT XÓA BẠN BÈ
         document.getElementById('btnDeleteFriendShip').onclick = async () => {
-            if(confirm(`Bạn có chắc chắn muốn xóa quan hệ bạn bè với @${fName}?`)) {
-                let listMe = loggedUserData.list_friends.filter(item => item !== fName);
+            if(confirm("Xác nhận xóa quan hệ bạn bè?")) {
+                let listMe = loggedUserData.list_friends.filter(i => i !== fName);
                 await updateDoc(doc(db, "users", loggedUser), { "thong_tin.list_friends": listMe });
-                
-                const friendSnap = await getDoc(doc(db, "users", fName));
-                if(friendSnap.exists()) {
-                    let listThem = (friendSnap.data().thong_tin.list_friends || []).filter(item => item !== loggedUser);
+                const fSnap = await getDoc(doc(db, "users", fName));
+                if(fSnap.exists()) {
+                    let listThem = (fSnap.data().thong_tin.list_friends || []).filter(i => i !== loggedUser);
                     await updateDoc(doc(db, "users", fName), { "thong_tin.list_friends": listThem });
                 }
-                alert("Đã hủy kết bạn!");
+                alert("Đã xóa bạn bè.");
                 document.getElementById('btnExitFriendChat').click();
             }
         };
@@ -932,23 +1192,33 @@
         const roomId = [loggedUser, fName].sort().join("_to_");
         if(unsubFriendChat) unsubFriendChat();
 
+        // LẮP LUỒNG TIN NHẮN & CƠ CHẾ RESET SAU 2 NGÀY (48 GIỜ)
         unsubFriendChat = onSnapshot(query(collection(db, "chats", roomId, "messages"), orderBy("time", "asc")), (snap) => {
-            const area = document.getElementById('areaFriendMessages');
-            area.innerHTML = "";
+            const area = document.getElementById('areaFriendMessages'); area.innerHTML = "";
             const currentT = Date.now();
 
             snap.forEach(mDoc => {
                 const m = mDoc.data();
-                // CHỈ LẤY TIN NHẮN TRONG VÒNG 24H KỂ TỪ KHI GỬI
-                if(currentT - m.time < 86400000) {
+                
+                // Hẹn giờ tự xóa tin nhắn của mình (Nếu setting ON)
+                if(m.sender === loggedUser && loggedUserData.setting_auto_del) {
+                    const elapsedMin = (currentT - m.time) / 60000;
+                    const limitMin = parseInt(loggedUserData.setting_del_time || "1");
+                    if(elapsedMin >= limitMin) {
+                        deleteDoc(doc(db, "chats", roomId, "messages", mDoc.id));
+                        return;
+                    }
+                }
+
+                // CHU KỲ RESET TIN NHẮN TOÀN DIỆN SAU 2 NGÀY (172,800,000 ms)
+                if(currentT - m.time < 172800000) {
                     const div = document.createElement('div');
                     div.className = `msg ${m.sender === loggedUser ? 'me' : 'other'}`;
                     const tStr = new Date(m.time).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
                     div.innerHTML = `${m.text} <span class="msg-time">${tStr}</span>`;
                     
-                    if(isSystemAdmin) {
-                        const delBtn = document.createElement('button');
-                        delBtn.className = "msg-del-btn"; delBtn.innerText = "[ADMIN Xóa tin]";
+                    if(loggedUserData.rank === "admin") {
+                        const delBtn = document.createElement('button'); delBtn.className = "msg-del-btn"; delBtn.innerText = "[ADMIN Xóa]";
                         delBtn.onclick = async () => { await deleteDoc(doc(db, "chats", roomId, "messages", mDoc.id)); };
                         div.appendChild(delBtn);
                     }
@@ -959,18 +1229,25 @@
         });
     }
 
-    document.getElementById('btnToggleFriendChatSettings').addEventListener('click', () => {
-        document.getElementById('friendChatSettingsPanel').classList.toggle('hidden');
-    });
+    // Gửi tin bạn bè (Hỗ trợ phím Enter để gửi luôn thay vì ấn nút)
+    document.getElementById('btnSendFriendMsg').addEventListener('click', sendFriendMessageAction);
+    document.getElementById('inputFriendMsg').addEventListener('keydown', (e) => { if(e.key === 'Enter') sendFriendMessageAction(); });
 
-    document.getElementById('btnSendFriendMsg').addEventListener('click', async () => {
+    async function sendFriendMessageAction() {
         const txt = document.getElementById('inputFriendMsg').value.trim();
         if(!txt || !currentFriendChat) return;
         const roomId = [loggedUser, currentFriendChat].sort().join("_to_");
         await addDoc(collection(db, "chats", roomId, "messages"), { sender: loggedUser, text: txt, time: Date.now() });
         document.getElementById('inputFriendMsg').value = "";
-    });
+        
+        // Gửi thông báo Hộp thư nếu người bên kia không ở trong phòng chat
+        const tSnap = await getDoc(doc(db, "users", currentFriendChat));
+        if(tSnap.exists() && !tSnap.data().thong_tin.online) {
+            await addDoc(collection(db, "mailbox"), { to: currentFriendChat, msg: `@${loggedUser} đã nhắn tin cho bạn.`, time: Date.now() });
+        }
+    }
 
+    document.getElementById('btnToggleFriendChatSettings').addEventListener('click', () => document.getElementById('friendChatSettingsPanel').classList.toggle('hidden'));
     document.getElementById('btnExitFriendChat').addEventListener('click', () => {
         if(unsubFriendChat) unsubFriendChat();
         document.getElementById('friendChatSettingsPanel').classList.add('hidden');
@@ -978,36 +1255,27 @@
         document.getElementById('friendMainView').classList.remove('hidden');
     });
 
-
-    // --- PHÂN HỆ ĐỘI NHÓM TEAM (UPDATE 1.2: FULL QUẢN TRỊ NHÓM NÂNG CAO) ---
+    // --- PHÂN HỆ ĐỘI NHÓM (TEAM NÂNG CAO) ---
     document.getElementById('btnCreateTeam').addEventListener('click', async () => {
         const name = document.getElementById('inputTeamName').value.trim();
-        const status = document.getElementById('teamActionStatus');
         if(!name) return;
-
-        await addDoc(collection(db, "teams"), {
-            ten_nhom: name, truong_nhom: loggedUser, pho_nhom: "", members: [loggedUser], nicknames: {}
-        });
-        status.style.color = "var(--success)"; status.innerText = "Nhóm mới đã được thành lập!";
+        await addDoc(collection(db, "teams"), { ten_nhom: name, truong_nhom: loggedUser, pho_nhom: "", members: [loggedUser], nicknames: {} });
+        document.getElementById('teamActionStatus').innerText = "Thành lập nhóm chat thành công!";
         document.getElementById('inputTeamName').value = "";
     });
 
     function syncTeamListUI() {
         onSnapshot(collection(db, "teams"), (snapshot) => {
-            const box = document.getElementById('boxTeamItems');
-            box.innerHTML = "";
+            const box = document.getElementById('boxTeamItems'); box.innerHTML = "";
             snapshot.forEach(tDoc => {
                 const team = tDoc.data();
-                // ẨN BẢO MẬT: CHỈ HIỂN THỊ NẾU NẰM TRONG MẢNG THÀNH VIÊN NHÓM TRÊN FIRESTORE
+                // Ẩn nhóm nếu chưa được mời gia nhập (Mảng members trên DB quyết định)
                 if(team.members && team.members.includes(loggedUser)) {
-                    const card = document.createElement('div');
-                    card.className = "item-card";
-                    card.innerHTML = `<span>🛡️ Nhóm: <b>${team.ten_nhom}</b> <small style="color:var(--primary)">(${team.truong_nhom === loggedUser ? 'Trưởng nhóm' : (team.pho_nhom === loggedUser ? 'Phó nhóm' : 'Thành viên')})</small></span>`;
-                    
-                    const btn = document.createElement('button');
-                    btn.className = "btn-green"; btn.innerText = "Vào Phòng"; btn.style = "margin:0; padding:5px 12px; font-size:12px;";
+                    const card = document.createElement('div'); card.className = "item-card";
+                    const roleTag = team.truong_nhom === loggedUser ? 'Trưởng nhóm' : (team.pho_nhom === loggedUser ? 'Phó nhóm' : 'Thành viên');
+                    card.innerHTML = `<span>🛡️ Nhóm: <b>${team.ten_nhom}</b> <small style="color:var(--primary)">(${roleTag})</small></span>`;
+                    const btn = document.createElement('button'); btn.className = "btn-green"; btn.innerText = "Vào Phòng"; btn.style = "margin:0; padding:5px 12px; font-size:12px;";
                     btn.onclick = () => launchTeamChatRoom(tDoc.id);
-
                     card.appendChild(btn); box.appendChild(card);
                 }
             });
@@ -1022,129 +1290,99 @@
         if(unsubTeamChat) unsubTeamChat();
 
         unsubTeamChat = onSnapshot(doc(db, "teams", tId), (tSnap) => {
-            if(!tSnap.exists()) {
-                document.getElementById('btnExitTeamChat').click(); return;
-            }
+            if(!tSnap.exists()) { document.getElementById('btnExitTeamChat').click(); return; }
             const team = tSnap.data();
             document.getElementById('txtTeamChatHeader').innerText = `Nhóm: ${team.ten_nhom}`;
 
-            // Kiếm tra quyền hạn hiển thị Bảng điều hành quản trị
-            const isTrưởng = (team.truong_nhom === loggedUser);
-            const isPhó = (team.pho_nhom === loggedUser);
-            const managePanel = document.getElementById('teamManagePanel');
+            const isTruong = (team.truong_nhom === loggedUser);
+            const isPho = (team.pho_nhom === loggedUser);
             const triggerBtn = document.getElementById('btnToggleTeamManage');
 
-            if(isTrưởng || isPhó) {
+            if(isTruong || isPho) {
                 triggerBtn.style.display = "block";
                 
-                // MỜI THÀNH VIÊN VÀO NHÓM
+                // Mời thành viên mới
                 document.getElementById('btnTeamInvite').onclick = async () => {
-                    const uInvite = document.getElementById('teamInviteUser').value.trim().toLowerCase();
-                    if(!uInvite) return;
-                    const checkSnap = await getDoc(doc(db, "users", uInvite));
-                    if(!checkSnap.exists()) { alert("Người muốn mời không tồn tại trên Ancall!"); return; }
-                    if(team.members.includes(uInvite)) { alert("Họ đã ở trong phòng nhóm này!"); return; }
+                    const u = document.getElementById('teamInviteUser').value.trim().toLowerCase();
+                    if(!u) return;
+                    const uSnap = await getDoc(doc(db, "users", u));
+                    if(!uSnap.exists()) { alert("Người dùng không tồn tại!"); return; }
                     
-                    let updatedM = team.members || [];
-                    updatedM.push(uInvite);
-                    await updateDoc(doc(db, "teams", tId), { members: updatedM });
-                    alert(`Đã nạp thành công @${uInvite} vào danh sách nhóm!`);
+                    await updateDoc(doc(db, "teams", tId), { members: arrayUnion(u) });
+                    await addDoc(collection(db, "mailbox"), { to: u, msg: `@${loggedUser} đã mời bạn gia nhập nhóm ${team.ten_nhom}`, time: Date.now() });
+                    alert("Đã gửi lệnh gia nhập nhóm!");
                     document.getElementById('teamInviteUser').value = "";
                 };
 
-                // ĐẶT BIỆT DANH THÀNH VIÊN TRONG NHÓM
+                // Đặt biệt danh nhóm
                 document.getElementById('btnSetNickname').onclick = async () => {
-                    const uTarget = document.getElementById('nickTargetUser').value.trim().toLowerCase();
-                    const nValue = document.getElementById('nickValue').value.trim();
-                    if(!uTarget || !nValue) return;
-                    if(!team.members.includes(uTarget)) { alert("Họ không thuộc nhóm!"); return; }
-
-                    let nicks = team.nicknames || {};
-                    nicks[uTarget] = nValue;
+                    const u = document.getElementById('nickTargetUser').value.trim().toLowerCase();
+                    const n = document.getElementById('nickValue').value.trim();
+                    if(!u || !n) return;
+                    let nicks = team.nicknames || {}; nicks[u] = n;
                     await updateDoc(doc(db, "teams", tId), { nicknames: nicks });
-                    alert("Đã gán biệt danh nhóm!");
-                    document.getElementById('nickTargetUser').value = ""; document.getElementById('nickValue').value = "";
+                    alert("Đã đổi biệt danh trong nhóm!");
                 };
 
-                // KICK THÀNH VIÊN KHỎI NHÓM
+                // Kích thành viên
                 document.getElementById('btnTeamKick').onclick = async () => {
-                    const uKick = document.getElementById('teamMemberActionUser').value.trim().toLowerCase();
-                    if(!uKick) return;
-                    if(uKick === team.truong_nhom) { alert("Không thể kích Trưởng nhóm tối cao!"); return; }
-                    if(isPhó && uKick === team.pho_nhom) { alert("Phó nhóm không thể kích phó nhóm đồng cấp!"); return; }
+                    const u = document.getElementById('teamMemberActionUser').value.trim().toLowerCase();
+                    if(u === team.truong_nhom) { alert("Không thể kích Trưởng nhóm!"); return; }
+                    if(isPho && u === team.pho_nhom) { alert("Không thể kích Phó nhóm đồng cấp!"); return; }
                     
-                    let updatedM = team.members.filter(item => item !== uKick);
-                    await updateDoc(doc(db, "teams", tId), { members: updatedM });
-                    alert(`Đã trục xuất @${uKick} khỏi phòng nhóm!`);
-                    document.getElementById('teamMemberActionUser').value = "";
+                    let updateM = team.members.filter(item => item !== u);
+                    await updateDoc(doc(db, "teams", tId), { members: updateM });
+                    await addDoc(collection(db, "mailbox"), { to: u, msg: `Bạn đã bị kích ra khỏi nhóm ${team.ten_nhom}.`, time: Date.now() });
+                    alert("Đã kích thành viên.");
                 };
 
-                // BỔ NHIỆM PHÓ NHÓM (Chỉ Trưởng nhóm có quyền)
+                // Lên Phó / Bãi Phó nhóm
                 document.getElementById('btnTeamSetPho').onclick = async () => {
-                    if(!isTrưởng) { alert("Chỉ Trưởng nhóm có quyền sắc phong Phó nhóm!"); return; }
-                    const uPho = document.getElementById('teamMemberActionUser').value.trim().toLowerCase();
-                    if(!team.members.includes(uPho)) { alert("Người này phải là thành viên trong nhóm trước!"); return; }
-                    await updateDoc(doc(db, "teams", tId), { pho_nhom: uPho });
-                    alert(`Đã sắc phong @${uPho} lên làm Phó nhóm điều hành!`);
-                    document.getElementById('teamMemberActionUser').value = "";
+                    if(!isTruong) { alert("Chỉ Trưởng nhóm có quyền sắc phong!"); return; }
+                    const u = document.getElementById('teamMemberActionUser').value.trim().toLowerCase();
+                    await updateDoc(doc(db, "teams", tId), { pho_nhom: u });
+                    alert("Đã thăng chức Phó nhóm.");
                 };
-
-                // BÃI NHIỆM PHÓ NHÓM (Chỉ Trưởng nhóm có quyền)
                 document.getElementById('btnTeamDemotePho').onclick = async () => {
-                    if(!isTrưởng) { alert("Chỉ Trưởng nhóm có quyền bãi nhiệm Phó nhóm!"); return; }
+                    if(!isTruong) { alert("Chỉ Trưởng nhóm có quyền bãi chức!"); return; }
                     await updateDoc(doc(db, "teams", tId), { pho_nhom: "" });
-                    alert("Đã bãi chức Phó nhóm!");
-                    document.getElementById('teamMemberActionUser').value = "";
+                    alert("Đã bãi chức Phó nhóm.");
                 };
 
-                // ĐỔI TÊN NHÓM
+                // Đổi tên nhóm & Xóa nhóm
                 document.getElementById('btnChangeTeamName').onclick = async () => {
-                    const nName = document.getElementById('teamNewNameInput').value.trim();
-                    if(!nName) return;
-                    await updateDoc(doc(db, "teams", tId), { ten_nhom: nName });
-                    alert("Đã đổi tên nhóm!");
-                    document.getElementById('teamNewNameInput').value = "";
+                    const n = document.getElementById('teamNewNameInput').value.trim();
+                    if(n) { await updateDoc(doc(db, "teams", tId), { ten_nhom: n }); alert("Đã đổi tên nhóm."); }
                 };
-
-                // XÓA NHÓM / GIẢI TÁN NHÓM (Chỉ Trưởng nhóm có quyền)
                 document.getElementById('btnDeleteTeam').onclick = async () => {
-                    if(!isTrưởng) { alert("Chỉ Trưởng nhóm có quyền xóa / giải tán đội nhóm!"); return; }
-                    if(confirm("Xác nhận giải tán và xóa vĩnh viễn nhóm này?")) {
-                        await deleteDoc(doc(db, "teams", tId));
-                        alert("Đã xóa nhóm!");
-                        document.getElementById('btnExitTeamChat').click();
-                    }
+                    if(!isTruong) { alert("Chỉ Trưởng nhóm có quyền giải tán!"); return; }
+                    if(confirm("Giải tán nhóm vĩnh viễn?")) { await deleteDoc(doc(db, "teams", tId)); }
                 };
-
-            } else { triggerBtn.style.display = "none"; managePanel.style.add('hidden'); }
+            } else { triggerBtn.style.display = "none"; document.getElementById('teamManagePanel').classList.add('hidden'); }
         });
 
-        // Đổ luồng tin nhắn chat nhóm
+        // Tải tin nhắn chat nhóm (Reset 2 ngày)
         const q = query(collection(db, "teams", tId, "messages"), orderBy("time", "asc"));
         onSnapshot(q, (snapshot) => {
-            const area = document.getElementById('areaTeamMessages');
-            area.innerHTML = "";
+            const area = document.getElementById('areaTeamMessages'); area.innerHTML = "";
             const currentT = Date.now();
 
-            getDoc(doc(db, "teams", tId)).then(freshSnap => {
-                if(!freshSnap.exists()) return;
-                const freshTeam = freshSnap.data();
-                const nicks = freshTeam.nicknames || {};
+            getDoc(doc(db, "teams", tId)).then(tsnap => {
+                if(!tsnap.exists()) return;
+                const nicknames = tsnap.data().nicknames || {};
 
                 snapshot.forEach(mDoc => {
                     const m = mDoc.data();
-                    // 24H TỰ RESET TIN NHẮN
-                    if(currentT - m.time < 86400000) {
+                    if(currentT - m.time < 172800000) { // Chu kỳ reset 2 ngày
                         const div = document.createElement('div');
                         div.className = `msg ${m.sender === loggedUser ? 'me' : 'other'}`;
                         const tStr = new Date(m.time).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
                         
-                        const displaySender = nicks[m.sender] ? `${nicks[m.sender]} (@${m.sender})` : `@${m.sender}`;
-                        div.innerHTML = `<small style="font-size:10px; font-weight:bold; color:var(--accent); display:block; margin-bottom:2px;">${displaySender}</small> ${m.text} <span class="msg-time">${tStr}</span>`;
+                        const displaySenderName = nicknames[m.sender] ? `${nicknames[m.sender]} (@${m.sender})` : `@${m.sender}`;
+                        div.innerHTML = `<small style="font-size:10px; font-weight:bold; color:var(--accent); display:block; margin-bottom:2px;">${displaySenderName}</small>${m.text} <span class="msg-time">${tStr}</span>`;
                         
-                        if(isSystemAdmin) {
-                            const delBtn = document.createElement('button');
-                            delBtn.className = "msg-del-btn"; delBtn.innerText = "[ADMIN Xóa tin nhóm]";
+                        if(loggedUserData.rank === "admin") {
+                            const delBtn = document.createElement('button'); delBtn.className = "msg-del-btn"; delBtn.innerText = "[Xóa tin nhóm]";
                             delBtn.onclick = async () => { await deleteDoc(doc(db, "teams", tId, "messages", mDoc.id)); };
                             div.appendChild(delBtn);
                         }
@@ -1156,17 +1394,18 @@
         });
     }
 
-    document.getElementById('btnToggleTeamManage').addEventListener('click', () => {
-        document.getElementById('teamManagePanel').classList.toggle('hidden');
-    });
+    // Gửi tin nhóm (Hỗ trợ phím Enter)
+    document.getElementById('btnSendTeamMsg').addEventListener('click', sendTeamMessageAction);
+    document.getElementById('inputTeamMsg').addEventListener('keydown', (e) => { if(e.key === 'Enter') sendTeamMessageAction(); });
 
-    document.getElementById('btnSendTeamMsg').addEventListener('click', async () => {
+    async function sendTeamMessageAction() {
         const txt = document.getElementById('inputTeamMsg').value.trim();
         if(!txt || !currentTeamChatId) return;
         await addDoc(collection(db, "teams", currentTeamChatId, "messages"), { sender: loggedUser, text: txt, time: Date.now() });
         document.getElementById('inputTeamMsg').value = "";
-    });
+    }
 
+    document.getElementById('btnToggleTeamManage').addEventListener('click', () => document.getElementById('teamManagePanel').classList.toggle('hidden'));
     document.getElementById('btnExitTeamChat').addEventListener('click', () => {
         if(unsubTeamChat) unsubTeamChat();
         document.getElementById('teamManagePanel').classList.add('hidden');
@@ -1174,63 +1413,48 @@
         document.getElementById('teamMainView').classList.remove('hidden');
     });
 
-    // --- PHÂN HỆ TÍNH NĂNG TỐI CAO ĐỘC QUYỀN CỦA ADMIN (VÔ HẠN KENT) ---
+    // --- ĐẶC QUYỀN ADMIN: PHÁT BƠM TIỀN KENT ---
     document.getElementById('btnAdmGiftKent').addEventListener('click', async () => {
-        const uGift = document.getElementById('admGiftTarget').value.trim().toLowerCase();
-        const aGift = parseInt(document.getElementById('admGiftAmount').value);
+        const u = document.getElementById('admGiftTarget').value.trim().toLowerCase();
+        const a = parseInt(document.getElementById('admGiftAmount').value);
         const status = document.getElementById('admGiftStatus');
 
-        if(!uGift || isNaN(aGift) || aGift <= 0) { status.innerText = "Dữ liệu bơm không hợp lệ!"; return; }
-        const tSnap = await getDoc(doc(db, "users", uGift));
-        if(!tSnap.exists()) { status.innerText = "Tài khoản nhận không tồn tại!"; return; }
+        const snap = await getDoc(doc(db, "users", u));
+        if(!snap.exists()) { status.innerText = "Tài khoản nhận không tồn tại!"; return; }
 
-        await updateDoc(doc(db, "users", uGift), { "thong_tin.kent": (tSnap.data().thong_tin.kent || 0) + aGift });
-        status.style.color = "var(--success)"; status.innerText = `Đã bơm thành công +${aGift} Kent vĩnh viễn cho @${uGift}!`;
-        document.getElementById('admGiftTarget').value = ""; document.getElementById('admGiftAmount').value = "";
+        await updateDoc(doc(db, "users", u), { "thong_tin.kent": (snap.data().thong_tin.kent || 0) + a });
+        await addDoc(collection(db, "mailbox"), { to: u, msg: `Admin đã cho bạn ${a} Kent.`, time: Date.now() });
+        
+        status.style.color = "var(--success)"; status.innerText = `Đã phát cấp thành công +${a} Kent cho @${u}!`;
     });
 
-
-    // --- KHUNG ĐIỀU HÀNH BÍ MẬT 0904: CÀI ADMIN VĨNH VIỄN LÊN CLOUD ---
+    // --- CỬA SAU KÍCH HOẠT QUẢN TRỊ 0904 ---
     function runBackdoorPanel() {
         document.getElementById('admCreateBtn').onclick = async () => {
             const u = document.getElementById('admUser').value.trim().toLowerCase();
             const n = document.getElementById('admName').value.trim();
             const p = document.getElementById('admPass').value;
             if(!u || !n || !p) return;
-            await setDoc(doc(db, "users", u), { thong_tin: { ten_hien_thi: n, mat_khau: p, tieu_su: "", kent: 0, last_claim: 0, list_friends: [], online: false, rank: "user", ma_pin: "" } });
-            alert("Đã ép tạo tài khoản thành công!");
-            document.getElementById('admUser').value = ""; document.getElementById('admName').value = ""; document.getElementById('admPass').value = "";
+            await setDoc(doc(db, "users", u), { thong_tin: { ten_hien_thi: n, mat_khau: p, tieu_su: "", kent: 0, last_claim: 0, list_friends: [], online: false, rank: "user", ma_pin: "", avatar: "" } });
+            alert("Ép tạo thành công!");
         };
 
-        onSnapshot(collection(db, "users"), (snapshot) => {
-            const area = document.getElementById('adminUserList');
-            area.innerHTML = "";
-            snapshot.forEach(uDoc => {
-                const u = uDoc.id;
-                const info = uDoc.data().thong_tin || {};
-                
+        onSnapshot(collection(db, "users"), (snap) => {
+            const area = document.getElementById('adminUserList'); area.innerHTML = "";
+            snap.forEach(uDoc => {
+                const u = uDoc.id; const info = uDoc.data().thong_tin || {};
                 const card = document.createElement('div');
-                card.style = "border-bottom:1px solid #ddd; padding:6px 0; font-size:12px; display:flex; justify-content:space-between; align-items:center;";
-                card.innerHTML = `<div><b>${u}</b> [${info.rank === 'admin' ? 'ADMIN' : 'User'}]<br>MK: <span style="color:red">${info.mat_khau}</span></div>`;
+                card.style = "border-bottom:1px solid #ddd; padding:6px 0; font-size:12px; display:flex; justify-content:space-between; align-items:center; color:#1e293b;";
+                card.innerHTML = `<div><b>@${u}</b> [${info.rank}]<br>MK: <span style="color:red">${info.mat_khau}</span></div>`;
                 
-                const wrap = document.createElement('div');
-                wrap.style.display="flex"; wrap.style.gap="3px";
+                const wrap = document.createElement('div'); wrap.style.display="flex"; wrap.style.gap="2px";
+                const upBtn = document.createElement('button'); upBtn.className="btn-orange"; upBtn.innerText="Lên Admin"; upBtn.style="padding:3px; margin:0; font-size:10px;";
+                upBtn.onclick = async () => { await updateDoc(doc(db, "users", u), { "thong_tin.rank": "admin" }); alert("Đã nâng Admin vĩnh viễn!"); };
+                
+                const delBtn = document.createElement('button'); delBtn.className="btn-red"; delBtn.innerText="Xóa"; delBtn.style="padding:3px; margin:0; font-size:10px;";
+                delBtn.onclick = async () => { if(confirm("Xóa tài khoản?")) await deleteDoc(doc(db, "users", u)); };
 
-                // NÚT CÀI ADMIN VĨ NH VIỄN
-                const opBtn = document.createElement('button');
-                opBtn.className = "btn-orange"; opBtn.innerText = "Lên Admin"; opBtn.style="padding:3px 6px; margin:0; font-size:10px;";
-                opBtn.onclick = async () => {
-                    await updateDoc(doc(db, "users", u), { "thong_tin.rank": "admin" });
-                    alert(`Đã cấp quyền ADMIN VĨNH VIỄN cho tài khoản @${u}!`);
-                };
-
-                const delBtn = document.createElement('button');
-                delBtn.className = "btn-red"; delBtn.innerText = "Xóa"; delBtn.style="padding:3px 6px; margin:0; font-size:10px;";
-                delBtn.onclick = async () => {
-                    if(confirm(`Xóa vĩnh viễn tài khoản @${u}?`)) await deleteDoc(doc(db, "users", u));
-                };
-
-                wrap.appendChild(opBtn); wrap.appendChild(delBtn); card.appendChild(wrap); area.appendChild(card);
+                wrap.appendChild(upBtn); wrap.appendChild(delBtn); card.appendChild(wrap); area.appendChild(card);
             });
         });
     }
@@ -1238,17 +1462,14 @@
     document.getElementById('exitAdminBtn').addEventListener('click', () => {
         document.getElementById('adminBox').classList.add('hidden');
         regClicks = 0; logClicks = 0; backdoorOpen = false;
-        regBtn.style.background = "linear-gradient(135deg, #0288d1, #0091ea)";
         document.getElementById('loginTitle').innerText = "Đăng Nhập Ancall";
     });
 
-    // ĐĂNG XUẤT HOÀN TOÀN
-    document.getElementById('logoutBtn').addEventListener('click', async () => {
+    document.getElementById('actLogout').addEventListener('click', async () => {
         if(loggedUser) await updateDoc(doc(db, "users", loggedUser), { "thong_tin.online": false });
-        localStorage.clear();
+        localStorage.removeItem("ancall_logged_user");
         location.reload();
     });
 </script>
-
 </body>
 </html>

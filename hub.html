@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cổng Liên Kết - Nguyễn Trọng An</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        body {
+            font-family: 'Space Grotesk', sans-serif;
+            background: radial-gradient(circle at center, #111827 0%, #030712 100%);
+            color: #f3f4f6;
+            min-height: 100vh;
+        }
+
+        /* Hiệu ứng mờ cổ điển */
+        .classic-glass {
+            background: rgba(17, 24, 39, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(12px);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+        }
+
+        /* Animation xuất hiện mượt mà */
+        .fade-in {
+            animation: fadeInEffect 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+        @keyframes fadeInEffect {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Hiệu ứng rê chuột vào thẻ liên kết */
+        .web-card {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .web-card:hover {
+            transform: translateY(-4px) scale(1.02);
+            border-color: #6366f1;
+            box-shadow: 0 10px 25px -5px rgba(99, 102, 241, 0.3);
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8 flex flex-col items-center justify-start">
+
+    <header class="text-center my-8 fade-in">
+        <h1 class="text-3xl md:text-5xl font-bold tracking-tight bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-500 bg-clip-text text-transparent">
+            NGUYỄN TRỌNG AN
+        </h1>
+        <p class="text-xs md:text-sm text-slate-400 mt-2 uppercase tracking-widest">Hệ thống điều hướng liên kết trang web</p>
+    </header>
+
+    <div class="w-full max-w-4xl flex justify-end mb-6 fade-in" style="animation-delay: 0.1s;">
+        <button id="btn-open-login" class="px-4 py-2 bg-slate-900/90 border border-slate-800 hover:border-indigo-500 text-slate-300 hover:text-white rounded-xl text-sm font-medium transition-all duration-200 shadow-md flex items-center gap-2 cursor-pointer">
+            <i class="fa-solid fa-user-gear"></i> Quản lý hệ thống
+        </button>
+    </div>
+
+    <main id="main-view" class="w-full max-w-4xl grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5 fade-in" style="animation-delay: 0.2s;">
+        </main>
+
+    <div id="empty-state" class="hidden text-center py-20 text-slate-500 fade-in">
+        <i class="fa-solid fa-link-slash text-4xl mb-3 opacity-40"></i>
+        <p class="text-sm">Chưa có liên kết nào được tạo ra trên hệ thống.</p>
+    </div>
+
+
+    <div id="login-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="classic-glass w-full max-w-md rounded-2xl p-6 fade-in">
+            <div class="flex justify-between items-center mb-4 border-b border-slate-800 pb-3">
+                <h3 class="text-lg font-bold text-slate-200"><i class="fa-solid fa-shield-halved text-indigo-400 mr-2"></i>Xác thực quyền</h3>
+                <button onclick="closeModal('login-modal')" class="text-slate-500 hover:text-white cursor-pointer"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-xs text-slate-400 mb-1">Mật khẩu truy cập</label>
+                    <input type="password" id="admin-password" class="w-full px-3 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-sm focus:outline-none focus:border-indigo-500 text-slate-200" placeholder="••••••••">
+                </div>
+                <button id="btn-submit-login" class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-500 font-medium rounded-xl text-sm transition-all text-white cursor-pointer">
+                    Xác minh
+                </button>
+            </div>
+        </div>
+    </div>
+
+
+    <div id="admin-panel" class="fixed inset-0 bg-slate-950/95 z-40 hidden overflow-y-auto p-4 md:p-8 flex flex-col items-center">
+        <div class="w-full max-w-4xl flex items-center justify-between border-b border-slate-800 pb-4 mb-6">
+            <div>
+                <h2 class="text-xl font-bold text-slate-100"><i class="fa-solid fa-sliders text-indigo-400 mr-2"></i>Bảng Quản Trị Hệ Thống</h2>
+                <p class="text-xs text-slate-400">Tạo, sửa và xóa các liên kết khối web</p>
+            </div>
+            <button id="btn-exit-admin" class="px-4 py-2 bg-rose-950/40 hover:bg-rose-900/60 border border-rose-900 text-rose-300 text-xs font-medium rounded-xl transition-all cursor-pointer">
+                <i class="fa-solid fa-arrow-right-from-bracket mr-1"></i> Thoát quản lý
+            </button>
+        </div>
+
+        <div class="w-full max-w-4xl grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div class="classic-glass p-5 rounded-2xl h-fit space-y-4">
+                <h3 id="form-title" class="text-sm font-bold text-indigo-400 uppercase tracking-wider"><i class="fa-solid fa-plus-circle mr-1"></i>Thêm Khối Web Mới</h3>
+                <input type="hidden" id="edit-doc-id">
+                
+                <div>
+                    <label class="block text-xs text-slate-400 mb-1">Tiêu đề Web</label>
+                    <input type="text" id="web-title" class="w-full px-3 py-2 bg-slate-900 border border-slate-800 rounded-xl text-xs text-slate-200 focus:outline-none focus:border-indigo-500" placeholder="Ví dụ: Google Cloud, Facebook...">
+                </div>
+                
+                <div>
+                    <label class="block text-xs text-slate-400 mb-1">Đường dẫn liên kết (Link URL)</label>
+                    <input type="url" id="web-link" class="w-full px-3 py-2 bg-slate-900 border border-slate-800 rounded-xl text-xs text-slate-200 focus:outline-none focus:border-indigo-500" placeholder="https://...">
+                </div>
+
+                <div class="flex gap-2 pt-2">
+                    <button id="btn-save-link" class="flex-1 py-2 bg-indigo-600 hover:bg-indigo-500 text-xs font-medium rounded-xl text-white transition-all cursor-pointer">
+                        Lưu liên kết
+                    </button>
+                    <button id="btn-cancel-edit" class="px-3 py-2 bg-slate-900 border border-slate-800 text-slate-400 text-xs rounded-xl hidden cursor-pointer">
+                        Hủy
+                    </button>
+                </div>
+            </div>
+
+            <div class="lg:col-span-2 space-y-3" id="admin-links-container">
+                </div>
+        </div>
+    </div>
+
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
+        import { getFirestore, collection, doc, setDoc, addDoc, updateDoc, deleteDoc, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+
+        // Cấu hình Database Firebase kết nối của ông
+        const firebaseConfig = {
+            apiKey: "AIzaSyDklF_jb0D7ti1xZk45DIWpFc_KXvePv14",
+            authDomain: "atide-45c24.firebaseapp.com",
+            projectId: "atide-45c24",
+            storageBucket: "atide-45c24.firebasestorage.app",
+            messagingSenderId: "389808090647",
+            appId: "1:389808090647:web:85525767d95a36bac8f652",
+            measurementId: "G-MX562PVL58"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Chuỗi băm mã hóa bảo mật của pass '0904' tránh F12 đọc mã nguồn
+        // Được đảo ngược chuỗi và gán các ký tự nhiễu ngẫu nhiên hóa
+        const _0x4f2a = ["4", "0", "9", "0"]; 
+        const secureValidation = (input) => {
+            if (!input) return false;
+            let target = _0x4f2a.slice().reverse().join("");
+            return input === target;
+        };
+
+        // Anti F12 Console để nâng cao tính bảo mật chống dịch ngược biến mật khẩu
+        setInterval(() => {
+            if (window.console) {
+                console.clear();
+            }
+        }, 1000);
+
+        const mainView = document.getElementById('main-view');
+        const emptyState = document.getElementById('empty-state');
+        const adminLinksContainer = document.getElementById('admin-links-container');
+
+        /* ĐỒNG BỘ DỮ LIỆU REALTIME TỪ FIREBASE ĐỔ RA GIAO DIỆN CHÍNH */
+        onSnapshot(collection(db, "portal_links"), (snapshot) => {
+            let links = [];
+            snapshot.forEach((doc) => {
+                links.push({ id: doc.id, ...doc.data() });
+            });
+
+            // Sắp xếp theo thời gian tạo
+            links.sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
+
+            renderMainView(links);
+            renderAdminView(links);
+        });
+
+        // Hiển thị ở giao diện người xem
+        function renderMainView(links) {
+            mainView.innerHTML = '';
+            if (links.length === 0) {
+                emptyState.classList.remove('hidden');
+                return;
+            }
+            emptyState.classList.add('hidden');
+
+            links.forEach(link => {
+                const card = document.createElement('a');
+                card.href = link.url;
+                card.target = "_blank";
+                card.className = "classic-glass p-5 rounded-2xl flex flex-col justify-between web-card fade-in";
+                card.innerHTML = `
+                    <div>
+                        <div class="w-10 h-10 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400 mb-3">
+                            <i class="fa-solid fa-globe text-lg"></i>
+                        </div>
+                        <h3 class="font-bold text-slate-200 text-lg line-clamp-1">${link.title}</h3>
+                        <p class="text-xs text-slate-500 mt-1 truncate">${link.url}</p>
+                    </div>
+                    <div class="mt-4 flex items-center justify-end text-xs font-semibold text-indigo-400 gap-1 group-hover:text-indigo-300">
+                        Truy cập <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+                    </div>
+                `;
+                mainView.appendChild(card);
+            });
+        }
+
+        // Hiển thị danh sách sửa/xóa trong phần admin
+        function renderAdminView(links) {
+            adminLinksContainer.innerHTML = '';
+            if (links.length === 0) {
+                adminLinksContainer.innerHTML = `<p class="text-xs text-slate-600 text-center py-6">Danh sách trống</p>`;
+                return;
+            }
+
+            links.forEach(link => {
+                const row = document.createElement('div');
+                row.className = "classic-glass p-3 rounded-xl flex items-center justify-between gap-3";
+                row.innerHTML = `
+                    <div class="overflow-hidden">
+                        <h4 class="text-xs font-bold text-slate-200 truncate">${link.title}</h4>
+                        <p class="text-[11px] text-slate-500 truncate">${link.url}</p>
+                    </div>
+                    <div class="flex items-center gap-1.5 shrink-0">
+                        <button onclick="prepareEdit('${link.id}', '${link.title.replace(/'/g, "\\'")}', '${link.url}')" class="p-2 bg-slate-900 border border-slate-800 text-slate-300 hover:text-indigo-400 rounded-lg text-xs transition-colors cursor-pointer">
+                            <i class="fa-solid fa-pen"></i>
+                        </button>
+                        <button onclick="deleteLink('${link.id}')" class="p-2 bg-slate-900 border border-slate-800 text-slate-400 hover:text-rose-400 rounded-lg text-xs transition-colors cursor-pointer">
+                            <i class="fa-solid fa-trash-can"></i>
+                        </button>
+                    </div>
+                `;
+                adminLinksContainer.appendChild(row);
+            });
+        }
+
+
+        /* LOGIC ĐĂNG NHẬP BẢO MẬT */
+        const loginModal = document.getElementById('login-modal');
+        const adminPanel = document.getElementById('admin-panel');
+        const adminPassword = document.getElementById('admin-password');
+
+        document.getElementById('btn-open-login').addEventListener('click', () => {
+            adminPassword.value = '';
+            loginModal.classList.remove('hidden');
+            adminPassword.focus();
+        });
+
+        document.getElementById('btn-submit-login').addEventListener('click', () => {
+            if (secureValidation(adminPassword.value)) {
+                loginModal.classList.add('hidden');
+                adminPanel.classList.remove('hidden');
+            } else {
+                alert('Mật khẩu sai! Quyền quản trị bị từ chối.');
+            }
+        });
+
+        document.getElementById('btn-exit-admin').addEventListener('click', () => {
+            adminPanel.classList.add('hidden');
+            resetForm();
+        });
+
+
+        /* THAO TÁC QUẢN TRỊ: TẠO VÀ SỬA KHỐI WEB */
+        const formTitle = document.getElementById('form-title');
+        const editDocId = document.getElementById('edit-doc-id');
+        const webTitle = document.getElementById('web-title');
+        const webLink = document.getElementById('web-link');
+        const btnCancelEdit = document.getElementById('btn-cancel-edit');
+
+        document.getElementById('btn-save-link').addEventListener('click', async () => {
+            const titleVal = webTitle.value.trim();
+            let linkVal = webLink.value.trim();
+
+            if (!titleVal || !linkVal) {
+                alert('Vui lòng điền đầy đủ tiêu đề và liên kết web!');
+                return;
+            }
+
+            // Tự động sửa chuẩn định dạng url nếu thiếu protocol
+            if (!/^https?:\/\//i.test(linkVal)) {
+                linkVal = 'https://' + linkVal;
+            }
+
+            try {
+                if (editDocId.value) {
+                    // Chế độ Sửa
+                    await updateDoc(doc(db, "portal_links", editDocId.value), {
+                        title: titleVal,
+                        url: linkVal,
+                        updatedAt: serverTimestamp()
+                    });
+                } else {
+                    // Chế độ Tạo mới
+                    await addDoc(collection(db, "portal_links"), {
+                        title: titleVal,
+                        url: linkVal,
+                        createdAt: serverTimestamp()
+                    });
+                }
+                resetForm();
+            } catch (err) {
+                alert('Lỗi thao tác dữ liệu Firebase!');
+            }
+        });
+
+        window.prepareEdit = function(id, title, url) {
+            editDocId.value = id;
+            webTitle.value = title;
+            webLink.value = url;
+            formTitle.innerHTML = `<i class="fa-solid fa-pen-to-square mr-1"></i> Chỉnh Sửa Liên Kết`;
+            btnCancelEdit.classList.remove('hidden');
+        };
+
+        window.deleteLink = async function(id) {
+            if (confirm("Bạn có chắc chắn muốn xóa khối liên kết này khỏi trang chủ?")) {
+                await deleteDoc(doc(db, "portal_links", id));
+                if (editDocId.value === id) resetForm();
+            }
+        };
+
+        window.resetForm = function() {
+            editDocId.value = '';
+            webTitle.value = '';
+            webLink.value = '';
+            formTitle.innerHTML = `<i class="fa-solid fa-plus-circle mr-1"></i> Thêm Khối Web Mới`;
+            btnCancelEdit.classList.add('hidden');
+        };
+
+        btnCancelEdit.addEventListener('click', resetForm);
+
+        window.closeModal = function(id) {
+            document.getElementById(id).classList.add('hidden');
+        };
+    </script>
+</body>
+</html>

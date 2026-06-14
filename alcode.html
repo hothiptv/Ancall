@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sci-Fi Minimal HTML Runner</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <link rel="stylesheet" href="https://hothiptvn.neocities.org/at/an.css">
+
+    <style>
+        /* CSS điều phối bố cục toàn màn hình (Không chứa thuộc tính màu sắc) */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        /* Màn hình nhập code trải rộng */
+        .editor-fullscreen {
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.75);
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            padding: 30px;
+            padding-top: 80px; /* Chừa không gian cho nút tròn */
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 16px;
+            resize: none;
+            outline: none;
+            line-height: 1.6;
+        }
+        /* Khối tròn điều khiển nằm ở góc phải trên */
+        .control-circle-wrapper {
+            position: fixed;
+            top: 40px;
+            right: 40px;
+            z-index: 100;
+        }
+        /* Nút kích hoạt chính - hình tròn trịa */
+        .main-circle-trigger {
+            width: 56px;
+            height: 56px;
+            border-radius: 50% !important; /* Buộc thành hình tròn */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            cursor: pointer;
+        }
+        /* Danh sách chức năng ẩn bên trong khối tròn */
+        .circle-menu-list {
+            display: none;
+            position: absolute;
+            top: 70px;
+            right: 0;
+            flex-direction: column;
+            gap: 10px;
+            padding: 12px;
+            min-width: 160px;
+        }
+        .circle-menu-list.active {
+            display: flex;
+        }
+        .circle-menu-list button {
+            width: 100%;
+            justify-content: flex-start;
+            gap: 10px;
+            font-size: 0.9rem;
+            padding: 10px 16px;
+        }
+        /* Trình xem kết quả HTML Full màn hình */
+        #runner-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: #fff;
+            z-index: 9999;
+        }
+        #runner-frame {
+            width: 100%;
+            height: 100%;
+            border: none;
+            padding-top: 40px;
+            box-sizing: border-box;
+        }
+        /* Thanh thoát màu đỏ */
+        .runner-exit-bar {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 40px;
+            background: #ff3333;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            cursor: pointer;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            letter-spacing: 1px;
+            z-index: 10000;
+        }
+    </style>
+</head>
+<body>
+
+    <textarea class="cyber-input editor-fullscreen" id="html-code-editor" placeholder="// Dán hoặc gõ mã HTML của ông bạn vào đây để thực thi..."></textarea>
+
+    <div class="control-circle-wrapper">
+        <button class="cyber-btn main-circle-trigger" id="circle-trigger" title="Mở bảng điều khiển">
+            <i class="fa-solid fa-gear"></i>
+        </button>
+
+        <div class="cyber-box circle-menu-list" id="circle-options">
+            <button class="cyber-btn" id="opt-run"><i class="fa-solid fa-play" style="color: #4caf50;"></i> CHẠY CODE</button>
+            <button class="cyber-btn" id="opt-paste"><i class="fa-solid fa-clipboard"></i> DÁN VÔ</button>
+            <button class="cyber-btn" id="opt-replace"><i class="fa-solid fa-arrows-rotate"></i> THAY THẾ</button>
+            <button class="cyber-btn" id="opt-clear"><i class="fa-solid fa-trash-can" style="color: #ff3333;"></i> XÓA SẠCH</button>
+        </div>
+    </div>
+
+    <div id="runner-overlay">
+        <div class="runner-exit-bar" id="exit-runner-bar">
+            <i class="fa-solid fa-power-off" style="margin-right: 8px;"></i> THOÁT TRÌNH CHẠY HTML (CLICK VÀO ĐÂY)
+        </div>
+        <iframe id="runner-frame"></iframe>
+    </div>
+
+    <script>
+        const editor = document.getElementById('html-code-editor');
+        const circleTrigger = document.getElementById('circle-trigger');
+        const circleOptions = document.getElementById('circle-options');
+        
+        const optRun = document.getElementById('opt-run');
+        const optPaste = document.getElementById('opt-paste');
+        const optReplace = document.getElementById('opt-replace');
+        const optClear = document.getElementById('opt-clear');
+        
+        const runnerOverlay = document.getElementById('runner-overlay');
+        const runnerFrame = document.getElementById('runner-frame');
+        const exitRunnerBar = document.getElementById('exit-runner-bar');
+
+        // 1. Click vào khối tròn để bung/thu menu chức năng
+        circleTrigger.addEventListener('click', (e) => {
+            e.stopPropagation();
+            circleOptions.classList.toggle('active');
+            
+            // Xoay icon nhẹ khi mở ra cho sinh động
+            const icon = circleTrigger.querySelector('i');
+            if(circleOptions.classList.contains('active')) {
+                icon.style.transform = 'rotate(90deg)';
+                icon.style.transition = 'transform 0.3s ease';
+            } else {
+                icon.style.transform = 'rotate(0deg)';
+            }
+        });
+
+        // Click bất kỳ đâu bên ngoài để đóng khối tròn lại
+        document.addEventListener('click', () => {
+            circleOptions.classList.remove('active');
+            circleTrigger.querySelector('i').style.transform = 'rotate(0deg)';
+        });
+
+        // 2. Tính năng DÁN CODE (Nối tiếp vào vùng nhập)
+        optPaste.addEventListener('click', async () => {
+            try {
+                const clipboardText = await navigator.clipboard.readText();
+                editor.value += clipboardText;
+            } catch (err) {
+                alert('Không thể đọc dữ liệu bộ nhớ tạm. Hãy dùng phím Ctrl + V bro nhé!');
+            }
+        });
+
+        // 3. Tính năng THAY THẾ CODE (Xóa hết rồi dán đè dữ liệu mới)
+        optReplace.addEventListener('click', async () => {
+            try {
+                const clipboardText = await navigator.clipboard.readText();
+                editor.value = clipboardText;
+            } catch (err) {
+                alert('Không thể lấy dữ liệu bộ nhớ để thay thế!');
+            }
+        });
+
+        // 4. Tính năng XÓA SẠCH
+        optClear.addEventListener('click', () => {
+            if(confirm('Xóa sạch sành sanh toàn bộ code hiện tại nghe ông bạn?')) {
+                editor.value = '';
+            }
+        });
+
+        // 5. Tính năng CHẠY CODE FULL MÀN HÌNH
+        optRun.addEventListener('click', () => {
+            const userCode = editor.value;
+            if(!userCode.trim()) {
+                alert('Màn hình đang trống rỗng, bro dán code vô rồi mới chạy được nha!');
+                return;
+            }
+
+            const frameDoc = runnerFrame.contentDocument || runnerFrame.contentWindow.document;
+            frameDoc.open();
+            frameDoc.write(userCode);
+            frameDoc.close();
+
+            runnerOverlay.style.display = 'block';
+        });
+
+        // 6. Thoát chế độ Full màn hình bằng thanh màu đỏ trên cùng
+        exitRunnerBar.addEventListener('click', () => {
+            runnerOverlay.style.display = 'none';
+            runnerFrame.src = 'about:blank'; // Xóa cache trang vừa chạy tránh xung đột
+        });
+    </script>
+</body>
+</html>

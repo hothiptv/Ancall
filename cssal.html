@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSSAL - ALTIDE CSS Gallery</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --bg-main: #f8fafc;
+            --bg-card: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --border: #e2e8f0;
+            --success: #10b981;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+        body { background-color: var(--bg-main); color: var(--text-main); min-height: 100vh; display: flex; flex-direction: column; overflow-x: hidden; }
+        
+        /* Navbar */
+        header { background: var(--bg-card); border-bottom: 1px solid var(--border); padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; position: relative; box-shadow: 0 1px 2px rgba(0,0,0,0.02); z-index: 10; }
+        .logo { font-weight: 700; font-size: 1.25rem; color: var(--primary); letter-spacing: 1px; }
+        .menu-btn { background: none; border: none; font-size: 1.5rem; color: var(--text-main); cursor: pointer; padding: 0.5rem; transition: transform 0.2s; }
+        .menu-btn:hover { transform: scale(1.1); }
+        
+        /* Sidebar Menu */
+        .sidebar { position: fixed; top: 0; right: -300px; width: 300px; height: 100%; background: var(--bg-card); box-shadow: -4px 0 25px rgba(0,0,0,0.08); z-index: 100; transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1); padding: 2rem 1.5rem; }
+        .sidebar.active { right: 0; }
+        .close-sidebar { background: none; border: none; font-size: 1.25rem; float: right; cursor: pointer; color: var(--text-muted); transition: color 0.2s; }
+        .close-sidebar:hover { color: #ef4444; }
+        .sidebar-menu { margin-top: 3rem; list-style: none; }
+        .sidebar-menu li { margin-bottom: 1rem; }
+        .sidebar-menu a { display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1rem; color: var(--text-main); text-decoration: none; border-radius: 0.5rem; font-weight: 500; transition: all 0.2s; }
+        .sidebar-menu a:hover { background: #f1f5f9; color: var(--primary); padding-left: 1.25rem; }
+
+        /* Main Content Areas & Animation */
+        .container { max-width: 1200px; width: 100%; margin: 2rem auto; padding: 0 1rem; flex: 1; }
+        
+        .view-section { display: none; opacity: 0; transform: translateY(10px); transition: opacity 0.3s ease, transform 0.3s ease; }
+        .view-section.active { display: block; opacity: 1; transform: translateY(0); }
+
+        /* Gallery View */
+        .gallery-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1.5rem; margin-top: 1.5rem; }
+        .css-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 0.75rem; padding: 1.5rem; display: flex; flex-direction: column; gap: 1rem; box-shadow: 0 2px 4px rgba(0,0,0,0.01); transition: all 0.25s ease; }
+        .css-card:hover { transform: translateY(-4px); box-shadow: 0 10px 20px rgba(0,0,0,0.04); border-color: #cbd5e1; }
+        .card-header { display: flex; justify-content: space-between; align-items: flex-start; }
+        .card-title { font-weight: 600; font-size: 1.1rem; color: var(--text-main); }
+        
+        /* Đã fix Khung chứa Iframe Preview cô lập hoàn toàn */
+        .card-preview-box { background: #f8fafc; border-radius: 0.5rem; border: 1px dashed #cbd5e1; height: 110px; position: relative; overflow: hidden; display: flex; justify-content: center; align-items: center; }
+        .mini-preview-iframe { width: 100%; height: 100%; border: none; background: transparent; pointer-events: none; }
+        
+        .card-actions { display: flex; gap: 0.5rem; margin-top: auto; }
+        
+        /* Buttons Effect */
+        .btn { padding: 0.6rem 1.2rem; border-radius: 0.5rem; border: 1px solid var(--border); background: var(--bg-card); color: var(--text-main); font-weight: 500; cursor: pointer; display: inline-flex; align-items: center; gap: 0.5rem; font-size: 0.9rem; transition: all 0.2s ease; }
+        .btn-primary { background: var(--primary); color: white; border-color: var(--primary); }
+        .btn-primary:hover { background: var(--primary-hover); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2); }
+        .btn-danger { background: #ef4444; color: white; border-color: #ef4444; }
+        .btn-danger:hover { background: #dc2626; box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2); }
+        .btn:hover { background: #f1f5f9; border-color: #cbd5e1; }
+        .btn:active { transform: scale(0.98); }
+
+        /* Management Screen Base */
+        .empty-screen-hint { text-align: center; color: var(--text-muted); margin: 8rem auto; font-size: 0.95rem; user-select: none; cursor: pointer; padding: 2rem; border-radius: 0.75rem; max-width: 400px; transition: background 0.2s; }
+        .empty-screen-hint:hover { background: #f1f5f9; }
+        
+        /* Secret Admin Dashboard Section */
+        #admin-dashboard { display: none; margin-top: 2rem; animation: fadeInAdmin 0.4s ease forwards; }
+        @keyframes fadeInAdmin { from { opacity: 0; transform: scale(0.98); } to { opacity: 1; transform: scale(1); } }
+        
+        .admin-grid { display: grid; grid-template-columns: 1fr 1.5fr; gap: 2rem; margin-top: 1.5rem; }
+        @media (max-width: 768px) { .admin-grid { grid-template-columns: 1fr; } }
+        
+        /* Forms & Inputs */
+        .form-group { margin-bottom: 1.25rem; display: flex; flex-direction: column; gap: 0.4rem; }
+        .form-group label { font-size: 0.85rem; font-weight: 600; color: var(--text-muted); }
+        .form-control { width: 100%; padding: 0.75rem; border: 1px solid var(--border); border-radius: 0.5rem; background: var(--bg-card); color: var(--text-main); font-size: 0.95rem; transition: all 0.2s; }
+        .form-control:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15); }
+        textarea.form-control { min-height: 160px; resize: vertical; font-family: monospace; font-size: 0.85rem; }
+
+        /* Admin Table */
+        .admin-table-container { background: var(--bg-card); border: 1px solid var(--border); border-radius: 0.75rem; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.02); }
+        .admin-table { width: 100%; border-collapse: collapse; text-align: left; }
+        .admin-table th, .admin-table td { padding: 1rem; border-bottom: 1px solid var(--border); font-size: 0.9rem; }
+        .admin-table th { background: #f1f5f9; font-weight: 600; color: var(--text-muted); }
+        .admin-table tr:last-child td { border-bottom: none; }
+
+        /* UI Tester Modal / Panel */
+        .tester-container { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; height: calc(100vh - 200px); min-height: 500px; margin-top: 1.5rem; }
+        @media (max-width: 768px) { .tester-container { grid-template-columns: 1fr; height: auto; } }
+        .tester-pane { border: 1px solid var(--border); border-radius: 0.75rem; background: var(--bg-card); display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.01); }
+        .pane-header { background: #f1f5f9; padding: 0.75rem 1rem; border-bottom: 1px solid var(--border); font-weight: 600; font-size: 0.85rem; color: var(--text-muted); display: flex; justify-content: space-between; align-items: center; }
+        .tester-iframe { width: 100%; flex: 1; border: none; background: white; min-height: 350px; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo">ALTIDE // CSSAL</div>
+        <button class="menu-btn" id="open-menu" aria-label="Menu"><i class="fa-solid fa-bars"></i></button>
+    </header>
+
+    <div class="sidebar" id="sidebar">
+        <button class="close-sidebar" id="close-menu"><i class="fa-solid fa-xmark"></i></button>
+        <ul class="sidebar-menu">
+            <li><a href="#" onclick="switchView('gallery')"><i class="fa-solid fa-images"></i> Khu trưng bày</a></li>
+            <li><a href="#" onclick="switchView('management')"><i class="fa-solid fa-gear"></i> Quản lý hệ thống</a></li>
+        </ul>
+    </div>
+
+    <div class="container">
+        
+        <div id="gallery-view" class="view-section active">
+            <h2>Bộ sưu tập CSSAL</h2>
+            <p style="color: var(--text-muted); margin-bottom: 1.5rem;">Các giải pháp CSS độc lập được phát triển bởi ALTIDE.</p>
+            <div class="gallery-grid" id="gallery-list">
+                <p style="color: var(--text-muted);">Đang kết nối dữ liệu từ hệ thống CSSAL...</p>
+            </div>
+        </div>
+
+        <div id="management-view" class="view-section">
+            <div>
+                <button class="btn" onclick="switchView('gallery')"><i class="fa-solid fa-arrow-left"></i> Quay lại trưng bày</button>
+            </div>
+            
+            <div class="empty-screen-hint" id="secret-click-zone">
+                <i class="fa-solid fa-eye-slash" style="font-size: 1.5rem; margin-bottom: 0.5rem; display: block; opacity: 0.5;"></i>
+                Giao diện quản lý trống.<br>
+                <small style="opacity: 0.4; font-size: 0.8rem;">(Khu vực bảo mật nghiêm ngặt)</small>
+            </div>
+
+            <div id="admin-dashboard">
+                <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 1rem;">
+                    <h3 style="color: var(--success);"><i class="fa-solid fa-shield-halved"></i> TRÌNH QUẢN TRỊ VIÊN CAO CẤP</h3>
+                    <button class="btn btn-danger" style="padding: 0.4rem 0.8rem; font-size: 0.8rem;" onclick="lockAdmin()"><i class="fa-solid fa-lock"></i> Khóa bảng điều khiển</button>
+                </div>
+                
+                <div class="admin-grid">
+                    <div style="background: var(--bg-card); padding: 1.5rem; border: 1px solid var(--border); border-radius: 0.75rem;">
+                        <h4 id="form-title" style="margin-bottom: 1.2rem; font-weight: 600;">Thêm Link CSS mới</h4>
+                        <form id="css-form">
+                            <input type="hidden" id="edit-id">
+                            <div class="form-group">
+                                <label>Tên giao diện / Bộ CSS</label>
+                                <input type="text" id="css-name" class="form-control" placeholder="Ví dụ: Futuristic Sci-fi Theme" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Đường dẫn file CSS (.css CDN URL)</label>
+                                <input type="url" id="css-url" class="form-control" placeholder="https://domain.com/style.css" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Tài liệu & Cấu trúc mẫu hướng dẫn sử dụng</label>
+                                <textarea id="css-docs" class="form-control" placeholder="Dán nội dung tệp tin hướng dẫn sử dụng các Class tại đây..."></textarea>
+                            </div>
+                            <div style="display: flex; gap: 0.5rem; margin-top: 1.25rem;">
+                                <button type="submit" class="btn btn-primary" style="flex: 1;"><i class="fa-solid fa-floppy-disk"></i> Lưu cấu hình</button>
+                                <button type="button" class="btn" id="btn-cancel-edit" style="display:none;" onclick="resetForm()">Hủy</button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div class="admin-table-container">
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th>Tên bộ CSS</th>
+                                    <th>Đường dẫn tệp tin</th>
+                                    <th style="width: 100px; text-align: right;">Thao tác</th>
+                                </tr>
+                            </thead>
+                            <tbody id="admin-list">
+                                </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="tester-view" class="view-section">
+            <div style="display:flex; justify-content: space-between; align-items:center; margin-bottom: 1rem; flex-wrap: wrap; gap: 1rem;">
+                <div>
+                    <button class="btn" onclick="switchView('gallery')"><i class="fa-solid fa-arrow-left"></i> Trở về bộ sưu tập</button>
+                    <h2 id="tester-title" style="display:inline-block; margin-left: 1rem; vertical-align: middle;">Kiểm thử Giao diện</h2>
+                </div>
+                <button class="btn btn-primary" onclick="runTestCode()"><i class="fa-solid fa-rotate"></i> Cập nhật giao diện (Render)</button>
+            </div>
+            
+            <div class="tester-container">
+                <div class="tester-pane">
+                    <div class="pane-header">MÃ CẤU TRÚC HTML THỬ NGHIỆM (Chỉnh sửa tùy ý)</div>
+                    <textarea id="html-code-input" class="form-control" style="flex:1; font-family:monospace; border:none; border-radius:0; padding:1rem; resize:none; line-height: 1.5; background: #272822; color: #f8f8f2;"></textarea>
+                </div>
+                <div class="tester-pane">
+                    <div class="pane-header">
+                        <span>LIVE UI SIMULATOR</span>
+                        <span style="font-size: 0.75rem; color: var(--success);"><i class="fa-solid fa-circle-check"></i> Đang chạy Sandboxed</span>
+                    </div>
+                    <iframe id="preview-iframe" class="tester-iframe"></iframe>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-analytics.js";
+        import { getFirestore, collection, addDoc, doc, updateDoc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDklF_jb0D7ti1xZk45DIWpFc_KXvePv14",
+            authDomain: "atide-45c24.firebaseapp.com",
+            projectId: "atide-45c24",
+            storageBucket: "atide-45c24.firebasestorage.app",
+            messagingSenderId: "389808090647",
+            appId: "1:389808090647:web:85525767d95a36bac8f652",
+            measurementId: "G-MX562PVL58"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
+        const db = getFirestore(app);
+        const cssalCollection = collection(db, "CSSAL");
+
+        let localCSSData = [];
+
+        // --- ĐIỀU HƯỚNG VIEW KHÔNG BỊ CHỒNG LÊN NHAU ---
+        const sidebar = document.getElementById('sidebar');
+        document.getElementById('open-menu').addEventListener('click', () => sidebar.classList.add('active'));
+        document.getElementById('close-menu').addEventListener('click', () => sidebar.classList.remove('active'));
+
+        window.switchView = function(viewId) {
+            sidebar.classList.remove('active');
+            
+            document.querySelectorAll('.view-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            const targetSection = document.getElementById(`${viewId}-view`);
+            if(targetSection) {
+                targetSection.classList.add('active');
+            }
+            
+            if(viewId !== 'management') {
+                lockAdmin();
+            }
+        }
+
+        // --- CƠ CHẾ ẤN KHẨU MẬT MÃ (3 LẦN -> ĐỢI 2S -> 2 LẦN -> 3 LẦN) ---
+        let clickPattern = []; 
+        let lastClickTime = 0;
+        let waitingPeriodPassed = false;
+
+        document.getElementById('secret-click-zone').addEventListener('click', function() {
+            const now = new Date().getTime();
+            
+            if(clickPattern.length === 0) {
+                clickPattern.push(1);
+            } else {
+                const timeDiff = now - lastClickTime;
+                if (clickPattern.length === 3 && timeDiff >= 1700 && timeDiff <= 3500) {
+                    waitingPeriodPassed = true;
+                }
+                clickPattern.push(1);
+            }
+            
+            lastClickTime = now;
+            checkSecretCode();
+        });
+
+        function checkSecretCode() {
+            if (clickPattern.length === 5 && !waitingPeriodPassed) {
+                clickPattern = [1]; 
+                waitingPeriodPassed = false;
+            } else if (clickPattern.length === 8) {
+                if (waitingPeriodPassed) {
+                    document.getElementById('secret-click-zone').style.display = 'none';
+                    document.getElementById('admin-dashboard').style.display = 'block';
+                } else {
+                    clickPattern = [1];
+                    waitingPeriodPassed = false;
+                }
+            }
+        }
+
+        window.lockAdmin = function() {
+            clickPattern = [];
+            waitingPeriodPassed = false;
+            document.getElementById('admin-dashboard').style.display = 'none';
+            document.getElementById('secret-click-zone').style.display = 'block';
+        }
+
+        // --- ĐỒNG BỘ DỮ LIỆU TỪ FIREBASE REALTIME VÀ FIX CO LẬP IFRAME ---
+        onSnapshot(cssalCollection, (snapshot) => {
+            localCSSData = [];
+            const galleryList = document.getElementById('gallery-list');
+            const adminList = document.getElementById('admin-list');
+            
+            galleryList.innerHTML = '';
+            adminList.innerHTML = '';
+
+            if(snapshot.empty) {
+                galleryList.innerHTML = '<p style="color: var(--text-muted); grid-column: 1/-1; text-align: center; margin-top: 2rem;">Chưa có tệp CSS nào được tải lên dữ liệu CSSAL.</p>';
+                adminList.innerHTML = '<tr><td colspan="3" style="text-align:center; color:var(--text-muted); padding:2rem;">Hệ thống rỗng</td></tr>';
+                return;
+            }
+
+            snapshot.forEach((doc) => {
+                const data = doc.data();
+                const id = doc.id;
+                localCSSData.push({ id, ...data });
+
+                // Giao diện Khung trưng bày ở màn hình chính
+                const card = document.createElement('div');
+                card.className = 'css-card';
+                card.innerHTML = `
+                    <div class="card-header">
+                        <div class="card-title">${data.name}</div>
+                    </div>
+                    <div class="card-preview-box">
+                        <iframe class="mini-preview-iframe" id="mini-iframe-${id}"></iframe>
+                    </div>
+                    <div class="card-actions">
+                        <button class="btn btn-primary" style="flex:1;" onclick="openUITester('${id}')"><i class="fa-solid fa-code"></i> Xem & Test UI</button>
+                        <button class="btn" onclick="copyLink('${data.url}')" title="Sao chép đường dẫn"><i class="fa-solid fa-copy"></i> Copy Link</button>
+                    </div>
+                `;
+                galleryList.appendChild(card);
+
+                // Ghi mã HTML mini vào iframe của card để tạo nút xem trước không bị lây nhiễm CSS ra ngoài
+                setTimeout(() => {
+                    const miniIframe = document.getElementById(`mini-iframe-${id}`);
+                    if(miniIframe) {
+                        const iframeDoc = miniIframe.contentDocument || miniIframe.contentWindow.document;
+                        iframeDoc.open();
+                        iframeDoc.write(`
+                            <!DOCTYPE html>
+                            <html>
+                            <head>
+                                <link rel="stylesheet" href="${data.url}">
+                                <style>
+                                    body { 
+                                        margin: 0; 
+                                        padding: 0; 
+                                        display: flex; 
+                                        justify-content: center; 
+                                        align-items: center; 
+                                        height: 100vh; 
+                                        background: transparent !important; /* Triệt tiêu màu nền body của css ngoại lai */
+                                        overflow: hidden;
+                                    }
+                                </style>
+                            </head>
+                            <body>
+                                <button class="cyber-btn" style="pointer-events: auto; white-space: nowrap;">CẤU TRÚC PHOM NÚT</button>
+                            </body>
+                            </html>
+                        `);
+                        iframeDoc.close();
+                    }
+                }, 50);
+
+                // Giao diện danh sách quản lý thô trong admin
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td style="font-weight:600; color:var(--text-main);">${data.name}</td>
+                    <td style="color: var(--text-muted); font-size:0.8rem; max-width:250px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${data.url}</td>
+                    <td style="text-align: right; white-space: nowrap;">
+                        <button class="btn" style="padding: 0.35rem 0.6rem; font-size:0.8rem; border-color: #cbd5e1;" onclick="editCSS('${id}')"><i class="fa-solid fa-pen"></i></button>
+                        <button class="btn btn-danger" style="padding: 0.35rem 0.6rem; font-size:0.8rem;" onclick="deleteCSS('${id}')"><i class="fa-solid fa-trash-can"></i></button>
+                    </td>
+                `;
+                adminList.appendChild(row);
+            });
+        });
+
+        // --- THAO TÁC CƠ SỞ DỮ LIỆU ---
+        document.getElementById('css-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const id = document.getElementById('edit-id').value;
+            const name = document.getElementById('css-name').value;
+            const url = document.getElementById('css-url').value;
+            const docs = document.getElementById('css-docs').value;
+
+            const payload = { name, url, docs, timestamp: new Date().getTime() };
+
+            try {
+                if(id) {
+                    await updateDoc(doc(db, "CSSAL", id), payload);
+                } else {
+                    await addDoc(cssalCollection, payload);
+                }
+                resetForm();
+            } catch (error) {
+                console.error(error);
+                alert("Đã xảy ra lỗi đồng bộ.");
+            }
+        });
+
+        window.editCSS = function(id) {
+            const item = localCSSData.find(i => i.id === id);
+            if(item) {
+                document.getElementById('edit-id').value = item.id;
+                document.getElementById('css-name').value = item.name;
+                document.getElementById('css-url').value = item.url;
+                document.getElementById('css-docs').value = item.docs || '';
+                document.getElementById('form-title').innerText = "Cập nhật bộ CSS";
+                document.getElementById('btn-cancel-edit').style.display = 'inline-flex';
+            }
+        }
+
+        window.resetForm = function() {
+            document.getElementById('edit-id').value = '';
+            document.getElementById('css-form').reset();
+            document.getElementById('form-title').innerText = "Thêm Link CSS mới";
+            document.getElementById('btn-cancel-edit').style.display = 'none';
+        }
+
+        window.deleteCSS = async function(id) {
+            if(confirm("Xác nhận gỡ bỏ hoàn toàn liên kết CSS này?")) {
+                await deleteDoc(doc(db, "CSSAL", id));
+            }
+        }
+
+        // --- KHU TRÌNH DIỄN UI SỬ DỤNG IFRAME ---
+        window.openUITester = function(id) {
+            const item = localCSSData.find(i => i.id === id);
+            if(!item) return;
+
+            document.getElementById('tester-title').innerText = `Kiểm thử: ${item.name}`;
+            
+            let testTemplate = `<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ALTIDE LIVE PREVIEW</title>
+    <link rel="stylesheet" href="${item.url}">
+</head>
+<body>
+
+    <h1 class="cyber-h1">TRỌNG AN GAMING</h1>
+    <br><br>
+    
+    <div class="cyber-box">
+        <p class="cyber-small-text">HỆ THỐNG ĐANG HOẠT ĐỘNG</p>
+        <br><br>
+        
+        <input type="text" class="cyber-input" placeholder="Nickname...">
+        <br><br>
+        
+        <button class="cyber-btn">KÍCH HOẠT</button>
+        <br><br>
+        
+        <label class="cyber-toggle">
+            <input type="checkbox">
+            <span class="toggle-slider"></span>
+        </label>
+    </div>
+
+</body>
+</html>`;
+
+            document.getElementById('html-code-input').value = testTemplate;
+            switchView('tester');
+            runTestCode();
+        }
+
+        window.runTestCode = function() {
+            const code = document.getElementById('html-code-input').value;
+            const iframe = document.getElementById('preview-iframe');
+            const docFrame = iframe.contentDocument || iframe.contentWindow.document;
+            docFrame.open();
+            docFrame.write(code);
+            docFrame.close();
+        }
+
+        window.copyLink = function(url) {
+            navigator.clipboard.writeText(url).then(() => {
+                alert("📋 Đã copy link CSS thành công!");
+            });
+        }
+    </script>
+</body>
+</html>

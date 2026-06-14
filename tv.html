@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Hệ Thống Thành Viên VIP</title>
+    <style>
+        :root {
+            --primary: #007bff;
+            --success: #2cbb42;
+            --danger: #ea4335;
+            --dark: #202124;
+            --glass: rgba(255, 255, 255, 0.88);
+        }
+
+        /* Khóa kéo và zoom màn hình tạo cảm giác như App Mobile */
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            touch-action: none;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .app-container {
+            width: 92%;
+            max-width: 420px;
+            height: 80vh;
+            background: var(--glass);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 24px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Hiệu ứng trượt UI cực mượt */
+        .view-panel {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            box-sizing: border-box;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            visibility: hidden;
+            transform: translateX(100%);
+            transition: transform 0.4s cubic-bezier(0.1, 0.76, 0.55, 0.94), visibility 0.4s;
+            background: #ffffff;
+            z-index: 1;
+        }
+
+        .view-panel.active {
+            visibility: visible;
+            transform: translateX(0);
+        }
+
+        /* Riêng màn hình Tìm Kiếm mặc định nằm nền trong suốt */
+        #search-view {
+            visibility: visible;
+            transform: translateX(0);
+            background: transparent;
+            z-index: 2;
+        }
+        #search-view.inactive {
+            visibility: hidden;
+            transform: translateX(-100%);
+        }
+
+        h2 {
+            margin-top: 0;
+            color: var(--dark);
+            text-align: center;
+            font-size: 22px;
+            font-weight: 700;
+        }
+
+        /* --- THANH TÌM KIẾM --- */
+        .search-box {
+            display: flex;
+            background: white;
+            border-radius: 16px;
+            padding: 4px 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+            align-items: center;
+        }
+        .search-box:focus-within {
+            border-color: var(--primary);
+            box-shadow: 0 4px 16px rgba(0,123,255,0.2);
+        }
+        .search-box.cheat-on {
+            border-color: var(--success) !important;
+            box-shadow: 0 4px 16px rgba(44,187,66,0.2);
+        }
+
+        .search-box input {
+            flex: 1;
+            border: none;
+            outline: none;
+            padding: 12px;
+            font-size: 16px;
+            background: transparent;
+            color: var(--dark);
+        }
+
+        .search-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+        .search-btn:active { transform: scale(0.9); }
+        .search-btn.active-green {
+            background: var(--success) !important;
+        }
+
+        /* Gợi ý kết quả tìm kiếm */
+        .suggestion-list {
+            margin-top: 16px;
+            flex: 1;
+            overflow-y: auto;
+            touch-action: pan-y;
+        }
+        .suggestion-item {
+            background: white;
+            padding: 14px 18px;
+            margin-bottom: 10px;
+            border-radius: 14px;
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+            transition: all 0.2s ease;
+            font-size: 16px;
+            animation: fadeIn 0.3s ease forwards;
+        }
+        .suggestion-item:hover {
+            background: #f1f3f4;
+            transform: translateY(-1px);
+        }
+        /* Bôi xanh ký tự trùng chuẩn thuật toán */
+        .highlight {
+            color: var(--success);
+            font-weight: 700;
+            background: rgba(44,187,66,0.1);
+            padding: 0 2px;
+            border-radius: 4px;
+        }
+
+        /* --- UI CHI TIẾT THÔNG TIN --- */
+        .info-card {
+            flex: 1;
+            border-radius: 18px;
+            padding: 20px;
+            overflow-y: auto;
+            touch-action: pan-y;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.02);
+            transition: background 0.3s ease;
+        }
+        .avatar-container {
+            text-align: center;
+            margin-bottom: 18px;
+        }
+        .avatar-img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 14px;
+            box-shadow: 0 6px 15px rgba(0,0,0,0.15);
+        }
+        .info-row {
+            background: rgba(255, 255, 255, 0.75);
+            padding: 12px 16px;
+            border-radius: 12px;
+            margin-bottom: 10px;
+            font-size: 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+        }
+        .info-label {
+            font-weight: bold;
+            color: #5f6368;
+            display: inline-block;
+            width: 100px;
+        }
+
+        /* --- UI ADMIN QUẢN LÝ --- */
+        .admin-nav {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+        .admin-nav button {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 12px;
+            font-weight: bold;
+            font-size: 14px;
+            cursor: pointer;
+            background: #f1f3f4;
+            transition: all 0.2s ease;
+        }
+        .admin-nav button.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        .admin-content {
+            flex: 1;
+            overflow-y: auto;
+            touch-action: pan-y;
+        }
+
+        /* Form Nhập Data */
+        .form-group {
+            margin-bottom: 14px;
+        }
+        .form-group label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 6px;
+            color: #3c4043;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid #dadce0;
+            border-radius: 10px;
+            box-sizing: border-box;
+            font-size: 15px;
+            outline: none;
+        }
+        .form-group input:focus { border-color: var(--primary); }
+        .date-inputs {
+            display: flex;
+            gap: 8px;
+        }
+        .date-inputs input { text-align: center; }
+        .color-pickers {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+        .color-pickers input {
+            width: 45px;
+            height: 35px;
+            padding: 0;
+            border: none;
+            cursor: pointer;
+            border-radius: 6px;
+        }
+
+        /* Khung quản lý danh sách */
+        .data-item {
+            background: #f8f9fa;
+            padding: 14px;
+            border-radius: 12px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-left: 4px solid var(--primary);
+        }
+        .data-info { font-weight: 600; color: var(--dark); }
+        .data-actions button {
+            padding: 6px 12px;
+            margin-left: 6px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            color: white;
+        }
+        .btn-edit { background: #f4b400; color: #fff !important; }
+        .btn-delete { background: var(--danger); }
+
+        /* Nút hệ thống */
+        .btn-block {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 12px;
+            font-weight: bold;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: background 0.2s ease;
+        }
+        .btn-close { background: #5f6368; color: white; }
+        .btn-save { background: var(--success); color: white; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    
+    <div id="search-view" class="view-panel active" style="transform: none;">
+        <h2>Tìm Kiếm Thành Viên</h2>
+        <div class="search-box" id="search-box-wrapper">
+            <input type="text" id="search-input" placeholder="Nhập tên tìm kiếm...">
+            <button class="search-btn" id="btn-search-trigger">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            </button>
+        </div>
+        <div class="suggestion-list" id="suggestion-output"></div>
+    </div>
+
+    <div id="details-view" class="view-panel">
+        <h2>Thông Tin Chi Tiết</h2>
+        <div class="info-card" id="info-card-body"></div>
+        <button class="btn-block btn-close" id="btn-close-details">Đóng</button>
+    </div>
+
+    <div id="admin-view" class="view-panel">
+        <h2>Hệ Thống Quản Lý</h2>
+        <div class="admin-nav">
+            <button id="nav-list-btn" class="active">Danh sách</button>
+            <button id="nav-create-btn">Tạo mới</button>
+        </div>
+
+        <div class="admin-content">
+            <div id="tab-list">
+                <div id="admin-data-list">Đang tải dữ liệu...</div>
+            </div>
+
+            <div id="tab-form" style="display: none;">
+                <input type="hidden" id="form-mode" value="create"> <div class="form-group">
+                    <label>Họ tên đầy đủ *</label>
+                    <input type="text" id="form-name" placeholder="Nguyễn Văn A">
+                </div>
+                <div class="form-group">
+                    <label>Ngày sinh (dd/mm/yyyy) *</label>
+                    <div class="date-inputs">
+                        <input type="text" id="date-dd" placeholder="dd" maxlength="2">
+                        <input type="text" id="date-mm" placeholder="mm" maxlength="2">
+                        <input type="text" id="date-yyyy" placeholder="yyyy" maxlength="4">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Biệt danh</label>
+                    <input type="text" id="form-nick" placeholder="Biệt danh">
+                </div>
+                <div class="form-group">
+                    <label>Sở thích</label>
+                    <input type="text" id="form-hobby" placeholder="Sở thích">
+                </div>
+                <div class="form-group">
+                    <label>Nghề nghiệp</label>
+                    <input type="text" id="form-job" placeholder="Sinh viên / Công việc">
+                </div>
+                <div class="form-group">
+                    <label>Link hình ảnh (Để trống nếu ẩn)</label>
+                    <input type="text" id="form-image" placeholder="https://">
+                </div>
+                <div class="form-group">
+                    <label>Màu nền giao diện</label>
+                    <div class="color-pickers">
+                        <input type="color" id="form-color1" value="#ffffff">
+                        <input type="color" id="form-color2" value="#ffffff">
+                        <span style="font-size: 12px; color: #666;">Trộn 2 màu tùy thích</span>
+                    </div>
+                </div>
+                <button class="btn-block btn-save" id="btn-save-data">Lưu Dữ Liệu</button>
+            </div>
+        </div>
+        <button class="btn-block btn-close" id="btn-close-admin" style="background:#202124;">Thoát Admin</button>
+    </div>
+
+</div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
+    import { getFirestore, collection, doc, setDoc, getDocs, deleteDoc, query } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore.js";
+
+    // Cấu hình Firebase gốc của ông
+    const firebaseConfig = {
+      apiKey: "AIzaSyAnsLAxCi_1RiYZ7kwwzNi7subRrvTI04I",
+      authDomain: "dataan-d19b7.firebaseapp.com",
+      projectId: "dataan-d19b7",
+      storageBucket: "dataan-d19b7.firebasestorage.app",
+      messagingSenderId: "634110626824",
+      appId: "1:634110626824:web:903a5181db232369f495bd",
+      measurementId: "G-1LK1W3FPG3"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    let localData = [];
+    let cheatStep = 0; 
+    let clickCount = 0;
+    let lastClickTime = 0;
+
+    // Tải dữ liệu từ Firebase về
+    async function fetchDatabase() {
+        try {
+            const querySnapshot = await getDocs(collection(db, "thanhvien"));
+            localData = [];
+            querySnapshot.forEach((doc) => {
+                localData.push({ name: doc.id, ...doc.data() }); // Document ID chính là Họ Tên đầy đủ
+            });
+            renderAdminList();
+        } catch (error) {
+            console.error("Lỗi đồng bộ Firebase:", error);
+        }
+    }
+    fetchDatabase();
+
+    // Tự nhảy focus ô Ngày Sinh
+    const autoJump = (curr, next) => {
+        document.getElementById(curr).addEventListener('input', function() {
+            if (this.value.length >= this.maxLength) document.getElementById(next).focus();
+        });
+    };
+    autoJump('date-dd', 'date-mm');
+    autoJump('date-mm', 'date-yyyy');
+
+    // --- ALGORITHM HIGHLIGHT BÔI XANH CHỮ KHÔNG LỖI TIẾNG VIỆT ---
+    const searchInput = document.getElementById('search-input');
+    const suggestionOutput = document.getElementById('suggestion-output');
+
+    searchInput.addEventListener('input', () => {
+        const keyword = searchInput.value.trim();
+        suggestionOutput.innerHTML = "";
+
+        if (!keyword) return;
+
+        const matches = localData.filter(p => p.name.toLowerCase().includes(keyword.toLowerCase()));
+
+        matches.forEach(person => {
+            const item = document.createElement('div');
+            item.className = 'suggestion-item';
+
+            // Dùng Regex bọc thẻ highlight bao quanh ký tự trùng (Kể cả chữ có dấu)
+            const escapedKeyword = keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            const regex = new RegExp(`(${escapedKeyword})`, 'gi');
+            const highlightedName = person.name.replace(regex, `<span class="highlight">$1</span>`);
+
+            item.innerHTML = highlightedName;
+            item.addEventListener('click', () => openDetailsView(person));
+            suggestionOutput.appendChild(item);
+        });
+    });
+
+    // --- BẢO MẬT CHEAT CODE 2 LỚP ---
+    const btnSearchTrigger = document.getElementById('btn-search-trigger');
+    const searchBoxWrapper = document.getElementById('search-box-wrapper');
+
+    btnSearchTrigger.addEventListener('click', () => {
+        const now = Date.now();
+        if (now - lastClickTime < 2000 || lastClickTime === 0) clickCount++;
+        else clickCount = 1;
+        lastClickTime = now;
+
+        // Lớp 1: Bấm nút kính lúp 10 lần liên tục
+        if (cheatStep === 0 && clickCount >= 10) {
+            cheatStep = 1; clickCount = 0;
+            btnSearchTrigger.classList.add('active-green');
+            searchBoxWrapper.classList.add('cheat-on');
+            searchInput.value = "";
+            searchInput.placeholder = "Nhập mã PIN...";
+            return;
+        }
+
+        // Lớp 2: Điền 0904 rồi ấn kính lúp tiếp 10 lần
+        if (cheatStep === 1 && searchInput.value.trim() === "0904" && clickCount >= 10) {
+            cheatStep = 2;
+            btnSearchTrigger.classList.remove('active-green');
+            searchBoxWrapper.classList.remove('cheat-on');
+            searchInput.value = "";
+            searchInput.placeholder = "Nhập tên tìm kiếm...";
+            suggestionOutput.innerHTML = "";
+            switchView('admin-view');
+        }
+    });
+
+    // --- HIỆU ỨNG CHUYỂN UI MƯỢT MÀ ---
+    function switchView(targetId) {
+        document.querySelectorAll('.view-panel').forEach(p => p.classList.remove('active'));
+        if(targetId === 'search-view') {
+            document.getElementById('search-view').classList.add('active');
+            document.getElementById('search-view').classList.remove('inactive');
+        } else {
+            document.getElementById('search-view').classList.add('inactive');
+            document.getElementById(targetId).classList.add('active');
+        }
+    }
+
+    function openDetailsView(person) {
+        const body = document.getElementById('info-card-body');
+        body.style.background = person.color1 === person.color2 ? person.color1 : `linear-gradient(135deg, ${person.color1}, ${person.color2})`;
+
+        let infoHtml = "";
+        if (person.image && person.image.trim() !== "") {
+            infoHtml += `<div class="avatar-container"><img src="${person.image}" class="avatar-img"></div>`;
+        }
+        infoHtml += `
+            <div class="info-row"><span class="info-label">Họ tên:</span><b>${person.name}</b></div>
+            <div class="info-row"><span class="info-label">Ngày sinh:</span>${person.birth}</div>
+            <div class="info-row"><span class="info-label">Biệt danh:</span>${person.nickname || 'Không có'}</div>
+            <div class="info-row"><span class="info-label">Sở thích:</span>${person.hobby || 'Không có'}</div>
+            <div class="info-row"><span class="info-label">Nghề nghiệp:</span>${person.job || 'Không có'}</div>
+        `;
+        body.innerHTML = infoHtml;
+        switchView('details-view');
+    }
+
+    document.getElementById('btn-close-details').addEventListener('click', () => switchView('search-view'));
+    document.getElementById('btn-close-admin').addEventListener('click', () => {
+        cheatStep = 0; clickCount = 0; switchView('search-view');
+    });
+
+    // --- LOGIC DIỄN BIẾN TRONG ADMIN ---
+    const navListBtn = document.getElementById('nav-list-btn');
+    const navCreateBtn = document.getElementById('nav-create-btn');
+    const tabList = document.getElementById('tab-list');
+    const tabForm = document.getElementById('tab-form');
+
+    navListBtn.addEventListener('click', () => {
+        navListBtn.classList.add('active'); navCreateBtn.classList.remove('active');
+        tabList.style.display = "block"; tabForm.style.display = "none";
+    });
+    navCreateBtn.addEventListener('click', () => {
+        navCreateBtn.classList.add('active'); navListBtn.classList.remove('active');
+        tabList.style.display = "none"; tabForm.style.display = "block";
+        document.getElementById('form-mode').value = "create";
+        document.getElementById('form-name').disabled = false;
+        resetForm();
+    });
+
+    function resetForm() {
+        document.getElementById('form-name').value = "";
+        document.getElementById('date-dd').value = "";
+        document.getElementById('date-mm').value = "";
+        document.getElementById('date-yyyy').value = "";
+        document.getElementById('form-nick').value = "";
+        document.getElementById('form-hobby').value = "";
+        document.getElementById('form-job').value = "";
+        document.getElementById('form-image').value = "";
+        document.getElementById('form-color1').value = "#ffffff";
+        document.getElementById('form-color2').value = "#ffffff";
+    }
+
+    function renderAdminList() {
+        const listDiv = document.getElementById('admin-data-list');
+        listDiv.innerHTML = "";
+        if(localData.length === 0) { listDiv.innerHTML = "Trống dữ liệu."; return; }
+
+        localData.forEach(p => {
+            const row = document.createElement('div');
+            row.className = 'data-item';
+            row.innerHTML = `
+                <span class="data-info">${p.name}</span>
+                <div class="data-actions">
+                    <button class="btn-edit" data-id="${p.name}">Sửa</button>
+                    <button class="btn-delete" data-id="${p.name}">Xóa</button>
+                </div>
+            `;
+            listDiv.appendChild(row);
+        });
+
+        // Xử lý Xóa tài liệu trực tiếp
+        document.querySelectorAll('.btn-delete').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+                const nameId = e.target.getAttribute('data-id');
+                if(confirm(`Xóa thành viên: ${nameId}?`)) {
+                    await deleteDoc(doc(db, "thanhvien", nameId));
+                    await fetchDatabase();
+                }
+            });
+        });
+
+        // Xử lý Chỉnh sửa tài liệu
+        document.querySelectorAll('.btn-edit').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const nameId = e.target.getAttribute('data-id');
+                const p = localData.find(item => item.name === nameId);
+                if(p) {
+                    document.getElementById('form-mode').value = "edit";
+                    document.getElementById('form-name').value = p.name;
+                    document.getElementById('form-name').disabled = true; // Khóa trường tên khi sửa vì nó là ID dữ liệu
+
+                    const bParts = p.birth.split('/');
+                    document.getElementById('date-dd').value = bParts[0] || "";
+                    document.getElementById('date-mm').value = bParts[1] || "";
+                    document.getElementById('date-yyyy').value = bParts[2] || "";
+
+                    document.getElementById('form-nick').value = p.nickname || "";
+                    document.getElementById('form-hobby').value = p.hobby || "";
+                    document.getElementById('form-job').value = p.job || "";
+                    document.getElementById('form-image').value = p.image || "";
+                    document.getElementById('form-color1').value = p.color1 || "#ffffff";
+                    document.getElementById('form-color2').value = p.color2 || "#ffffff";
+
+                    navCreateBtn.classList.add('active'); navListBtn.classList.remove('active');
+                    tabList.style.display = "none"; tabForm.style.display = "block";
+                }
+            });
+        });
+    }
+
+    // Lưu dữ liệu (SetDoc tạo cấu trúc: thanhvien -> Họ tên làm ID)
+    document.getElementById('btn-save-data').addEventListener('click', async () => {
+        const name = document.getElementById('form-name').value.trim();
+        const dd = document.getElementById('date-dd').value.trim();
+        const mm = document.getElementById('date-mm').value.trim();
+        const yyyy = document.getElementById('date-yyyy').value.trim();
+        const nickname = document.getElementById('form-nick').value.trim();
+        const hobby = document.getElementById('form-hobby').value.trim();
+        const job = document.getElementById('form-job').value.trim();
+        const image = document.getElementById('form-image').value.trim();
+        const color1 = document.getElementById('form-color1').value;
+        const color2 = document.getElementById('form-color2').value;
+
+        if(!name || !dd || !mm || !yyyy) { alert("Thiếu thông tin bắt buộc!"); return; }
+
+        const birth = `${dd.padStart(2,'0')}/${mm.padStart(2,'0')}/${yyyy}`;
+        const dataPayload = { birth, nickname, hobby, job, image, color1, color2 };
+
+        try {
+            // Sử dụng setDoc để chỉ định đích danh Document ID = Tên Thành Viên
+            await setDoc(doc(db, "thanhvien", name), dataPayload, { merge: true });
+            alert("Lưu thông tin thành công!");
+            resetForm();
+            await fetchDatabase();
+            navListBtn.click();
+        } catch (error) {
+            alert("Lỗi đẩy dữ liệu lên Firebase!");
+            console.error(error);
+        }
+    });
+</script>
+</body>
+</html>

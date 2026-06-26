@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Button Demon</title>
+    <style>
+        /* --- Giao diện Tổng thể & Khử bôi xanh --- */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #0d0d0f;
+            color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* --- Màn hình chọn Chế độ (Mode Selection) --- */
+        .screen {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+            animation: fadeIn 0.4s ease-out forwards;
+        }
+
+        .active-screen {
+            display: flex;
+        }
+
+        h2 {
+            font-size: 2rem;
+            margin-bottom: 30px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #ff3e3e;
+            text-shadow: 0 0 10px rgba(255, 62, 62, 0.3);
+        }
+
+        .mode-container {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+            max-width: 600px;
+        }
+
+        .mode-btn {
+            background: #1a1a1e;
+            border: 2px solid #333;
+            color: white;
+            padding: 20px 40px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            border-radius: 16px;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            text-transform: uppercase;
+        }
+
+        .mode-btn:hover, .mode-btn.tv-focused {
+            border-color: #ff3e3e;
+            background: #251515;
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(255, 62, 62, 0.2);
+        }
+
+        /* --- Khung Game Chính --- */
+        .game-container {
+            text-align: center;
+            background: #1a1a1e;
+            padding: 50px 40px;
+            border-radius: 28px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6);
+            width: 100%;
+            max-width: 440px;
+            transition: all 0.3s ease;
+        }
+
+        /* Tối ưu Mobile */
+        body.mode-mobile .game-container {
+            padding: 30px 20px;
+            box-shadow: none;
+            background: transparent;
+        }
+
+        h1 {
+            font-size: 2.6rem;
+            font-weight: 800;
+            letter-spacing: 2px;
+            margin-bottom: 15px;
+            color: #ff3e3e;
+            text-transform: uppercase;
+            text-shadow: 0 0 15px rgba(255, 62, 62, 0.4);
+        }
+
+        .coin-display {
+            font-size: 3.2rem;
+            font-weight: 700;
+            margin-bottom: 40px;
+            color: #ffd700;
+            text-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
+        }
+
+        /* --- Nút Bấm Chính (TAP) --- */
+        .click-btn {
+            position: relative;
+            width: 190px;
+            height: 190px;
+            border-radius: 50%;
+            border: none;
+            background: linear-gradient(135deg, #ff3e3e, #b30000);
+            color: #ffffff;
+            font-size: 1.3rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            cursor: pointer;
+            outline: none;
+            box-shadow: 0 14px 0 #660000, 0 20px 30px rgba(255, 62, 62, 0.25);
+            transition: transform 0.08s ease, box-shadow 0.08s ease;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .click-btn:active, .click-btn.tv-active {
+            transform: translateY(10px);
+            box-shadow: 0 4px 0 #660000, 0 10px 20px rgba(255, 62, 62, 0.4);
+        }
+
+        /* Vùng sáng bao quanh khi dùng TV Remote chuyển qua nút */
+        .click-btn.tv-focused {
+            outline: 4px solid #ffffff;
+            box-shadow: 0 0 25px #ff3e3e, 0 14px 0 #660000;
+        }
+
+        /* --- Hệ thống Cài đặt (Settings) --- */
+        .settings-icon {
+            margin-top: 30px;
+            background: #2a2a30;
+            border: none;
+            color: #aaa;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        .settings-icon:hover, .settings-icon.tv-focused {
+            color: #fff;
+            background: #444;
+            outline: none;
+        }
+        .settings-icon.tv-focused {
+            outline: 2px solid #fff;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85);
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+        }
+        .modal-content {
+            background: #1a1a1e;
+            padding: 30px;
+            border-radius: 20px;
+            text-align: center;
+            border: 1px solid #333;
+            max-width: 350px;
+            width: 90%;
+        }
+        .clear-btn {
+            background: #ff3e3e;
+            border: none;
+            color: white;
+            padding: 12px 24px;
+            font-weight: bold;
+            border-radius: 10px;
+            cursor: pointer;
+            margin-top: 20px;
+            width: 100%;
+            transition: background 0.2s;
+        }
+        .clear-btn:hover, .clear-btn.tv-focused {
+            background: #b30000;
+        }
+        .clear-btn.tv-focused { outline: 2px solid white; }
+
+        .close-btn {
+            margin-top: 10px;
+            background: transparent;
+            border: none;
+            color: #888;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+        .close-btn.tv-focused { color: white; text-decoration: underline; }
+
+        /* --- Hiệu ứng Số nảy (Floating Text) --- */
+        .floating-text {
+            position: absolute;
+            font-size: 1.6rem;
+            font-weight: 800;
+            color: #00ff66;
+            pointer-events: none;
+            animation: floatUp 0.5s ease-out forwards;
+            text-shadow: 0 2px 6px rgba(0, 0, 0, 0.6);
+            z-index: 5;
+        }
+
+        @keyframes floatUp {
+            0% { opacity: 1; transform: translate(-50%, -50%) scale(0.9); }
+            50% { opacity: 1; transform: translate(-50%, -100%) scale(1.2); }
+            100% { opacity: 0; transform: translate(-50%, -140%) scale(1.0); }
+        }
+
+        /* --- Footer --- */
+        .version-tag {
+            position: absolute;
+            bottom: 15px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            letter-spacing: 1px;
+            color: rgba(255, 255, 255, 0.15);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="mode-screen" class="screen active-screen">
+        <h2>Chọn Chế Độ Chơi</h2>
+        <div class="mode-container">
+            <button class="mode-btn" onclick="selectMode('mobile')">Mobile</button>
+            <button class="mode-btn" onclick="selectMode('computer')">Computer</button>
+            <button class="mode-btn" onclick="selectMode('television')">Television</button>
+        </div>
+    </div>
+
+    <div id="game-screen" class="screen">
+        <div class="game-container">
+            <h1>Button Demon</h1>
+            <div class="coin-display"><span id="coin-count">0.0</span> xu</div>
+            
+            <button class="click-btn" id="demon-btn">TAP!</button>
+            <br>
+            <button class="settings-icon" id="settings-btn" onclick="openSettings()">Cài Đặt</button>
+        </div>
+    </div>
+
+    <div id="settings-modal" class="modal">
+        <div class="modal-content">
+            <h3>CÀI ĐẶT GAME</h3>
+            <button class="clear-btn" id="clear-data-btn" onclick="clearAllData()">XÓA TẤT CẢ DỮ LIỆU</button>
+            <br>
+            <button class="close-btn" id="close-settings-btn" onclick="closeSettings()">Đóng</button>
+        </div>
+    </div>
+
+    <div class="version-tag">Alpha 1.1</div>
+
+    <script>
+        let coins = 0.0;
+        let currentMode = "";
+        
+        // Biến phục vụ riêng cho chế độ TV điều khiển bằng nút bấm
+        let tvFocusIndex = 0; 
+        let tvElements = [];
+        let isModalOpen = false;
+
+        const modeScreen = document.getElementById('mode-screen');
+        const gameScreen = document.getElementById('game-screen');
+        const coinCountEl = document.getElementById('coin-count');
+        const demonBtn = document.getElementById('demon-btn');
+        const settingsBtn = document.getElementById('settings-btn');
+        const settingsModal = document.getElementById('settings-modal');
+        const clearDataBtn = document.getElementById('clear-data-btn');
+        const closeSettingsBtn = document.getElementById('close-settings-btn');
+
+        // --- KHỞI ĐỘNG: KIỂM TRA LOCALSTORAGE ---
+        window.onload = function() {
+            const savedMode = localStorage.getItem('bd_mode');
+            const savedCoins = localStorage.getItem('bd_coins');
+
+            if (savedCoins) {
+                coins = parseFloat(savedCoins);
+                coinCountEl.innerText = coins.toFixed(1);
+            }
+
+            if (savedMode) {
+                selectMode(savedMode);
+            } else {
+                // Nếu chưa có chế độ, chuẩn bị điều hướng TV cho màn hình chọn mode luôn
+                setupTVNavigation(".mode-btn");
+            }
+        }
+
+        // --- CHỌN CHẾ ĐỘ ---
+        function selectMode(mode) {
+            currentMode = mode;
+            localStorage.setItem('bd_mode', mode);
+            document.body.className = "mode-" + mode;
+
+            modeScreen.classList.remove('active-screen');
+            gameScreen.classList.add('active-screen');
+
+            // Cấu hình điều hướng cho TV khi vào game
+            if (currentMode === 'television') {
+                setupTVNavigation("#demon-btn, #settings-btn");
+            }
+        }
+
+        // --- CƠ CHẾ CLICK NHẬN XU ---
+        function handleTap(e) {
+            coins += 0.1;
+            coinCountEl.innerText = coins.toFixed(1);
+            localStorage.setItem('bd_coins', coins);
+
+            let x, y;
+            if (e && e.clientX) {
+                x = e.clientX; y = e.clientY;
+            } else {
+                // Tọa độ ảo ở giữa nút nếu ấn bằng Remote TV
+                const rect = demonBtn.getBoundingClientRect();
+                x = rect.left + rect.width / 2;
+                y = rect.top + rect.height / 2;
+            }
+            spawnFloatingText(x, y);
+        }
+
+        function spawnFloatingText(x, y) {
+            const text = document.createElement('div');
+            text.className = 'floating-text';
+            text.innerText = '+0.1';
+            text.style.left = `${x}px`;
+            text.style.top = `${y}px`;
+            document.body.appendChild(text);
+            setTimeout(() => text.remove(), 500);
+        }
+
+        // --- HỆ THỐNG CÀI ĐẶT & XÓA DỮ LIỆU ---
+        function openSettings() {
+            settingsModal.style.display = "flex";
+            isModalOpen = true;
+            if (currentMode === 'television') {
+                setupTVNavigation("#clear-data-btn, #close-settings-btn");
+            }
+        }
+
+        function closeSettings() {
+            settingsModal.style.display = "none";
+            isModalOpen = false;
+            if (currentMode === 'television') {
+                setupTVNavigation("#demon-btn, #settings-btn");
+            }
+        }
+
+        function clearAllData() {
+            if(confirm("Ông có chắc muốn xóa hết dữ liệu và làm lại từ đầu không bro?")) {
+                localStorage.clear();
+                location.reload(); // Reset lại toàn bộ game về màn hình chọn Mode
+            }
+        }
+
+        // --- TỐI ƯU SỰ KIỆN CHO TỪNG THIẾT BỊ ---
+        demonBtn.addEventListener('mousedown', (e) => {
+            if (currentMode !== 'television') handleTap(e);
+        });
+        demonBtn.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            if (currentMode !== 'television') handleTap(e);
+        });
+
+        // --- HỆ THỐNG ĐIỀU HƯỚNG BẰNG REMOTE (TV MODE) ---
+        function setupTVNavigation(selector) {
+            // Xóa hết class focus cũ
+            tvElements.forEach(el => el.classList.remove('tv-focused'));
+            
+            // Lấy danh sách các nút thao tác mới
+            tvElements = Array.from(document.querySelectorAll(selector));
+            tvFocusIndex = 0;
+            if (tvElements.length > 0) {
+                tvElements[tvFocusIndex].classList.add('tv-focused');
+            }
+        }
+
+        // Bắt sự kiện phím bấm Remote (Mũi tên & Enter)
+        window.addEventListener('keydown', function(e) {
+            // Nếu không phải màn hình TV hoặc chọn chế độ ban đầu, bỏ qua phím
+            if (currentMode !== 'television' && modeScreen.classList.contains('active-screen') === false) return;
+
+            if (tvElements.length === 0) return;
+
+            // Di chuyển Sang phải / Xuống dưới
+            if (e.key === "ArrowRight" || e.key === "ArrowDown") {
+                tvElements[tvFocusIndex].classList.remove('tv-focused');
+                tvFocusIndex = (tvFocusIndex + 1) % tvElements.length;
+                tvElements[tvFocusIndex].focus();
+                tvElements[tvFocusIndex].classList.add('tv-focused');
+            } 
+            // Di chuyển Sang trái / Lên trên
+            else if (e.key === "ArrowLeft" || e.key === "ArrowUp") {
+                tvElements[tvFocusIndex].classList.remove('tv-focused');
+                tvFocusIndex = (tvFocusIndex - 1 + tvElements.length) % tvElements.length;
+                tvElements[tvFocusIndex].focus();
+                tvElements[tvFocusIndex].classList.add('tv-focused');
+            } 
+            // Nhấn nút OK / Enter
+            else if (e.key === "Enter") {
+                const activeEl = tvElements[tvFocusIndex];
+                if (activeEl) {
+                    if (activeEl.id === "demon-btn") {
+                        // Hiệu ứng lún nút giả lập cho TV
+                        activeEl.classList.add('tv-active');
+                        handleTap();
+                        setTimeout(() => activeEl.classList.remove('tv-active'), 800);
+                    } else {
+                        activeEl.click(); // Kích hoạt sự kiện click của các nút menu/cài đặt
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alline Code Runner - Xem & Chạy Code Trực Tuyến</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background-color: #f8f9fa; }
+        .viewer-container { height: 90vh; }
+        #code-display { background: #272822; color: #f8f8f2; height: 100%; overflow: auto; padding: 15px; border-radius: 5px; font-family: monospace; white-space: pre-wrap; }
+        #preview-frame { width: 100%; height: 100%; border: none; background: white; }
+        .nav-tabs .nav-link { cursor: pointer; }
+    </style>
+</head>
+<body>
+
+<div class="container-fluid mt-3">
+    <div class="row mb-3">
+        <div class="col-12">
+            <div class="input-group">
+                <input type="text" id="url-input" class="form-control" placeholder="Dán link code (Raw URL) tại đây...">
+                <button class="btn btn-primary" onclick="loadCode()">Tải Code</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="viewer-container">
+        <ul class="nav nav-tabs" id="codeTab">
+            <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#tab-preview">Preview (Chạy thử)</a></li>
+            <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tab-source">Source Code</a></li>
+        </ul>
+        <div class="tab-content h-100">
+            <div class="tab-pane fade show active h-100" id="tab-preview">
+                <iframe id="preview-frame"></iframe>
+            </div>
+            <div class="tab-pane fade h-100" id="tab-source">
+                <pre id="code-display">Code sẽ hiển thị ở đây sau khi tải...</pre>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    async function loadCode() {
+        const url = document.getElementById('url-input').value;
+        const codeDisplay = document.getElementById('code-display');
+        const previewFrame = document.getElementById('preview-frame');
+
+        if (!url) return alert("Vui lòng nhập link!");
+
+        try {
+            const response = await fetch(url);
+            const text = await response.text();
+
+            // Hiển thị code ở tab Source
+            codeDisplay.textContent = text;
+
+            // Chạy code ở tab Preview
+            const blob = new Blob([text], { type: 'text/html' });
+            previewFrame.src = URL.createObjectURL(blob);
+            
+            alert("Đã tải xong!");
+        } catch (err) {
+            alert("Lỗi tải link! Đảm bảo link là Raw URL và không bị chặn CORS.");
+        }
+    }
+</script>
+</body>
+</html>
+

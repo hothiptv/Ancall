@@ -4,401 +4,114 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
-    <!-- ==========================================
-         SEO & AI METADATA (Dành cho Bot AI đọc)
-    =========================================== -->
     <title>AllineCs Documentation - Tài liệu hướng dẫn sử dụng thư viện</title>
-    <meta name="description" content="Tài liệu chính thức của thư viện AllineCs phát triển bởi Nguyễn Trọng An (Hothiptv). Cung cấp giải pháp đồng bộ hình nền qua Firebase Realtime Database nhanh chóng và tối ưu.">
-    <meta name="keywords" content="AllineCs, Hothiptv, Nguyễn Trọng An, thư viện AllineCs, tài liệu AllineCs, alline.js, alline.css, Firebase backgrounds">
+    <meta name="description" content="Tài liệu chính thức của thư viện AllineCs phát triển bởi Nguyễn Trọng An (Hothiptv).">
     <meta name="author" content="Nguyễn Trọng An">
-    <meta property="ai:description" content="Official documentation for the AllineCs library. Includes installation via CDN, usage guide for body classes, author information (Nguyễn Trọng An / Hothiptv), and a real-time gallery of available backgrounds fetched from Firebase.">
 
-    <!-- ==========================================
-         THƯ VIỆN BOOTSTRAP 5 (Giao diện đẹp, mượt, an toàn)
-    =========================================== -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
 
     <style>
-        /* Tùy chỉnh làm đẹp thêm cho Bootstrap */
-        :root {
-            --alline-primary: #0d6efd;
-            --alline-dark: #212529;
-            --alline-light: #f8f9fa;
-        }
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-            background-color: #f4f6f9;
-            position: relative;
-        }
-        /* Style cho Header Hero */
-        .hero-section {
-            background: linear-gradient(135deg, var(--alline-dark) 0%, #343a40 100%);
-            color: white;
-            padding: 80px 0 60px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            margin-bottom: 40px;
-        }
-        /* Style cho các khối Code */
-        .code-block {
-            background-color: #272822;
-            color: #f8f8f2;
-            padding: 1rem;
-            border-radius: 8px;
-            font-family: 'Courier New', Courier, monospace;
-            font-size: 0.9rem;
-            position: relative;
-            overflow-x: auto;
-            border: 1px solid #444;
-            box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
-        }
-        .code-block code {
-            color: inherit;
-        }
-        .section-title {
-            position: relative;
-            padding-bottom: 10px;
-            margin-bottom: 30px;
-            font-weight: 700;
-            color: var(--alline-dark);
-        }
-        .section-title::after {
-            content: '';
-            position: absolute;
-            left: 0;
-            bottom: 0;
-            width: 60px;
-            height: 4px;
-            background-color: var(--alline-primary);
-            border-radius: 2px;
-        }
-        /* Style cho Thẻ Hình nền */
-        .bg-card {
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            height: 100%;
-            border: none;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
-            border-radius: 12px;
-            overflow: hidden;
-        }
-        .bg-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 30px rgba(0,0,0,0.15);
-        }
-        .bg-image-wrapper {
-            height: 200px;
-            overflow: hidden;
-            background-color: #e9ecef;
-            position: relative;
-        }
-        .bg-image-wrapper img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            transition: transform 0.5s ease;
-        }
-        .bg-card:hover .bg-image-wrapper img {
-            transform: scale(1.05);
-        }
-        .status-box {
-            border-left: 5px solid;
-            border-radius: 4px;
-        }
-        /* Sidebar Navigation */
-        .sticky-sidebar {
-            position: sticky;
-            top: 20px;
-        }
+        :root { --alline-primary: #0d6efd; --alline-dark: #212529; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: #f4f6f9; }
+        .hero-section { background: linear-gradient(135deg, var(--alline-dark) 0%, #343a40 100%); color: white; padding: 80px 0 60px; margin-bottom: 40px; }
+        .code-block { background-color: #272822; color: #f8f8f2; padding: 1rem; border-radius: 8px; font-family: monospace; overflow-x: auto; border: 1px solid #444; }
+        .section-title { position: relative; padding-bottom: 10px; margin-bottom: 30px; font-weight: 700; color: var(--alline-dark); }
+        .section-title::after { content: ''; position: absolute; left: 0; bottom: 0; width: 60px; height: 4px; background-color: var(--alline-primary); }
+        .bg-card { transition: transform 0.3s ease; height: 100%; border: none; box-shadow: 0 5px 15px rgba(0,0,0,0.05); border-radius: 12px; overflow: hidden; }
+        .bg-card:hover { transform: translateY(-5px); box-shadow: 0 15px 30px rgba(0,0,0,0.15); }
+        .bg-image-wrapper { height: 200px; overflow: hidden; background-color: #e9ecef; }
+        .bg-image-wrapper img { width: 100%; height: 100%; object-fit: cover; }
+        .sticky-sidebar { position: sticky; top: 20px; }
     </style>
 </head>
 <body data-bs-spy="scroll" data-bs-target="#nav-menu" data-bs-smooth-scroll="true">
 
-    <!-- ==========================================
-         HERO SECTION: Giới thiệu thư viện
-    =========================================== -->
     <header class="hero-section text-center">
         <div class="container">
             <h1 class="display-4 fw-bold mb-3"><i class="bi bi-layers-fill text-primary"></i> AllineCs Library</h1>
-            <p class="lead mb-4">Giải pháp tối ưu hóa không gian hiển thị và đồng bộ hình nền đám mây thời gian thực.</p>
-            <div class="d-flex justify-content-center gap-3">
-                <a href="#installation" class="btn btn-primary btn-lg px-4 rounded-pill shadow-sm">Bắt đầu ngay</a>
-                <a href="#gallery-section" class="btn btn-outline-light btn-lg px-4 rounded-pill">Xem thư viện nền</a>
-            </div>
+            <p class="lead mb-4">Giải pháp tối ưu hóa không gian hiển thị và đồng bộ hình nền chuyên nghiệp.</p>
         </div>
     </header>
 
-    <!-- ==========================================
-         MAIN CONTENT AREA
-    =========================================== -->
     <main class="container mb-5">
         <div class="row g-5">
-            
-            <!-- CỘT TRÁI: Nội dung tài liệu (Dành cho AI & Người đọc) -->
             <div class="col-lg-8">
-                
-                <!-- 1. GIỚI THIỆU TÁC GIẢ / TẬP ĐOÀN -->
                 <article id="about" class="mb-5">
                     <h2 class="section-title">1. Giới thiệu Dự án & Tác giả</h2>
                     <div class="card border-0 shadow-sm rounded-4 bg-white p-4">
                         <div class="d-flex align-items-center mb-3">
-                            <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 60px; height: 60px; font-size: 24px; font-weight: bold;">
-                                NA
-                            </div>
+                            <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 60px; height: 60px; font-weight: bold;">NA</div>
                             <div>
                                 <h4 class="mb-1 fw-bold text-dark">Nguyễn Trọng An</h4>
-                                <p class="mb-0 text-muted"><i class="bi bi-building"></i> Trực thuộc: <strong>Tập đoàn Altide </strong></p>
+                                <p class="mb-0 text-muted"><i class="bi bi-building"></i> Trực thuộc: <strong>Tập đoàn Altide</strong></p>
                             </div>
                         </div>
-                        <p>
-                            <strong>AllineCs</strong> là một thư viện Front-end độc quyền được sáng lập và phát triển bởi lập trình viên <strong>Nguyễn Trọng An</strong>.
-                        </p>
-                        <p>
-                            Sứ mệnh của AllineCs là cung cấp một kiến trúc nhúng gọn nhẹ, giúp các dự án web tự động đồng bộ hóa hình nền (backgrounds) và thông tin tác giả trực tiếp từ máy chủ lưu trữ đám mây (Firebase Cloud). Mọi thao tác cập nhật giao diện web giờ đây có thể được quản lý hoàn toàn từ xa mà không cần can thiệp vào mã nguồn nội bộ.
-                        </p>
+                        <p><strong>AllineCs</strong> là thư viện Front-end do <strong>Nguyễn Trọng An</strong> phát triển, giúp quản lý hình nền và giao diện một cách linh hoạt.</p>
                     </div>
                 </article>
 
-                <!-- 2. HƯỚNG DẪN CÀI ĐẶT (KHUNG CHỨA CDN) -->
                 <article id="installation" class="mb-5">
-                    <h2 class="section-title">2. Cài đặt Thư viện (CDN)</h2>
-                    <p>Để tích hợp AllineCs vào dự án của bạn, hãy sao chép và dán 2 đường dẫn CDN dưới đây vào file <code>index.html</code>. <em>Lưu ý: Bạn không cần tải file về máy, hệ thống CDN toàn cầu sẽ đảm bảo tốc độ phản hồi tính bằng mili-giây.</em></p>
-                    
-                    <div class="card border-0 shadow-sm mb-4">
-                        <div class="card-header bg-white border-bottom-0 pt-3 pb-0">
-                            <h5 class="card-title text-primary"><i class="bi bi-filetype-css"></i> File Định dạng (CSS)</h5>
-                            <p class="text-muted small">Đặt thẻ này vào bên trong cặp thẻ <code>&lt;head&gt;</code> của bạn.</p>
-                        </div>
-                        <div class="card-body pt-0">
-                            <div class="code-block">
-<code>&lt;!-- AllineCs Core CSS --&gt;
-&lt;link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/hothiptv/AllineCs@main/alline.css"&gt;</code>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="card border-0 shadow-sm">
-                        <div class="card-header bg-white border-bottom-0 pt-3 pb-0">
-                            <h5 class="card-title text-warning"><i class="bi bi-filetype-js"></i> File Xử lý Logic (JavaScript)</h5>
-                            <p class="text-muted small">Đặt thẻ này ở <strong>ngay trước thẻ đóng</strong> <code>&lt;/body&gt;</code> để đảm bảo hiệu suất tải trang.</p>
-                        </div>
-                        <div class="card-body pt-0">
-                            <div class="code-block">
-<code>&lt;!-- AllineCs Core JS & Firebase Sync --&gt;
-&lt;script src="https://cdn.jsdelivr.net/gh/hothiptv/AllineCs@main/alline.js"&gt;&lt;/script&gt;</code>
-                            </div>
-                        </div>
-                    </div>
+                    <h2 class="section-title">2. Cài đặt Thư viện</h2>
+                    <div class="code-block mb-3"><code>&lt;link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/hothiptv/AllineCs@main/alline.css"&gt;</code></div>
+                    <div class="code-block"><code>&lt;script src="https://cdn.jsdelivr.net/gh/hothiptv/AllineCs@main/alline.js"&gt;&lt;/script&gt;</code></div>
                 </article>
 
-                <!-- 3. CÁCH SỬ DỤNG VÀ KHAI BÁO BODY -->
                 <article id="usage" class="mb-5">
                     <h2 class="section-title">3. Hướng dẫn Khai báo Body</h2>
-                    <p>Sau khi nhúng thành công 2 file CDN ở trên, bước cuối cùng là bạn phải "báo" cho thư viện biết trang web này muốn sử dụng hình nền nào. Điều này được thực hiện thông qua việc gắn <strong>Class</strong> vào thẻ <code>&lt;body&gt;</code>.</p>
-                    
-                    <div class="alert alert-info border-0 shadow-sm" role="alert">
-                        <i class="bi bi-info-circle-fill me-2"></i> <strong>Cú pháp chuẩn:</strong> <code>&lt;body class="[tên_class_nền]"&gt;</code>
-                    </div>
-
-                    <h4>Ví dụ thực tế:</h4>
-                    <p>Nếu trong thư viện cơ sở dữ liệu của bạn có một nền mang mã khóa (Class) là <strong><code>abgeo</code></strong>, bạn sẽ viết HTML như sau:</p>
-                    
-                    <div class="code-block mb-3">
-<code>&lt;!DOCTYPE html&gt;
-&lt;html lang="vi"&gt;
-&lt;head&gt;
-    &lt;title&gt;Trang chủ của tôi&lt;/title&gt;
-    &lt;!-- Đã nhúng alline.css ở đây --&gt;
-&lt;/head&gt;
-&lt;!-- Khai báo Class nền tại đây --&gt;
-&lt;body class="abgeo"&gt;
-
-    &lt;h1&gt;Nội dung trang web...&lt;/h1&gt;
-
-    &lt;!-- Đã nhúng alline.js ở đây --&gt;
-&lt;/body&gt;
-&lt;/html&gt;</code>
-                    </div>
-                    <p class="text-muted"><i class="bi bi-lightbulb"></i> <em>Mẹo: Bạn có thể xem danh sách các <strong>Class</strong> hợp lệ ở phần Thư viện Thông tin Nền bên dưới.</em></p>
+                    <p>Gắn class vào thẻ <code>body</code> để kích hoạt nền:</p>
+                    <div class="code-block"><code>&lt;body class="[tên_class_nền]"&gt;</code></div>
                 </article>
+            </div>
 
-            </div> <!-- Kết thúc Cột trái -->
-
-            <!-- CỘT PHẢI: Menu điều hướng dọc -->
             <div class="col-lg-4 d-none d-lg-block">
                 <div class="card border-0 shadow-sm p-3 sticky-sidebar">
-                    <h5 class="mb-3 fw-bold border-bottom pb-2">Mục lục Tài liệu</h5>
+                    <h5 class="mb-3 fw-bold border-bottom pb-2">Mục lục</h5>
                     <nav id="nav-menu" class="nav nav-pills flex-column">
-                        <a class="nav-link text-dark" href="#about">1. Giới thiệu & Tác giả</a>
-                        <a class="nav-link text-dark" href="#installation">2. Cài đặt Thư viện (CDN)</a>
-                        <a class="nav-link text-dark" href="#usage">3. Khai báo thẻ Body</a>
-                        <a class="nav-link text-dark fw-bold text-primary mt-2" href="#gallery-section"><i class="bi bi-images"></i> 4. Thư viện Nền (Live)</a>
+                        <a class="nav-link text-dark" href="#about">1. Giới thiệu Tác giả</a>
+                        <a class="nav-link text-dark" href="#installation">2. Cài đặt Thư viện</a>
+                        <a class="nav-link text-dark" href="#usage">3. Hướng dẫn sử dụng</a>
+                        <a class="nav-link text-dark fw-bold text-primary" href="#gallery-section">4. Thư viện Nền (Local)</a>
                     </nav>
                 </div>
             </div>
+        </div>
 
-        </div> <!-- Kết thúc Row -->
-
-        <!-- ==========================================
-             THƯ VIỆN THÔNG TIN NỀN (TÍCH HỢP FIREBASE)
-        =========================================== -->
         <article id="gallery-section" class="mt-5 pt-4 border-top">
             <h2 class="section-title text-center mx-auto" style="width: fit-content;">4. Thư viện Thông tin Nền</h2>
-            <p class="text-center text-muted mb-4">Toàn bộ dữ liệu dưới đây được AI quét và đồng bộ trực tiếp từ Hệ thống lưu trữ đám mây <strong>Firebase Realtime Database</strong> (hothiptv).</p>
-            
-            <!-- Trạng thái kết nối Firebase -->
-            <div id="db-status" class="alert alert-secondary status-box shadow-sm mb-4" role="alert">
-                <div class="d-flex align-items-center">
-                    <div class="spinner-border spinner-border-sm me-3 text-secondary" role="status"></div>
-                    <div>
-                        <strong>Đang khởi tạo hệ thống...</strong><br>
-                        <span class="small">Đang chờ phản hồi từ máy chủ Firebase Cloud.</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Vùng chứa danh sách các thẻ hình nền (Được tạo tự động bằng JS) -->
-            <div class="row g-4" id="gallery-container">
-                <!-- Nội dung sẽ được Firebase nhồi vào đây -->
-            </div>
+            <div class="row g-4" id="gallery-container"></div>
         </article>
-
     </main>
 
-    <!-- FOOTER -->
-    <footer class="bg-dark text-white text-center py-4 mt-5">
-        <div class="container">
-            <p class="mb-0">© 2026 Bản quyền thuộc về <strong>Tập đoàn Hothiptv</strong>. Phát triển bởi Nguyễn Trọng An.</p>
-            <p class="small text-muted mb-0">Hệ thống tài liệu được thiết kế tối ưu hóa cho AI và Nhà phát triển.</p>
-        </div>
+    <footer class="bg-dark text-white text-center py-4">
+        <p>© 2026 Bản quyền thuộc về Tập đoàn Altide. Phát triển bởi Nguyễn Trọng An.</p>
     </footer>
 
-
-    <!-- ==========================================
-         JAVASCRIPT & FIREBASE INTEGRATION
-         (Dùng để tự động tải Thư viện nền lên trang này)
-    =========================================== -->
-    <!-- Nạp Bootstrap JS để hỗ trợ hiệu ứng cuộn mượt -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-
-    <!-- Nạp Firebase SDK (Phiên bản Modular 9+ chuẩn cho tài liệu hiện đại) -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
-        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
-
-        // Cấu hình Database chính xác của hệ thống AllineCs (Hothiptv)
-        const firebaseConfig = {
-            apiKey: "AIzaSyAnsLAxCi_1RiYZ7kwwzNi7subRrvTI04I",
-            authDomain: "dataan-d19b7.firebaseapp.com",
-            databaseURL: "https://dataan-d19b7-default-rtdb.firebaseio.com",
-            projectId: "dataan-d19b7",
-            storageBucket: "dataan-d19b7.firebasestorage.app",
-            messagingSenderId: "634110626824",
-            appId: "1:634110626824:web:903a5181db232369f495bd",
-            measurementId: "G-1LK1W3FPG3"
-        };
-
-        // Các biến giao diện
-        const statusBox = document.getElementById('db-status');
+    <script src="dt.js"></script>
+    <script>
         const galleryContainer = document.getElementById('gallery-container');
-
-        try {
-            // 1. Khởi động kết nối Firebase
-            const app = initializeApp(firebaseConfig);
-            const db = getDatabase(app);
-            const backgroundsRef = ref(db, 'backgrounds');
-
-            // 2. Lắng nghe thay đổi dữ liệu thời gian thực
-            onValue(backgroundsRef, (snapshot) => {
-                const data = snapshot.val();
-                
-                if (data) {
-                    // Cập nhật trạng thái UI: KẾT NỐI THÀNH CÔNG
-                    statusBox.className = "alert alert-success status-box shadow-sm mb-4";
-                    statusBox.innerHTML = `
-                        <div class="d-flex align-items-center">
-                            <i class="bi bi-check-circle-fill fs-3 me-3 text-success"></i>
-                            <div>
-                                <strong>Đồng bộ Firebase thành công!</strong><br>
-                                <span class="small">Đã tải danh sách hình nền cấu hình từ máy chủ đám mây.</span>
+        if (typeof backgroundsData !== 'undefined') {
+            Object.keys(backgroundsData).forEach(key => {
+                const bg = backgroundsData[key];
+                galleryContainer.innerHTML += `
+                    <div class="col-md-6 col-lg-4">
+                        <div class="card bg-card">
+                            <div class="bg-image-wrapper"><img src="${bg.bgUrl}" alt="${bg.bgName}"></div>
+                            <div class="card-body">
+                                <h5 class="fw-bold text-primary">${bg.bgName}</h5>
+                                <ul class="list-group list-group-flush small">
+                                    <li class="list-group-item px-0">Class: <strong>${key}</strong></li>
+                                    <li class="list-group-item px-0">Tác giả: ${bg.bgAuthor}</li>
+                                    <li class="list-group-item px-0">Version: ${bg.bgVersion}</li>
+                                </ul>
                             </div>
-                        </div>
-                    `;
-
-                    // Làm sạch thư viện trước khi in dữ liệu mới
-                    galleryContainer.innerHTML = "";
-
-                    // 3. Duyệt qua từng cấu hình nền và vẽ giao diện
-                    Object.keys(data).forEach(key => {
-                        const bg = data[key];
-                        
-                        // Tạo Card chuẩn Bootstrap
-                        const col = document.createElement('div');
-                        col.className = 'col-md-6 col-lg-4';
-                        
-                        // Đóng gói thông tin (Cung cấp Alt mô tả hình ảnh đầy đủ để bot AI dễ đọc)
-                        col.innerHTML = `
-                            <div class="card bg-card">
-                                <div class="bg-image-wrapper">
-                                    <img src="${bg.bgUrl}" alt="Hình ảnh nền giao diện ${bg.bgName || 'Chưa đặt tên'} thuộc thư viện AllineCs" onerror="this.src='https://via.placeholder.com/400x200?text=Lỗi+tải+ảnh'">
-                                </div>
-                                <div class="card-body">
-                                    <h5 class="card-title fw-bold text-primary mb-3">
-                                        ${bg.bgName || 'Chưa cập nhật tên'}
-                                    </h5>
-                                    
-                                    <ul class="list-group list-group-flush small">
-                                        <li class="list-group-item px-0 d-flex justify-content-between align-items-center">
-                                            <span class="text-muted"><i class="bi bi-code-slash"></i> Class gọi lệnh:</span>
-                                            <span class="badge bg-dark rounded-pill fs-6 px-3">${key}</span>
-                                        </li>
-                                        <li class="list-group-item px-0 d-flex justify-content-between align-items-center">
-                                            <span class="text-muted"><i class="bi bi-person-fill"></i> Tác giả:</span>
-                                            <span class="fw-semibold">${bg.bgAuthor || 'Nguyễn Trọng An'}</span>
-                                        </li>
-                                        <li class="list-group-item px-0 d-flex justify-content-between align-items-center pb-0 border-0">
-                                            <span class="text-muted"><i class="bi bi-tag-fill"></i> Phiên bản (Version):</span>
-                                            <span class="text-primary fw-bold">${bg.bgVersion || 'v1.0.0'}</span>
-                                        </li>
-                                    </ul>
-                                </div>
-                            </div>
-                        `;
-                        galleryContainer.appendChild(col);
-                    });
-
-                } else {
-                    // Cập nhật trạng thái UI: TRỐNG DỮ LIỆU
-                    statusBox.className = "alert alert-warning status-box shadow-sm mb-4";
-                    statusBox.innerHTML = `
-                        <div class="d-flex align-items-center">
-                            <i class="bi bi-exclamation-triangle-fill fs-3 me-3 text-warning"></i>
-                            <div>
-                                <strong>Kết nối thành công nhưng Database đang trống.</strong><br>
-                                <span class="small">Vui lòng kiểm tra lại cấu trúc node 'backgrounds' trên Firebase Console.</span>
-                            </div>
-                        </div>
-                    `;
-                }
-            }, (error) => {
-                // Cập nhật trạng thái UI: LỖI KẾT NỐI
-                statusBox.className = "alert alert-danger status-box shadow-sm mb-4";
-                statusBox.innerHTML = `
-                    <div class="d-flex align-items-center">
-                        <i class="bi bi-x-octagon-fill fs-3 me-3 text-danger"></i>
-                        <div>
-                            <strong>Lỗi kết nối Firebase Realtime Database!</strong><br>
-                            <span class="small">${error.message}</span>
                         </div>
                     </div>
                 `;
             });
-
-        } catch (err) {
-            console.error("Lỗi khởi tạo Firebase: ", err);
-            statusBox.className = "alert alert-danger status-box shadow-sm mb-4";
-            statusBox.innerHTML = "<strong>Đã xảy ra lỗi nghiêm trọng khi nạp thư viện Firebase!</strong> Hãy kiểm tra lại Console trình duyệt.";
         }
     </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
 

@@ -20,11 +20,11 @@
       justify-content: center;
       padding: 30px;
       text-align: center;
-      transition: opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1), transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+      transition: opacity 0.5s ease, transform 0.5s ease;
     }
     #welcome-screen.fade-out {
       opacity: 0;
-      transform: scale(1.15);
+      transform: scale(1.1);
       pointer-events: none;
     }
     .welcome-logo {
@@ -54,7 +54,6 @@
       font-weight: bold;
       cursor: pointer;
       box-shadow: 0 8px 25px rgba(236, 72, 153, 0.5);
-      transition: transform 0.2s, box-shadow 0.2s;
       animation: pulseBtn 2s infinite;
     }
     .btn-start:active { transform: scale(0.95); }
@@ -73,7 +72,7 @@
       50% { box-shadow: 0 12px 35px rgba(236, 72, 153, 0.8); }
     }
 
-    /* MÀN HÌNH MENU 3 GẠCH (DRAWER SIDE MENU) */
+    /* MENU ☰ DRAWER */
     .drawer-overlay {
       position: fixed;
       inset: 0;
@@ -96,7 +95,7 @@
       background: #0f172a;
       z-index: 310;
       transform: translateX(-100%);
-      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      transition: transform 0.3s ease;
       display: flex;
       flex-direction: column;
       padding: 24px 16px;
@@ -129,12 +128,10 @@
       font-weight: 600;
       font-size: 0.95rem;
       cursor: pointer;
-      transition: background 0.2s, color 0.2s;
     }
     .drawer-item:active, .drawer-item.active { background: rgba(236, 72, 153, 0.15); color: #ec4899; }
-    .drawer-item .icon { font-size: 1.3rem; }
 
-    /* Màn hình Đăng nhập / Đăng ký Modal Overlay */
+    /* AUTH MODAL */
     #auth-screen { position: fixed; inset: 0; z-index: 350; background: rgba(9, 13, 22, 0.95); backdrop-filter: blur(10px); display: none; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
     #auth-screen h1 { font-size: 2.5rem; background: linear-gradient(135deg, #a855f7, #ec4899); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 20px; }
     .auth-form { width: 100%; max-width: 320px; display: flex; flex-direction: column; gap: 12px; position: relative; }
@@ -143,69 +140,70 @@
     .auth-toggle { text-align: center; color: #9ca3af; font-size: 0.85rem; cursor: pointer; margin-top: 10px; }
     .close-auth { position: absolute; top: -40px; right: 0; color: #9ca3af; font-size: 1.5rem; cursor: pointer; }
 
-    /* APP CHÍNH */
+    /* APP CONTAINER */
     #app { display: flex; height: 100dvh; width: 100vw; flex-direction: column; position: relative; overflow: hidden; }
 
-    /* Thanh điều hướng TOP mới với nút 3 gạch ☰ */
+    /* TOP BAR */
     .top-bar { position: absolute; top: 0; left: 0; right: 0; z-index: 20; padding: 12px 16px; padding-top: max(12px, env(safe-area-inset-top)); display: flex; justify-content: space-between; align-items: center; background: linear-gradient(to bottom, rgba(0,0,0,0.85), transparent); pointer-events: none; }
-    .menu-toggle-btn { pointer-events: auto; background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(8px); border: none; color: white; font-size: 1.4rem; padding: 8px 14px; border-radius: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+    .menu-toggle-btn { pointer-events: auto; background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(8px); border: none; color: white; font-size: 1.3rem; padding: 8px 14px; border-radius: 20px; cursor: pointer; }
     .app-title-top { font-weight: 800; font-size: 1.2rem; background: linear-gradient(135deg, #a855f7, #ec4899); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
 
-    /* Container Lướt Video */
+    /* VIEWS */
     .views-container { flex: 1; height: 100dvh; position: relative; overflow: hidden; }
     .page-view { position: absolute; inset: 0; display: none; background: #000; }
     .page-view.active { display: flex; }
 
-    /* Feeds Scroll kiểu TikTok */
+    /* FEED SCROLL FULLSCREEN */
     .video-feed { width: 100%; height: 100dvh; overflow-y: scroll; scroll-snap-type: y mandatory; -webkit-overflow-scrolling: touch; }
     .video-feed::-webkit-scrollbar { display: none; }
     
     .short-card { width: 100%; height: 100dvh; scroll-snap-align: start; position: relative; background: #000; flex-shrink: 0; overflow: hidden; }
     .short-player { width: 100%; height: 100%; border: none; object-fit: cover; pointer-events: none !important; }
 
-    /* Lớp phủ nhận tương tác phát/dừng hoàn toàn bằng JS */
     .video-touch-overlay { position: absolute; inset: 0; z-index: 5; background: transparent; cursor: pointer; }
 
-    /* Tác vụ bên phải Video */
-    .side-actions { position: absolute; right: 12px; bottom: 85px; display: flex; flex-direction: column; align-items: center; gap: 18px; z-index: 25; pointer-events: auto; }
-    .action-btn { display: flex; flex-direction: column; align-items: center; font-size: 0.75rem; cursor: pointer; text-shadow: 0 1px 3px rgba(0,0,0,0.8); transition: transform 0.15s ease; }
+    /* TÁC VỤ VÀ NÚT TUA BÊN PHẢI / DƯỚI */
+    .side-actions { position: absolute; right: 12px; bottom: calc(65px + env(safe-area-inset-bottom)); display: flex; flex-direction: column; align-items: center; gap: 18px; z-index: 25; pointer-events: auto; }
+    .action-btn { display: flex; flex-direction: column; align-items: center; font-size: 0.75rem; cursor: pointer; text-shadow: 0 1px 3px rgba(0,0,0,0.8); }
     .action-btn:active { transform: scale(0.85); }
     .action-btn .icon { font-size: 1.8rem; margin-bottom: 2px; }
-    .action-btn.liked .icon { color: #ec4899; animation: heartBeat 0.3s ease; }
+    .action-btn.liked .icon { color: #ec4899; }
     .action-btn.owner-btn .icon { color: #f59e0b; }
     .action-btn.sound-btn .icon { color: #38bdf8; }
 
-    @keyframes heartBeat {
-      0% { transform: scale(1); }
-      50% { transform: scale(1.3); }
-      100% { transform: scale(1); }
-    }
-
-    /* Thông tin Video bottom */
-    .video-overlay-info { position: absolute; left: 12px; bottom: 85px; right: 80px; z-index: 25; text-shadow: 0 1px 3px rgba(0,0,0,0.8); pointer-events: none; }
+    .video-overlay-info { position: absolute; left: 12px; bottom: calc(65px + env(safe-area-inset-bottom)); right: 80px; z-index: 25; text-shadow: 0 1px 3px rgba(0,0,0,0.8); pointer-events: none; }
     .video-overlay-info .author { font-weight: bold; font-size: 1rem; display: flex; align-items: center; gap: 8px; margin-bottom: 6px; pointer-events: auto; }
     .sub-btn { background: #ec4899; border: none; color: white; padding: 4px 10px; border-radius: 4px; font-size: 0.75rem; cursor: pointer; font-weight: 600; }
     .video-overlay-info .title { font-size: 0.9rem; line-height: 1.3; }
 
-    /* MÀN HÌNH TÌM KIẾM UI CHUYÊN NGHIỆP */
-    .search-screen {
-      position: fixed;
-      inset: 0;
-      background: #0f172a;
-      z-index: 250;
-      display: none;
-      flex-direction: column;
-      padding: 16px;
-      padding-top: max(16px, env(safe-area-inset-top));
-    }
+    /* THANH TUA VIDEO VÀ THỜI GIAN THỰC */
+    .video-controls-bottom { position: absolute; left: 12px; right: 12px; bottom: calc(15px + env(safe-area-inset-bottom)); z-index: 26; display: flex; align-items: center; gap: 10px; pointer-events: auto; background: rgba(0,0,0,0.4); padding: 4px 10px; border-radius: 12px; backdrop-filter: blur(4px); }
+    .time-display { font-size: 0.75rem; color: #cbd5e1; font-family: monospace; white-space: nowrap; }
+    .seek-slider { flex: 1; -webkit-appearance: none; height: 4px; background: rgba(255,255,255,0.3); border-radius: 2px; outline: none; }
+    .seek-slider::-webkit-slider-thumb { -webkit-appearance: none; width: 12px; height: 12px; border-radius: 50%; background: #ec4899; cursor: pointer; }
+
+    /* MÀN HÌNH LƯỚI 3 CỘT (GRID 3 COLUMNS) */
+    .grid-view-container { padding: 60px 8px 8px; width: 100%; height: 100dvh; overflow-y: auto; }
+    .grid-3-columns { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+    .grid-item { position: relative; width: 100%; aspect-ratio: 9/16; background: #111827; border-radius: 6px; overflow: hidden; cursor: pointer; border: 1px solid #1e293b; }
+    .grid-item video { width: 100%; height: 100%; object-fit: cover; pointer-events: none; }
+    .grid-item-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, transparent 40%); display: flex; flex-direction: column; justify-content: flex-end; padding: 6px; }
+    .grid-item-title { font-size: 0.7rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 2px; }
+    .grid-item-stats { display: flex; gap: 8px; font-size: 0.65rem; color: #cbd5e1; }
+
+    /* NÚT THOÁT FULLSCREEN VỀ LƯỚI */
+    .btn-back-grid { position: absolute; top: max(12px, env(safe-area-inset-top)); left: 12px; z-index: 30; background: rgba(0,0,0,0.6); backdrop-filter: blur(5px); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 6px 14px; border-radius: 20px; font-size: 0.8rem; font-weight: bold; cursor: pointer; }
+
+    /* SEARCH UI */
+    .search-screen { position: fixed; inset: 0; background: #0f172a; z-index: 250; display: none; flex-direction: column; padding: 16px; padding-top: max(16px, env(safe-area-inset-top)); }
     .search-screen.active { display: flex; }
     .search-top-bar { display: flex; gap: 10px; align-items: center; margin-bottom: 16px; }
     .search-input-box { flex: 1; display: flex; align-items: center; background: #1e293b; border-radius: 20px; padding: 8px 14px; border: 1px solid #334155; }
     .search-input-box input { flex: 1; background: transparent; border: none; color: #fff; outline: none; font-size: 15px; }
     .btn-cancel-search { color: #ec4899; font-weight: 600; font-size: 0.9rem; cursor: pointer; }
 
-    .search-history-container { margin-bottom: 20px; }
-    .history-title { font-size: 0.85rem; color: #94a3b8; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
+    .search-history-container { margin-bottom: 16px; }
+    .history-title { font-size: 0.85rem; color: #94a3b8; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
     .history-tags { display: flex; flex-wrap: wrap; gap: 8px; }
     .tag-item { background: #1e293b; color: #cbd5e1; padding: 6px 12px; border-radius: 16px; font-size: 0.8rem; cursor: pointer; border: 1px solid #334155; }
 
@@ -213,8 +211,8 @@
     .search-tab { flex: 1; text-align: center; padding: 10px; font-size: 0.9rem; font-weight: 600; color: #64748b; cursor: pointer; }
     .search-tab.active { color: #ec4899; border-bottom: 2px solid #ec4899; }
 
-    .search-results-list { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; }
-    .user-result-card { display: flex; align-items: center; justify-content: space-between; padding: 12px; background: #1e293b; border-radius: 12px; border: 1px solid #334155; cursor: pointer; }
+    .search-results-list { flex: 1; overflow-y: auto; }
+    .user-result-card { display: flex; align-items: center; justify-content: space-between; padding: 12px; background: #1e293b; border-radius: 12px; border: 1px solid #334155; cursor: pointer; margin-bottom: 10px; }
     .user-info-left { display: flex; align-items: center; gap: 12px; }
     .user-avatar { width: 42px; height: 42px; border-radius: 50%; background: linear-gradient(135deg, #a855f7, #ec4899); display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 1.1rem; }
 
@@ -280,7 +278,7 @@
     </div>
   </div>
 
-  <!-- MÀN HÌNH ĐĂNG NHẬP / ĐĂNG KÝ (Dạng Modal) -->
+  <!-- MÀN HÌNH ĐĂNG NHẬP / ĐĂNG KÝ Modal -->
   <div id="auth-screen">
     <div class="auth-form">
       <span class="close-auth" onclick="closeAuthModal()">✕</span>
@@ -323,17 +321,17 @@
 
   <!-- APP CHÍNH -->
   <div id="app">
-    <!-- Thanh điều hướng TOP mới chỉ chứa nút 3 gạch ☰ và Logo -->
+    <!-- Thanh điều hướng TOP với nút 3 gạch ☰ -->
     <div class="top-bar">
-      <button class="menu-toggle-btn" onclick="openDrawer()">☰</button>
+      <button class="menu-toggle-btn" onclick="openDrawer()">☰ Menu</button>
       <div class="app-title-top">LandMeVid</div>
-      <div style="width: 40px;"></div> <!-- Cân bằng layout -->
+      <div style="width: 40px;"></div>
     </div>
 
     <!-- Nội dung chính -->
     <div class="views-container">
       
-      <!-- 1. HOME -->
+      <!-- 1. HOME (Lướt Fullscreen) -->
       <div id="view-home" class="page-view active">
         <div class="video-feed" id="home-feed"></div>
       </div>
@@ -351,9 +349,12 @@
         </div>
       </div>
 
-      <!-- 3. LIKED -->
+      <!-- 3. LIKED (Hiển thị Lưới 3 Cột) -->
       <div id="view-liked" class="page-view">
-        <div class="video-feed" id="liked-feed"></div>
+        <div class="grid-view-container">
+          <h3 style="margin-bottom: 12px; font-size: 1.1rem; color: #ec4899;">❤️ Video Đã Tim</h3>
+          <div class="grid-3-columns" id="liked-grid"></div>
+        </div>
       </div>
 
       <!-- 4. SUBSCRIBED (Kênh đã đăng ký) -->
@@ -362,15 +363,30 @@
         <div id="subscribed-channels-list" style="display: flex; flex-direction: column; gap: 10px;"></div>
       </div>
 
-      <!-- 5. PROFILE -->
-      <div id="view-profile" class="page-view" style="flex-direction: column; padding: 70px 15px 20px; overflow-y: auto;">
-        <div style="text-align: center; margin-bottom: 20px;">
-          <h2 id="profile-name">@khach</h2>
-          <p id="profile-sub-count" style="color: #9ca3af; font-size: 0.85rem; margin-top: 5px;">0 Người đăng ký</p>
-          <button id="logout-btn" onclick="handleLogout()" style="margin-top: 10px; background: #374151; color: white; border: none; padding: 6px 14px; border-radius: 6px; cursor: pointer; font-size: 0.8rem; display: none;">Đăng xuất</button>
+      <!-- 5. PROFILE (Giao diện 3 Cột Grid Chuyên Nghiệp) -->
+      <div id="view-profile" class="page-view" style="flex-direction: column; overflow-hidden;">
+        <div class="grid-view-container" style="padding-top: 60px;">
+          <!-- Top Profile Info -->
+          <div style="text-align: center; margin-bottom: 20px; background: #0f172a; padding: 16px; border-radius: 12px; border: 1px solid #1e293b; position: relative;">
+            <button id="profile-back-btn" class="sub-btn" style="position: absolute; top: 12px; left: 12px; background: #374151; display: none;" onclick="goBackFromProfile()">← Quay lại</button>
+            <h2 id="profile-name">@khach</h2>
+            <p id="profile-sub-count" style="color: #9ca3af; font-size: 0.85rem; margin-top: 4px;">0 Người đăng ký</p>
+
+            <div style="margin-top: 10px; display: flex; justify-content: center; gap: 8px;">
+              <button id="profile-sub-action-btn" class="sub-btn" style="display: none;" onclick="toggleSubscribeProfile()">Theo dõi</button>
+              <button id="logout-btn" onclick="handleLogout()" style="background: #ef4444; color: white; border: none; padding: 6px 14px; border-radius: 6px; cursor: pointer; font-size: 0.8rem; font-weight: bold; display: none;">Đăng xuất</button>
+            </div>
+          </div>
+
+          <h3 style="margin-bottom: 10px; font-size: 0.95rem; color: #ec4899;">🎬 Danh sách Video (3 Cột)</h3>
+          <div class="grid-3-columns" id="profile-grid"></div>
         </div>
-        <h3 style="margin-bottom: 10px; font-size: 0.95rem; color: #ec4899;">Video đã đăng</h3>
-        <div class="video-feed" id="profile-feed" style="height: 400px;"></div>
+      </div>
+
+      <!-- 6. SINGLE FULLSCREEN PLAYER (Khi nhấp từ 3 cột Grid) -->
+      <div id="view-single-player" class="page-view">
+        <button class="btn-back-grid" onclick="closeSinglePlayer()">← Quay lại danh sách</button>
+        <div class="short-card" id="single-player-container"></div>
       </div>
 
     </div>
@@ -435,13 +451,15 @@
     let videoObserver = null;
     let activeSearchTab = 'video';
     let currentSearchQuery = '';
+    let currentViewingProfileUser = null;
+    let lastTabBeforeProfile = 'home';
 
     // HÀM MỞ KHOÁ ÂM THANH TỰ ĐỘNG
     window.startAppWithAudio = () => {
       isGlobalMuted = false;
       const welcome = document.getElementById("welcome-screen");
       welcome.classList.add("fade-out");
-      setTimeout(() => { welcome.style.display = "none"; }, 600);
+      setTimeout(() => { welcome.style.display = "none"; }, 500);
 
       document.querySelectorAll('video').forEach(v => {
         v.muted = false;
@@ -450,7 +468,7 @@
       updateSoundUI();
     };
 
-    // QUẢN LÝ DRAWER MENU ☰
+    // DRAWER MENU
     window.openDrawer = () => {
       document.getElementById("drawer-overlay").classList.add("active");
       document.getElementById("drawer-menu").classList.add("active");
@@ -475,7 +493,7 @@
       }
     };
 
-    // QUẢN LÝ TÌM KIẾM UI (SEARCH)
+    // SEARCH UI
     window.openSearchUI = () => {
       closeDrawer();
       document.getElementById("search-screen").classList.add("active");
@@ -549,17 +567,18 @@
 
       if (activeSearchTab === 'video') {
         const snapshot = await getDocs(collection(db, "videos"));
-        let html = "";
+        let gridHtml = `<div class="grid-3-columns">`;
+        let count = 0;
         snapshot.forEach(docSnap => {
           const d = docSnap.data();
           if (d.title.toLowerCase().includes(queryText.toLowerCase()) || d.author.toLowerCase().includes(queryText.toLowerCase())) {
-            html += createShortCard(docSnap.id, d);
+            gridHtml += createGridItemCard(docSnap.id, d);
+            count++;
           }
         });
-        container.innerHTML = html || `<div style="text-align: center; color: #64748b; padding: 20px;">Không tìm thấy video nào.</div>`;
-        setTimeout(initVideoObserver, 100);
+        gridHtml += `</div>`;
+        container.innerHTML = count > 0 ? gridHtml : `<div style="text-align: center; color: #64748b; padding: 20px;">Không tìm thấy video nào.</div>`;
       } else {
-        // Tìm kiếm Người dùng / Kênh
         const snapshot = await getDocs(collection(db, "users"));
         let html = "";
         snapshot.forEach(docSnap => {
@@ -599,12 +618,8 @@
 
     function updateUIForLoggedInUser() {
       if (currentUser) {
-        document.getElementById("profile-name").innerText = "@" + currentUser.username;
-        document.getElementById("logout-btn").style.display = "inline-block";
         document.getElementById("drawer-auth-text").innerText = `Đăng xuất (@${currentUser.username})`;
       } else {
-        document.getElementById("profile-name").innerText = "@khach";
-        document.getElementById("logout-btn").style.display = "none";
         document.getElementById("drawer-auth-text").innerText = "Đăng Nhập";
       }
     }
@@ -694,7 +709,7 @@
       if (tabName === 'profile') loadProfileVideos(customUser);
     };
 
-    // Hàm kiểm tra & Chuẩn hóa URL
+    // Chuẩn hóa URL
     function formatVideoSourceUrl(inputUrl) {
       if (!inputUrl) return { type: 'none', url: '' };
 
@@ -730,7 +745,7 @@
       const formatted = formatVideoSourceUrl(rawUrl);
 
       if (formatted.type === 'error_collection') {
-        container.innerHTML = `<span style="color: #ef4444; font-size: 0.85rem;">⚠️ Đây là link bộ sưu tập! Vui lòng chọn video và bấm Copy URL (link có đuôi .mp4).</span>`;
+        container.innerHTML = `<span style="color: #ef4444; font-size: 0.85rem;">⚠️ Link bộ sưu tập không đúng! Vui lòng chọn Copy URL (.mp4).</span>`;
       } else if (formatted.type === 'youtube') {
         container.innerHTML = `<iframe class="short-player" src="${formatted.url}" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>`;
       } else if (formatted.type === 'mp4' && formatted.url) {
@@ -761,6 +776,7 @@
         author: currentUser.username, 
         authorId: currentUser.uid,
         likes: [], 
+        views: [], // Lưu mảng UIDs người dùng đã xem
         comments: [], 
         createdAt: new Date()
       });
@@ -795,19 +811,67 @@
       });
     }
 
-    // Chạm vào màn hình để Bật/Tắt Play-Pause
+    // Chạm vào màn hình để Play/Pause
     window.handleCardClick = (id) => {
       const vEl = document.getElementById(`video-${id}`);
       if (!vEl) return;
 
+      const playIcon = document.getElementById(`play-icon-${id}`);
+
       if (vEl.paused) {
         vEl.play().catch(() => {});
+        if (playIcon) playIcon.innerText = "❚❚";
       } else {
         vEl.pause();
+        if (playIcon) playIcon.innerText = "▶";
       }
     };
 
-    // Thiết lập chặn tuyệt đối Trình xem Apple (iOS Fullscreen Player)
+    // Format thời gian m:ss
+    function formatTime(seconds) {
+      if (isNaN(seconds)) return "0:00";
+      const m = Math.floor(seconds / 60);
+      const s = Math.floor(seconds % 60);
+      return `${m}:${s < 10 ? '0' : ''}${s}`;
+    }
+
+    // Cập nhật thanh tua thời gian Realtime
+    window.handleVideoTimeUpdate = (id) => {
+      const vEl = document.getElementById(`video-${id}`);
+      const seekBar = document.getElementById(`seek-${id}`);
+      const timeTxt = document.getElementById(`time-txt-${id}`);
+
+      if (vEl && seekBar && timeTxt && vEl.duration) {
+        const percentage = (vEl.currentTime / vEl.duration) * 100;
+        seekBar.value = percentage;
+        timeTxt.innerText = `${formatTime(vEl.currentTime)} / ${formatTime(vEl.duration)}`;
+      }
+    };
+
+    // Kéo thanh tua thời gian
+    window.handleSeekInput = (id, value) => {
+      const vEl = document.getElementById(`video-${id}`);
+      if (vEl && vEl.duration) {
+        vEl.currentTime = (value / 100) * vEl.duration;
+      }
+    };
+
+    // Tăng lượt xem (Chỉ khi đã đăng nhập)
+    async function incrementVideoView(id, videoData) {
+      if (!currentUser) return; // Chỉ đăng nhập mới tính lượt xem
+
+      const viewsArr = videoData.views || [];
+      if (!viewsArr.includes(currentUser.uid)) {
+        try {
+          const videoRef = doc(db, "videos", id);
+          await updateDoc(videoRef, {
+            views: arrayUnion(currentUser.uid)
+          });
+        } catch (e) {}
+      }
+    }
+
+    // Thiết lập chặn Apple Player
     function attachAppleFullscreenBlock(vEl) {
       if (!vEl) return;
 
@@ -823,7 +887,7 @@
       });
     }
 
-    // Tự động phát video khi lướt tới (IntersectionObserver)
+    // Tự động phát video khi lướt (IntersectionObserver)
     function initVideoObserver() {
       if (videoObserver) videoObserver.disconnect();
 
@@ -842,6 +906,10 @@
                   video.play().catch(() => {});
                 });
               }
+              const videoId = card.getAttribute('data-id');
+              if (videoId) {
+                incrementVideoView(videoId, { views: card.getAttribute('data-views') ? JSON.parse(card.getAttribute('data-views')) : [] });
+              }
             }
           } else {
             if (video) {
@@ -857,15 +925,68 @@
       });
     }
 
-    // Render Card Video
-    function createShortCard(id, data) {
+    // Render Thẻ Lưới 3 Cột Grid Item
+    function createGridItemCard(id, data) {
+      const formatted = formatVideoSourceUrl(data.url);
+      const viewsCount = data.views ? data.views.length : 0;
+      const likesCount = data.likes ? data.likes.length : 0;
+
+      const mediaHtml = (formatted.type === 'youtube') 
+        ? `<iframe src="${formatted.url}" style="width:100%;height:100%;border:none;pointer-events:none;"></iframe>`
+        : `<video src="${formatted.url}#t=0.5" preload="metadata" playsinline webkit-playsinline></video>`;
+
+      return `
+        <div class="grid-item" onclick="openSinglePlayerFromGrid('${id}')">
+          ${mediaHtml}
+          <div class="grid-item-overlay">
+            <div class="grid-item-title">${data.title}</div>
+            <div class="grid-item-stats">
+              <span>👁️ ${viewsCount}</span>
+              <span>♥ ${likesCount}</span>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    // Mở Fullscreen Single Player từ Lưới 3 cột
+    window.openSinglePlayerFromGrid = async (id) => {
+      const docSnap = await getDoc(doc(db, "videos", id));
+      if (!docSnap.exists()) return;
+
+      const data = docSnap.data();
+      const container = document.getElementById("single-player-container");
+      container.innerHTML = createShortCardHtmlContent(id, data);
+
+      document.querySelectorAll(".page-view").forEach(el => el.classList.remove("active"));
+      document.getElementById("view-single-player").classList.add("active");
+
+      setTimeout(() => {
+        const vEl = document.getElementById(`video-${id}`);
+        if (vEl) {
+          vEl.muted = isGlobalMuted;
+          vEl.play().catch(() => {});
+          attachAppleFullscreenBlock(vEl);
+        }
+        incrementVideoView(id, data);
+      }, 100);
+    };
+
+    window.closeSinglePlayer = () => {
+      const activeVideos = document.querySelectorAll('#single-player-container video');
+      activeVideos.forEach(v => v.pause());
+      switchTab(lastTabBeforeProfile || 'home');
+    };
+
+    // Render Fullscreen Card Content
+    function createShortCardHtmlContent(id, data) {
       const isLiked = currentUser && data.likes && data.likes.includes(currentUser.uid);
       const isOwner = currentUser && (currentUser.username === data.author);
       const formatted = formatVideoSourceUrl(data.url);
       
       const mediaHtml = (formatted.type === 'youtube') 
         ? `<iframe class="short-player" src="${formatted.url}" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>`
-        : `<video id="video-${id}" class="short-player" src="${formatted.url}" loop ${isGlobalMuted ? 'muted' : ''} playsinline webkit-playsinline x5-playsinline disablepictureinpicture controlslist="nodownload nofullscreen noremoteplayback"></video>`;
+        : `<video id="video-${id}" class="short-player" src="${formatted.url}" loop ${isGlobalMuted ? 'muted' : ''} playsinline webkit-playsinline x5-playsinline disablepictureinpicture controlslist="nodownload nofullscreen noremoteplayback" ontimeupdate="handleVideoTimeUpdate('${id}')"></video>`;
 
       const ownerActionHtml = isOwner ? `
         <div class="action-btn owner-btn" onclick="openEditModal('${id}', '${data.title.replace(/'/g, "\\'")}')">
@@ -881,37 +1002,54 @@
         </div>
       ` : '';
 
+      const seekControlHtml = (formatted.type !== 'youtube') ? `
+        <div class="video-controls-bottom">
+          <span class="time-display" id="time-txt-${id}">0:00 / 0:00</span>
+          <input type="range" class="seek-slider" id="seek-${id}" value="0" min="0" max="100" oninput="handleSeekInput('${id}', this.value)">
+        </div>
+      ` : '';
+
+      return `
+        ${mediaHtml}
+        <div class="video-touch-overlay" onclick="handleCardClick('${id}')"></div>
+        ${seekControlHtml}
+        
+        <div class="side-actions">
+          <div class="action-btn" onclick="handleCardClick('${id}')">
+            <span class="icon" id="play-icon-${id}">❚❚</span>
+            <span>Dừng/Phát</span>
+          </div>
+          <div class="action-btn ${isLiked ? 'liked' : ''}" onclick="toggleLike('${id}', ${isLiked})">
+            <span class="icon">♥</span>
+            <span>${data.likes ? data.likes.length : 0}</span>
+          </div>
+          <div class="action-btn" onclick="openComments('${id}')">
+            <span class="icon">💬</span>
+            <span>${data.comments ? data.comments.length : 0}</span>
+          </div>
+          ${soundBtnHtml}
+          ${ownerActionHtml}
+        </div>
+        <div class="video-overlay-info">
+          <div class="author">
+            @${data.author}
+            ${!isOwner ? `<button class="sub-btn" onclick="subscribeUser('${data.authorId}')">Theo dõi</button>` : `<span style="font-size: 0.75rem; color: #a7f3d0;">(Video của bạn)</span>`}
+          </div>
+          <div class="title">${data.title}</div>
+        </div>
+      `;
+    }
+
+    // Render Fullscreen Feed Card cho Home
+    function createShortCard(id, data) {
       setTimeout(() => {
         const vEl = document.getElementById(`video-${id}`);
         if (vEl) attachAppleFullscreenBlock(vEl);
       }, 50);
 
       return `
-        <div class="short-card">
-          ${mediaHtml}
-
-          <!-- Lớp phủ nhận tương tác phát/dừng hoàn toàn bằng JS -->
-          <div class="video-touch-overlay" onclick="handleCardClick('${id}')"></div>
-          
-          <div class="side-actions">
-            <div class="action-btn ${isLiked ? 'liked' : ''}" onclick="toggleLike('${id}', ${isLiked})">
-              <span class="icon">♥</span>
-              <span>${data.likes ? data.likes.length : 0}</span>
-            </div>
-            <div class="action-btn" onclick="openComments('${id}')">
-              <span class="icon">💬</span>
-              <span>${data.comments ? data.comments.length : 0}</span>
-            </div>
-            ${soundBtnHtml}
-            ${ownerActionHtml}
-          </div>
-          <div class="video-overlay-info">
-            <div class="author">
-              @${data.author}
-              ${!isOwner ? `<button class="sub-btn" onclick="subscribeUser('${data.authorId}')">Theo dõi</button>` : `<span style="font-size: 0.75rem; color: #a7f3d0;">(Video của bạn)</span>`}
-            </div>
-            <div class="title">${data.title}</div>
-          </div>
+        <div class="short-card" data-id="${id}" data-views='${JSON.stringify(data.views || [])}'>
+          ${createShortCardHtmlContent(id, data)}
         </div>
       `;
     }
@@ -931,12 +1069,11 @@
       if (!currentUser) return;
       const q = query(collection(db, "videos"), where("likes", "array-contains", currentUser.uid));
       const snapshot = await getDocs(q);
-      const feed = document.getElementById("liked-feed");
-      feed.innerHTML = "";
+      const grid = document.getElementById("liked-grid");
+      grid.innerHTML = "";
       snapshot.forEach(docSnap => {
-        feed.innerHTML += createShortCard(docSnap.id, docSnap.data());
+        grid.innerHTML += createGridItemCard(docSnap.id, docSnap.data());
       });
-      setTimeout(initVideoObserver, 100);
     }
 
     async function loadSubscribedChannels() {
@@ -966,18 +1103,77 @@
     }
 
     async function loadProfileVideos(targetUsername = null) {
-      const authorName = targetUsername || (currentUser ? currentUser.username : "khach");
-      document.getElementById("profile-name").innerText = "@" + authorName;
+      if (targetUsername) {
+        lastTabBeforeProfile = 'search';
+      } else {
+        lastTabBeforeProfile = 'home';
+      }
 
-      const q = query(collection(db, "videos"), where("author", "==", authorName));
+      currentViewingProfileUser = targetUsername || (currentUser ? currentUser.username : "khach");
+      document.getElementById("profile-name").innerText = "@" + currentViewingProfileUser;
+
+      const isMyOwnProfile = currentUser && (currentUser.username === currentViewingProfileUser);
+
+      // Xử lý nút Đăng xuất / Sửa / Theo Dõi & Back
+      const logoutBtn = document.getElementById("logout-btn");
+      const backBtn = document.getElementById("profile-back-btn");
+      const subBtn = document.getElementById("profile-sub-action-btn");
+
+      if (isMyOwnProfile) {
+        logoutBtn.style.display = "inline-block"; // Chỉ hiện đăng xuất ở kênh của chính mình
+        backBtn.style.display = "none";
+        subBtn.style.display = "none";
+      } else {
+        logoutBtn.style.display = "none"; // Ẩn hoàn toàn chữ Đăng xuất ở kênh người khác
+        backBtn.style.display = "inline-block";
+        subBtn.style.display = "inline-block";
+
+        // Kiểm tra xem đã theo dõi kênh này chưa
+        const userDoc = await getDoc(doc(db, "users", currentViewingProfileUser));
+        if (userDoc.exists()) {
+          const subs = userDoc.data().subscribers || [];
+          document.getElementById("profile-sub-count").innerText = `${subs.length} Người đăng ký`;
+          if (currentUser && subs.includes(currentUser.uid)) {
+            subBtn.innerText = "Đã theo dõi";
+            subBtn.style.background = "#374151";
+          } else {
+            subBtn.innerText = "+ Theo dõi";
+            subBtn.style.background = "#ec4899";
+          }
+        }
+      }
+
+      // Load danh sách 3 Cột Grid
+      const q = query(collection(db, "videos"), where("author", "==", currentViewingProfileUser));
       const snapshot = await getDocs(q);
-      const feed = document.getElementById("profile-feed");
-      feed.innerHTML = "";
+      const grid = document.getElementById("profile-grid");
+      grid.innerHTML = "";
       snapshot.forEach(docSnap => {
-        feed.innerHTML += createShortCard(docSnap.id, docSnap.data());
+        grid.innerHTML += createGridItemCard(docSnap.id, docSnap.data());
       });
-      setTimeout(initVideoObserver, 100);
     }
+
+    window.goBackFromProfile = () => {
+      switchTab('home');
+    };
+
+    window.toggleSubscribeProfile = async () => {
+      if (!checkLoginRequired()) return;
+      if (!currentViewingProfileUser) return;
+
+      const ref = doc(db, "users", currentViewingProfileUser);
+      const userDoc = await getDoc(ref);
+      if (!userDoc.exists()) return;
+
+      const subs = userDoc.data().subscribers || [];
+      const isSubbed = subs.includes(currentUser.uid);
+
+      await updateDoc(ref, {
+        subscribers: isSubbed ? arrayRemove(currentUser.uid) : arrayUnion(currentUser.uid)
+      });
+
+      loadProfileVideos(currentViewingProfileUser);
+    };
 
     // Thả tim
     window.toggleLike = async (id, currentLiked) => {

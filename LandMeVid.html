@@ -6,7 +6,74 @@
   <title>LandmeVid - Vùng Đất Meme & Short Video</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
-    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #000; color: #fff; overflow: hidden; height: 100vh; width: 100vw; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #000; color: #fff; overflow: hidden; height: 100dvh; width: 100vw; }
+
+    /* MÀN HÌNH BẮT ĐẦU (WELCOME SPLASH SCREEN) VỚI HIỆU ỨNG ĐỘNG */
+    #welcome-screen {
+      position: fixed;
+      inset: 0;
+      z-index: 300;
+      background: radial-gradient(circle at center, #1e1035 0%, #090d16 100%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 30px;
+      text-align: center;
+      transition: opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1), transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    #welcome-screen.fade-out {
+      opacity: 0;
+      transform: scale(1.15);
+      pointer-events: none;
+    }
+    .welcome-logo {
+      font-size: 3.2rem;
+      font-weight: 900;
+      background: linear-gradient(135deg, #a855f7, #ec4899, #f43f5e);
+      background-size: 200% 200%;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 12px;
+      animation: gradientGlow 3s ease infinite, floatAnim 2.5s ease-in-out infinite;
+    }
+    .welcome-sub {
+      color: #9ca3af;
+      font-size: 1rem;
+      margin-bottom: 40px;
+      max-width: 280px;
+      line-height: 1.5;
+    }
+    .btn-start {
+      padding: 16px 36px;
+      background: linear-gradient(135deg, #a855f7, #ec4899);
+      color: #fff;
+      border: none;
+      border-radius: 30px;
+      font-size: 1.1rem;
+      font-weight: bold;
+      cursor: pointer;
+      box-shadow: 0 8px 25px rgba(236, 72, 153, 0.5);
+      transition: transform 0.2s, box-shadow 0.2s;
+      animation: pulseBtn 2s infinite;
+    }
+    .btn-start:active {
+      transform: scale(0.95);
+    }
+
+    @keyframes gradientGlow {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    @keyframes floatAnim {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
+    }
+    @keyframes pulseBtn {
+      0%, 100% { box-shadow: 0 8px 25px rgba(236, 72, 153, 0.5); }
+      50% { box-shadow: 0 12px 35px rgba(236, 72, 153, 0.8); }
+    }
 
     /* Màn hình Đăng nhập / Đăng ký Modal Overlay */
     #auth-screen { position: fixed; inset: 0; z-index: 200; background: rgba(9, 13, 22, 0.95); backdrop-filter: blur(10px); display: none; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
@@ -18,53 +85,70 @@
     .close-auth { position: absolute; top: -40px; right: 0; color: #9ca3af; font-size: 1.5rem; cursor: pointer; }
 
     /* App Container */
-    #app { display: flex; height: 100vh; flex-direction: column; position: relative; }
+    #app { display: flex; height: 100dvh; width: 100vw; flex-direction: column; position: relative; overflow: hidden; }
 
     /* Thanh tìm kiếm top */
-    .top-bar { position: absolute; top: 0; left: 0; right: 0; z-index: 10; padding: 12px; padding-top: max(12px, env(safe-area-inset-top)); display: flex; gap: 8px; align-items: center; background: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent); pointer-events: none; }
+    .top-bar { position: absolute; top: 0; left: 0; right: 0; z-index: 20; padding: 12px; padding-top: max(12px, env(safe-area-inset-top)); display: flex; gap: 8px; align-items: center; background: linear-gradient(to bottom, rgba(0,0,0,0.85), transparent); pointer-events: none; }
     .top-bar input, .top-bar button { pointer-events: auto; }
     .top-bar input { flex: 1; padding: 8px 14px; border-radius: 20px; border: none; background: rgba(255,255,255,0.25); color: #fff; backdrop-filter: blur(5px); outline: none; font-size: 14px; }
     .auth-btn-top { background: linear-gradient(135deg, #a855f7, #ec4899); color: white; border: none; padding: 6px 14px; border-radius: 20px; font-size: 0.8rem; font-weight: bold; cursor: pointer; white-space: nowrap; }
 
     /* Container Lướt Video */
-    .views-container { flex: 1; position: relative; overflow: hidden; }
+    .views-container { flex: 1; height: 100dvh; position: relative; overflow: hidden; }
     .page-view { position: absolute; inset: 0; display: none; background: #000; }
     .page-view.active { display: flex; }
 
     /* Feeds Scroll kiểu TikTok */
-    .video-feed { width: 100%; height: 100%; overflow-y: scroll; scroll-snap-type: y mandatory; -webkit-overflow-scrolling: touch; }
+    .video-feed { width: 100%; height: 100dvh; overflow-y: scroll; scroll-snap-type: y mandatory; -webkit-overflow-scrolling: touch; }
     .video-feed::-webkit-scrollbar { display: none; }
     
-    .short-card { width: 100%; height: 100%; scroll-snap-align: start; position: relative; background: #000; flex-shrink: 0; overflow: hidden; }
+    .short-card { width: 100%; height: 100dvh; scroll-snap-align: start; position: relative; background: #000; flex-shrink: 0; overflow: hidden; }
     
-    /* Khóa pointer-events hoàn toàn trên thẻ video để Safari không bắt được click bung Apple Player */
     .short-player { width: 100%; height: 100%; border: none; object-fit: cover; pointer-events: none !important; }
 
     /* Lớp phủ tương tác điều khiển JS */
     .video-touch-overlay { position: absolute; inset: 0; z-index: 5; background: transparent; cursor: pointer; }
 
-    /* Nút Unmute nhanh góc trên màn hình video */
-    .sound-badge-top { position: absolute; top: 70px; left: 12px; z-index: 26; background: rgba(236, 72, 153, 0.85); backdrop-filter: blur(8px); padding: 8px 14px; border-radius: 20px; font-size: 0.8rem; color: #ffffff; font-weight: 700; display: flex; align-items: center; gap: 6px; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.5); pointer-events: auto; animation: pulse 2s infinite; }
-    @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
-
-    /* Tác vụ bên phải Video */
-    .side-actions { position: absolute; right: 12px; bottom: 85px; display: flex; flex-direction: column; align-items: center; gap: 18px; z-index: 25; pointer-events: auto; }
-    .action-btn { display: flex; flex-direction: column; align-items: center; font-size: 0.75rem; cursor: pointer; text-shadow: 0 1px 3px rgba(0,0,0,0.8); }
+    /* Tác vụ bên phải Video - Đẩy cao hơn thanh Nav Bar cố định */
+    .side-actions { position: absolute; right: 12px; bottom: calc(75px + env(safe-area-inset-bottom)); display: flex; flex-direction: column; align-items: center; gap: 18px; z-index: 25; pointer-events: auto; }
+    .action-btn { display: flex; flex-direction: column; align-items: center; font-size: 0.75rem; cursor: pointer; text-shadow: 0 1px 3px rgba(0,0,0,0.8); transition: transform 0.15s ease; }
+    .action-btn:active { transform: scale(0.85); }
     .action-btn .icon { font-size: 1.8rem; margin-bottom: 2px; }
-    .action-btn.liked .icon { color: #ec4899; }
+    .action-btn.liked .icon { color: #ec4899; animation: heartBeat 0.3s ease; }
     .action-btn.owner-btn .icon { color: #f59e0b; }
     .action-btn.sound-btn .icon { color: #38bdf8; }
 
-    /* Thông tin Video bottom */
-    .video-overlay-info { position: absolute; left: 12px; bottom: 85px; right: 80px; z-index: 25; text-shadow: 0 1px 3px rgba(0,0,0,0.8); pointer-events: none; }
+    @keyframes heartBeat {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.3); }
+      100% { transform: scale(1); }
+    }
+
+    /* Thông tin Video bottom - Đẩy cao hơn thanh Nav Bar cố định */
+    .video-overlay-info { position: absolute; left: 12px; bottom: calc(75px + env(safe-area-inset-bottom)); right: 80px; z-index: 25; text-shadow: 0 1px 3px rgba(0,0,0,0.8); pointer-events: none; }
     .video-overlay-info .author { font-weight: bold; font-size: 1rem; display: flex; align-items: center; gap: 8px; margin-bottom: 6px; pointer-events: auto; }
     .sub-btn { background: #ec4899; border: none; color: white; padding: 4px 10px; border-radius: 4px; font-size: 0.75rem; cursor: pointer; font-weight: 600; }
     .video-overlay-info .title { font-size: 0.9rem; line-height: 1.3; }
 
-    /* Thanh điều hướng Bottom Bar */
-    .nav-bar { height: calc(60px + env(safe-area-inset-bottom)); padding-bottom: env(safe-area-inset-bottom); background: #090d16; border-top: 1px solid #1f2937; display: flex; justify-content: space-around; align-items: center; z-index: 30; }
-    .nav-item { display: flex; flex-direction: column; align-items: center; color: #6b7280; font-size: 0.7rem; cursor: pointer; }
-    .nav-item.active { color: #ec4899; }
+    /* THANH ĐIỀU HƯỚNG BOTTOM BAR CỐ ĐỊNH HOÀN TOÀN Ở ĐÁY MÀN HÌNH */
+    .nav-bar { 
+      position: fixed; 
+      bottom: 0; 
+      left: 0; 
+      right: 0; 
+      height: calc(60px + env(safe-area-inset-bottom)); 
+      padding-bottom: env(safe-area-inset-bottom); 
+      background: rgba(9, 13, 22, 0.95); 
+      backdrop-filter: blur(12px);
+      border-top: 1px solid rgba(255, 255, 255, 0.1); 
+      display: flex; 
+      justify-content: space-around; 
+      align-items: center; 
+      z-index: 100; 
+    }
+    .nav-item { display: flex; flex-direction: column; align-items: center; color: #6b7280; font-size: 0.7rem; cursor: pointer; transition: color 0.2s, transform 0.15s; }
+    .nav-item:active { transform: scale(0.9); }
+    .nav-item.active { color: #ec4899; font-weight: bold; }
     .nav-item .nav-icon { font-size: 1.3rem; margin-bottom: 2px; }
 
     /* Form Upload Page */
@@ -74,7 +158,7 @@
     .create-box button { padding: 12px; background: linear-gradient(135deg, #a855f7, #ec4899); border: none; color: white; font-weight: bold; border-radius: 8px; cursor: pointer; font-size: 15px; }
 
     /* Modal Comment & Edit */
-    .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 50; display: none; align-items: flex-end; }
+    .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 150; display: none; align-items: flex-end; }
     .modal-content { width: 100%; height: 60%; background: #111827; border-radius: 16px 16px 0 0; padding: 15px; padding-bottom: max(15px, env(safe-area-inset-bottom)); display: flex; flex-direction: column; }
     .comment-list { flex: 1; overflow-y: auto; margin: 10px 0; display: flex; flex-direction: column; gap: 10px; font-size: 0.85rem; }
     .comment-input { display: flex; gap: 8px; }
@@ -89,6 +173,13 @@
   </style>
 </head>
 <body>
+
+  <!-- MÀN HÌNH BẮT ĐẦU (WELCOME SPLASH OVERLAY) -->
+  <div id="welcome-screen">
+    <div class="welcome-logo">LandMeVid</div>
+    <p class="welcome-sub">Vùng Đất Meme & Short Video Giải Trí Hàng Đầu</p>
+    <button class="btn-start" onclick="startAppWithAudio()">🚀 Bắt Đầu Trải Nghiệm</button>
+  </div>
 
   <!-- MÀN HÌNH ĐĂNG NHẬP / ĐĂNG KÝ (Dạng Modal) -->
   <div id="auth-screen">
@@ -120,7 +211,7 @@
 
       <!-- 2. CREATE -->
       <div id="view-create" class="page-view" style="overflow-y: auto;">
-        <div class="create-box">
+        <div class="create-box" style="padding-bottom: 90px;">
           <h2>Đăng Short Video</h2>
           <div class="preview-box" id="preview-container">
             <span style="color: #6b7280;">Xem trước video</span>
@@ -137,7 +228,7 @@
       </div>
 
       <!-- 4. PROFILE -->
-      <div id="view-profile" class="page-view" style="flex-direction: column; padding: 70px 15px 15px; overflow-y: auto;">
+      <div id="view-profile" class="page-view" style="flex-direction: column; padding: 70px 15px 90px; overflow-y: auto;">
         <div style="text-align: center; margin-bottom: 20px;">
           <h2 id="profile-name">@khach</h2>
           <p id="profile-sub-count" style="color: #9ca3af; font-size: 0.85rem; margin-top: 5px;">0 Người đăng ký</p>
@@ -149,7 +240,7 @@
 
     </div>
 
-    <!-- Thanh Điều Hướng Dưới Cùng -->
+    <!-- THANH ĐIỀU HƯỚNG DƯỚI CÙNG CỐ ĐỊNH HOÀN TOÀN -->
     <div class="nav-bar">
       <div class="nav-item active" onclick="switchTab('home')">
         <div class="nav-icon">🏠</div>
@@ -225,22 +316,28 @@
     let isSignUpMode = false;
     let activeVideoIdForComment = null;
     let activeVideoIdForEdit = null;
-    let isGlobalMuted = true; // Mặc định im lặng lần đầu vào để thỏa mãn quy định iOS Autoplay
+    let isGlobalMuted = true; 
     let videoObserver = null;
 
-    // Lắng nghe cú chạm đầu tiên trên trang để giải phóng quyền Mở Âm Thanh
-    document.addEventListener('touchstart', unlockGlobalAudio, { once: true });
-    document.addEventListener('click', unlockGlobalAudio, { once: true });
+    // HÀM BẮT ĐẦU TRẢI NGHIỆM VÀ MỞ KHOÁ ÂM THANH TỰ ĐỘNG
+    window.startAppWithAudio = () => {
+      isGlobalMuted = false; // Bật âm thanh toàn bộ ứng dụng
 
-    function unlockGlobalAudio() {
-      // Khi người dùng có tương tác đầu tiên, mở khóa âm thanh
-      isGlobalMuted = false;
+      // Hiệu ứng biến mất mượt mà cho Màn hình Bắt đầu
+      const welcome = document.getElementById("welcome-screen");
+      welcome.classList.add("fade-out");
+      setTimeout(() => {
+        welcome.style.display = "none";
+      }, 600);
+
+      // Mở tiếng và phát ngay video đầu tiên
       document.querySelectorAll('video').forEach(v => {
         v.muted = false;
         v.play().catch(() => {});
       });
+
       updateSoundUI();
-    }
+    };
 
     // Tải thông tin người dùng từ localStorage
     const savedUser = localStorage.getItem("landmevid_user");
@@ -451,19 +548,10 @@
       document.querySelectorAll('.sound-state-icon').forEach(el => {
         el.innerText = isGlobalMuted ? '🔇' : '🔊';
       });
-      document.querySelectorAll('.sound-badge-top').forEach(el => {
-        el.style.display = isGlobalMuted ? 'flex' : 'none';
-      });
     }
 
     // Chạm vào màn hình để Bật/Tắt Play-Pause
     window.handleCardClick = (id) => {
-      // Nếu âm thanh đang bị khóa, cú chạm này sẽ tự mở âm thanh
-      if (isGlobalMuted) {
-        unlockGlobalAudio();
-        return;
-      }
-
       const vEl = document.getElementById(`video-${id}`);
       if (!vEl) return;
 
@@ -505,7 +593,6 @@
               const playPromise = video.play();
               if (playPromise !== undefined) {
                 playPromise.catch(() => {
-                  // Nếu Safari chặn phát có tiếng, chạy tạm im lặng
                   video.muted = true;
                   video.play().catch(() => {});
                 });
@@ -549,12 +636,6 @@
         </div>
       ` : '';
 
-      const soundBadgeHtml = (formatted.type !== 'youtube') ? `
-        <div class="sound-badge-top" onclick="toggleAudio()" style="display: ${isGlobalMuted ? 'flex' : 'none'};">
-          <span>🔊</span> <span>Chạm để bật âm thanh</span>
-        </div>
-      ` : '';
-
       setTimeout(() => {
         const vEl = document.getElementById(`video-${id}`);
         if (vEl) attachAppleFullscreenBlock(vEl);
@@ -563,7 +644,6 @@
       return `
         <div class="short-card">
           ${mediaHtml}
-          ${soundBadgeHtml}
 
           <!-- Lớp phủ nhận tương tác phát/dừng hoàn toàn bằng JS -->
           <div class="video-touch-overlay" onclick="handleCardClick('${id}')"></div>

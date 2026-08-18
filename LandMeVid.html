@@ -8,11 +8,11 @@
     * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
     body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #000; color: #fff; overflow: hidden; height: 100dvh; width: 100vw; }
 
-    /* MÀN HÌNH BẮT ĐẦU (WELCOME SPLASH SCREEN) VỚI HIỆU ỨNG ĐỘNG */
+    /* MÀN HÌNH BẮT ĐẦU (WELCOME SPLASH SCREEN) */
     #welcome-screen {
       position: fixed;
       inset: 0;
-      z-index: 300;
+      z-index: 400;
       background: radial-gradient(circle at center, #1e1035 0%, #090d16 100%);
       display: flex;
       flex-direction: column;
@@ -57,9 +57,7 @@
       transition: transform 0.2s, box-shadow 0.2s;
       animation: pulseBtn 2s infinite;
     }
-    .btn-start:active {
-      transform: scale(0.95);
-    }
+    .btn-start:active { transform: scale(0.95); }
 
     @keyframes gradientGlow {
       0% { background-position: 0% 50%; }
@@ -75,8 +73,69 @@
       50% { box-shadow: 0 12px 35px rgba(236, 72, 153, 0.8); }
     }
 
+    /* MÀN HÌNH MENU 3 GẠCH (DRAWER SIDE MENU) */
+    .drawer-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(6px);
+      z-index: 300;
+      display: none;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    .drawer-overlay.active { display: block; opacity: 1; }
+    
+    .drawer-menu {
+      position: fixed;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      width: 280px;
+      max-width: 80vw;
+      background: #0f172a;
+      z-index: 310;
+      transform: translateX(-100%);
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      display: flex;
+      flex-direction: column;
+      padding: 24px 16px;
+      padding-top: max(24px, env(safe-area-inset-top));
+      border-right: 1px solid #1e293b;
+    }
+    .drawer-menu.active { transform: translateX(0); }
+    .drawer-header {
+      font-size: 1.8rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #a855f7, #ec4899);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 24px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid #1e293b;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .drawer-close { color: #9ca3af; font-size: 1.5rem; cursor: pointer; }
+    .drawer-nav { display: flex; flex-direction: column; gap: 8px; flex: 1; }
+    .drawer-item {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 12px 16px;
+      border-radius: 12px;
+      color: #cbd5e1;
+      font-weight: 600;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s;
+    }
+    .drawer-item:active, .drawer-item.active { background: rgba(236, 72, 153, 0.15); color: #ec4899; }
+    .drawer-item .icon { font-size: 1.3rem; }
+
     /* Màn hình Đăng nhập / Đăng ký Modal Overlay */
-    #auth-screen { position: fixed; inset: 0; z-index: 200; background: rgba(9, 13, 22, 0.95); backdrop-filter: blur(10px); display: none; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
+    #auth-screen { position: fixed; inset: 0; z-index: 350; background: rgba(9, 13, 22, 0.95); backdrop-filter: blur(10px); display: none; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
     #auth-screen h1 { font-size: 2.5rem; background: linear-gradient(135deg, #a855f7, #ec4899); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 20px; }
     .auth-form { width: 100%; max-width: 320px; display: flex; flex-direction: column; gap: 12px; position: relative; }
     .auth-form input { padding: 14px; border-radius: 8px; border: 1px solid #374151; background: #1f2937; color: #fff; outline: none; font-size: 16px; }
@@ -84,14 +143,13 @@
     .auth-toggle { text-align: center; color: #9ca3af; font-size: 0.85rem; cursor: pointer; margin-top: 10px; }
     .close-auth { position: absolute; top: -40px; right: 0; color: #9ca3af; font-size: 1.5rem; cursor: pointer; }
 
-    /* App Container */
+    /* APP CHÍNH */
     #app { display: flex; height: 100dvh; width: 100vw; flex-direction: column; position: relative; overflow: hidden; }
 
-    /* Thanh tìm kiếm top */
-    .top-bar { position: absolute; top: 0; left: 0; right: 0; z-index: 20; padding: 12px; padding-top: max(12px, env(safe-area-inset-top)); display: flex; gap: 8px; align-items: center; background: linear-gradient(to bottom, rgba(0,0,0,0.85), transparent); pointer-events: none; }
-    .top-bar input, .top-bar button { pointer-events: auto; }
-    .top-bar input { flex: 1; padding: 8px 14px; border-radius: 20px; border: none; background: rgba(255,255,255,0.25); color: #fff; backdrop-filter: blur(5px); outline: none; font-size: 14px; }
-    .auth-btn-top { background: linear-gradient(135deg, #a855f7, #ec4899); color: white; border: none; padding: 6px 14px; border-radius: 20px; font-size: 0.8rem; font-weight: bold; cursor: pointer; white-space: nowrap; }
+    /* Thanh điều hướng TOP mới với nút 3 gạch ☰ */
+    .top-bar { position: absolute; top: 0; left: 0; right: 0; z-index: 20; padding: 12px 16px; padding-top: max(12px, env(safe-area-inset-top)); display: flex; justify-content: space-between; align-items: center; background: linear-gradient(to bottom, rgba(0,0,0,0.85), transparent); pointer-events: none; }
+    .menu-toggle-btn { pointer-events: auto; background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(8px); border: none; color: white; font-size: 1.4rem; padding: 8px 14px; border-radius: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+    .app-title-top { font-weight: 800; font-size: 1.2rem; background: linear-gradient(135deg, #a855f7, #ec4899); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
 
     /* Container Lướt Video */
     .views-container { flex: 1; height: 100dvh; position: relative; overflow: hidden; }
@@ -103,14 +161,13 @@
     .video-feed::-webkit-scrollbar { display: none; }
     
     .short-card { width: 100%; height: 100dvh; scroll-snap-align: start; position: relative; background: #000; flex-shrink: 0; overflow: hidden; }
-    
     .short-player { width: 100%; height: 100%; border: none; object-fit: cover; pointer-events: none !important; }
 
-    /* Lớp phủ tương tác điều khiển JS */
+    /* Lớp phủ nhận tương tác phát/dừng hoàn toàn bằng JS */
     .video-touch-overlay { position: absolute; inset: 0; z-index: 5; background: transparent; cursor: pointer; }
 
-    /* Tác vụ bên phải Video - Đẩy cao hơn thanh Nav Bar cố định */
-    .side-actions { position: absolute; right: 12px; bottom: calc(75px + env(safe-area-inset-bottom)); display: flex; flex-direction: column; align-items: center; gap: 18px; z-index: 25; pointer-events: auto; }
+    /* Tác vụ bên phải Video */
+    .side-actions { position: absolute; right: 12px; bottom: 85px; display: flex; flex-direction: column; align-items: center; gap: 18px; z-index: 25; pointer-events: auto; }
     .action-btn { display: flex; flex-direction: column; align-items: center; font-size: 0.75rem; cursor: pointer; text-shadow: 0 1px 3px rgba(0,0,0,0.8); transition: transform 0.15s ease; }
     .action-btn:active { transform: scale(0.85); }
     .action-btn .icon { font-size: 1.8rem; margin-bottom: 2px; }
@@ -124,32 +181,42 @@
       100% { transform: scale(1); }
     }
 
-    /* Thông tin Video bottom - Đẩy cao hơn thanh Nav Bar cố định */
-    .video-overlay-info { position: absolute; left: 12px; bottom: calc(75px + env(safe-area-inset-bottom)); right: 80px; z-index: 25; text-shadow: 0 1px 3px rgba(0,0,0,0.8); pointer-events: none; }
+    /* Thông tin Video bottom */
+    .video-overlay-info { position: absolute; left: 12px; bottom: 85px; right: 80px; z-index: 25; text-shadow: 0 1px 3px rgba(0,0,0,0.8); pointer-events: none; }
     .video-overlay-info .author { font-weight: bold; font-size: 1rem; display: flex; align-items: center; gap: 8px; margin-bottom: 6px; pointer-events: auto; }
     .sub-btn { background: #ec4899; border: none; color: white; padding: 4px 10px; border-radius: 4px; font-size: 0.75rem; cursor: pointer; font-weight: 600; }
     .video-overlay-info .title { font-size: 0.9rem; line-height: 1.3; }
 
-    /* THANH ĐIỀU HƯỚNG BOTTOM BAR CỐ ĐỊNH HOÀN TOÀN Ở ĐÁY MÀN HÌNH */
-    .nav-bar { 
-      position: fixed; 
-      bottom: 0; 
-      left: 0; 
-      right: 0; 
-      height: calc(60px + env(safe-area-inset-bottom)); 
-      padding-bottom: env(safe-area-inset-bottom); 
-      background: rgba(9, 13, 22, 0.95); 
-      backdrop-filter: blur(12px);
-      border-top: 1px solid rgba(255, 255, 255, 0.1); 
-      display: flex; 
-      justify-content: space-around; 
-      align-items: center; 
-      z-index: 100; 
+    /* MÀN HÌNH TÌM KIẾM UI CHUYÊN NGHIỆP */
+    .search-screen {
+      position: fixed;
+      inset: 0;
+      background: #0f172a;
+      z-index: 250;
+      display: none;
+      flex-direction: column;
+      padding: 16px;
+      padding-top: max(16px, env(safe-area-inset-top));
     }
-    .nav-item { display: flex; flex-direction: column; align-items: center; color: #6b7280; font-size: 0.7rem; cursor: pointer; transition: color 0.2s, transform 0.15s; }
-    .nav-item:active { transform: scale(0.9); }
-    .nav-item.active { color: #ec4899; font-weight: bold; }
-    .nav-item .nav-icon { font-size: 1.3rem; margin-bottom: 2px; }
+    .search-screen.active { display: flex; }
+    .search-top-bar { display: flex; gap: 10px; align-items: center; margin-bottom: 16px; }
+    .search-input-box { flex: 1; display: flex; align-items: center; background: #1e293b; border-radius: 20px; padding: 8px 14px; border: 1px solid #334155; }
+    .search-input-box input { flex: 1; background: transparent; border: none; color: #fff; outline: none; font-size: 15px; }
+    .btn-cancel-search { color: #ec4899; font-weight: 600; font-size: 0.9rem; cursor: pointer; }
+
+    .search-history-container { margin-bottom: 20px; }
+    .history-title { font-size: 0.85rem; color: #94a3b8; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
+    .history-tags { display: flex; flex-wrap: wrap; gap: 8px; }
+    .tag-item { background: #1e293b; color: #cbd5e1; padding: 6px 12px; border-radius: 16px; font-size: 0.8rem; cursor: pointer; border: 1px solid #334155; }
+
+    .search-tabs { display: flex; border-bottom: 1px solid #1e293b; margin-bottom: 12px; }
+    .search-tab { flex: 1; text-align: center; padding: 10px; font-size: 0.9rem; font-weight: 600; color: #64748b; cursor: pointer; }
+    .search-tab.active { color: #ec4899; border-bottom: 2px solid #ec4899; }
+
+    .search-results-list { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; }
+    .user-result-card { display: flex; align-items: center; justify-content: space-between; padding: 12px; background: #1e293b; border-radius: 12px; border: 1px solid #334155; cursor: pointer; }
+    .user-info-left { display: flex; align-items: center; gap: 12px; }
+    .user-avatar { width: 42px; height: 42px; border-radius: 50%; background: linear-gradient(135deg, #a855f7, #ec4899); display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 1.1rem; }
 
     /* Form Upload Page */
     .create-box { padding: 20px; width: 100%; max-width: 400px; margin: auto; display: flex; flex-direction: column; gap: 12px; }
@@ -158,7 +225,7 @@
     .create-box button { padding: 12px; background: linear-gradient(135deg, #a855f7, #ec4899); border: none; color: white; font-weight: bold; border-radius: 8px; cursor: pointer; font-size: 15px; }
 
     /* Modal Comment & Edit */
-    .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 150; display: none; align-items: flex-end; }
+    .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 350; display: none; align-items: flex-end; }
     .modal-content { width: 100%; height: 60%; background: #111827; border-radius: 16px 16px 0 0; padding: 15px; padding-bottom: max(15px, env(safe-area-inset-bottom)); display: flex; flex-direction: column; }
     .comment-list { flex: 1; overflow-y: auto; margin: 10px 0; display: flex; flex-direction: column; gap: 10px; font-size: 0.85rem; }
     .comment-input { display: flex; gap: 8px; }
@@ -181,6 +248,38 @@
     <button class="btn-start" onclick="startAppWithAudio()">🚀 Bắt Đầu Trải Nghiệm</button>
   </div>
 
+  <!-- LỚP PHỦ OVERLAY VÀ MENU ☰ TRƯỢT SANG -->
+  <div class="drawer-overlay" id="drawer-overlay" onclick="closeDrawer()"></div>
+  <div class="drawer-menu" id="drawer-menu">
+    <div class="drawer-header">
+      <span>LandMeVid</span>
+      <span class="drawer-close" onclick="closeDrawer()">✕</span>
+    </div>
+    <div class="drawer-nav">
+      <div class="drawer-item active" onclick="navigateFromDrawer('home')">
+        <span class="icon">🏠</span> <span>Home (Trang chủ)</span>
+      </div>
+      <div class="drawer-item" onclick="openSearchUI()">
+        <span class="icon">🔍</span> <span>Tìm kiếm</span>
+      </div>
+      <div class="drawer-item" onclick="navigateFromDrawer('create')">
+        <span class="icon">➕</span> <span>Tạo Short Video</span>
+      </div>
+      <div class="drawer-item" onclick="navigateFromDrawer('liked')">
+        <span class="icon">❤️</span> <span>Video Đã Tim</span>
+      </div>
+      <div class="drawer-item" onclick="navigateFromDrawer('subscribed')">
+        <span class="icon">📺</span> <span>Đã Đăng ký kênh</span>
+      </div>
+      <div class="drawer-item" onclick="navigateFromDrawer('profile')">
+        <span class="icon">👤</span> <span>Hồ sơ kênh</span>
+      </div>
+      <div class="drawer-item" id="drawer-auth-btn" onclick="handleDrawerAuthAction()" style="margin-top: 15px; border-top: 1px solid #1e293b; padding-top: 15px;">
+        <span class="icon">🔑</span> <span id="drawer-auth-text">Đăng Nhập</span>
+      </div>
+    </div>
+  </div>
+
   <!-- MÀN HÌNH ĐĂNG NHẬP / ĐĂNG KÝ (Dạng Modal) -->
   <div id="auth-screen">
     <div class="auth-form">
@@ -193,25 +292,55 @@
     </div>
   </div>
 
+  <!-- MÀN HÌNH TÌM KIẾM UI CHUYÊN NGHIỆP -->
+  <div class="search-screen" id="search-screen">
+    <div class="search-top-bar">
+      <div class="search-input-box">
+        <span style="margin-right: 8px;">🔍</span>
+        <input type="text" id="search-ui-input" placeholder="Tìm kiếm video hoặc kênh..." onkeyup="handleSearchInput(event)" />
+      </div>
+      <span class="btn-cancel-search" onclick="closeSearchUI()">Hủy</span>
+    </div>
+
+    <!-- Lịch sử tìm kiếm Local -->
+    <div class="search-history-container" id="search-history-box">
+      <div class="history-title">
+        <span>Lịch sử tìm kiếm</span>
+        <span style="color: #ef4444; cursor: pointer;" onclick="clearSearchHistory()">Xóa lịch sử</span>
+      </div>
+      <div class="history-tags" id="history-tags-list"></div>
+    </div>
+
+    <!-- Tab phân loại Video / Người dùng -->
+    <div class="search-tabs">
+      <div class="search-tab active" id="tab-video" onclick="switchSearchTab('video')">Video</div>
+      <div class="search-tab" id="tab-user" onclick="switchSearchTab('user')">Người dùng / Kênh</div>
+    </div>
+
+    <!-- Kết quả tìm kiếm -->
+    <div class="search-results-list" id="search-results-container"></div>
+  </div>
+
   <!-- APP CHÍNH -->
   <div id="app">
-    <!-- Thanh tìm kiếm -->
+    <!-- Thanh điều hướng TOP mới chỉ chứa nút 3 gạch ☰ và Logo -->
     <div class="top-bar">
-      <input type="text" id="search-input" placeholder="Tìm kiếm video hoặc kênh..." onkeyup="handleSearch(event)" />
-      <button id="top-user-btn" class="auth-btn-top" onclick="openAuthModal()">Đăng Nhập</button>
+      <button class="menu-toggle-btn" onclick="openDrawer()">☰</button>
+      <div class="app-title-top">LandMeVid</div>
+      <div style="width: 40px;"></div> <!-- Cân bằng layout -->
     </div>
 
     <!-- Nội dung chính -->
     <div class="views-container">
       
-      <!-- 1. HOME (Mặc định xem miễn phí) -->
+      <!-- 1. HOME -->
       <div id="view-home" class="page-view active">
         <div class="video-feed" id="home-feed"></div>
       </div>
 
       <!-- 2. CREATE -->
       <div id="view-create" class="page-view" style="overflow-y: auto;">
-        <div class="create-box" style="padding-bottom: 90px;">
+        <div class="create-box">
           <h2>Đăng Short Video</h2>
           <div class="preview-box" id="preview-container">
             <span style="color: #6b7280;">Xem trước video</span>
@@ -227,8 +356,14 @@
         <div class="video-feed" id="liked-feed"></div>
       </div>
 
-      <!-- 4. PROFILE -->
-      <div id="view-profile" class="page-view" style="flex-direction: column; padding: 70px 15px 90px; overflow-y: auto;">
+      <!-- 4. SUBSCRIBED (Kênh đã đăng ký) -->
+      <div id="view-subscribed" class="page-view" style="flex-direction: column; padding: 70px 16px 20px; overflow-y: auto;">
+        <h3 style="margin-bottom: 16px; font-size: 1.1rem; color: #ec4899;">📺 Kênh Đã Đăng Ký</h3>
+        <div id="subscribed-channels-list" style="display: flex; flex-direction: column; gap: 10px;"></div>
+      </div>
+
+      <!-- 5. PROFILE -->
+      <div id="view-profile" class="page-view" style="flex-direction: column; padding: 70px 15px 20px; overflow-y: auto;">
         <div style="text-align: center; margin-bottom: 20px;">
           <h2 id="profile-name">@khach</h2>
           <p id="profile-sub-count" style="color: #9ca3af; font-size: 0.85rem; margin-top: 5px;">0 Người đăng ký</p>
@@ -238,26 +373,6 @@
         <div class="video-feed" id="profile-feed" style="height: 400px;"></div>
       </div>
 
-    </div>
-
-    <!-- THANH ĐIỀU HƯỚNG DƯỚI CÙNG CỐ ĐỊNH HOÀN TOÀN -->
-    <div class="nav-bar">
-      <div class="nav-item active" onclick="switchTab('home')">
-        <div class="nav-icon">🏠</div>
-        <span>Home</span>
-      </div>
-      <div class="nav-item" onclick="switchTab('create')">
-        <div class="nav-icon">➕</div>
-        <span>Create</span>
-      </div>
-      <div class="nav-item" onclick="switchTab('liked')">
-        <div class="nav-icon">❤️</div>
-        <span>Đã Tim</span>
-      </div>
-      <div class="nav-item" onclick="switchTab('profile')">
-        <div class="nav-icon">👤</div>
-        <span>Kênh</span>
-      </div>
     </div>
   </div>
 
@@ -318,25 +433,159 @@
     let activeVideoIdForEdit = null;
     let isGlobalMuted = true; 
     let videoObserver = null;
+    let activeSearchTab = 'video';
+    let currentSearchQuery = '';
 
-    // HÀM BẮT ĐẦU TRẢI NGHIỆM VÀ MỞ KHOÁ ÂM THANH TỰ ĐỘNG
+    // HÀM MỞ KHOÁ ÂM THANH TỰ ĐỘNG
     window.startAppWithAudio = () => {
-      isGlobalMuted = false; // Bật âm thanh toàn bộ ứng dụng
-
-      // Hiệu ứng biến mất mượt mà cho Màn hình Bắt đầu
+      isGlobalMuted = false;
       const welcome = document.getElementById("welcome-screen");
       welcome.classList.add("fade-out");
-      setTimeout(() => {
-        welcome.style.display = "none";
-      }, 600);
+      setTimeout(() => { welcome.style.display = "none"; }, 600);
 
-      // Mở tiếng và phát ngay video đầu tiên
       document.querySelectorAll('video').forEach(v => {
         v.muted = false;
         v.play().catch(() => {});
       });
-
       updateSoundUI();
+    };
+
+    // QUẢN LÝ DRAWER MENU ☰
+    window.openDrawer = () => {
+      document.getElementById("drawer-overlay").classList.add("active");
+      document.getElementById("drawer-menu").classList.add("active");
+    };
+
+    window.closeDrawer = () => {
+      document.getElementById("drawer-overlay").classList.remove("active");
+      document.getElementById("drawer-menu").classList.remove("active");
+    };
+
+    window.navigateFromDrawer = (tabName) => {
+      closeDrawer();
+      switchTab(tabName);
+    };
+
+    window.handleDrawerAuthAction = () => {
+      closeDrawer();
+      if (currentUser) {
+        handleLogout();
+      } else {
+        openAuthModal();
+      }
+    };
+
+    // QUẢN LÝ TÌM KIẾM UI (SEARCH)
+    window.openSearchUI = () => {
+      closeDrawer();
+      document.getElementById("search-screen").classList.add("active");
+      renderSearchHistory();
+      document.getElementById("search-ui-input").focus();
+    };
+
+    window.closeSearchUI = () => {
+      document.getElementById("search-screen").classList.remove("active");
+    };
+
+    function getSearchHistory() {
+      const h = localStorage.getItem("landmevid_search_history");
+      return h ? JSON.parse(h) : [];
+    }
+
+    function saveSearchQueryToHistory(q) {
+      if (!q) return;
+      let history = getSearchHistory();
+      history = history.filter(item => item.toLowerCase() !== q.toLowerCase());
+      history.unshift(q);
+      if (history.length > 8) history.pop();
+      localStorage.setItem("landmevid_search_history", JSON.stringify(history));
+      renderSearchHistory();
+    }
+
+    window.clearSearchHistory = () => {
+      localStorage.removeItem("landmevid_search_history");
+      renderSearchHistory();
+    };
+
+    function renderSearchHistory() {
+      const history = getSearchHistory();
+      const list = document.getElementById("history-tags-list");
+      if (history.length === 0) {
+        document.getElementById("search-history-box").style.display = "none";
+        return;
+      }
+      document.getElementById("search-history-box").style.display = "block";
+      list.innerHTML = history.map(q => `<div class="tag-item" onclick="triggerSearchFromTag('${q.replace(/'/g, "\\'")}')">${q}</div>`).join('');
+    }
+
+    window.triggerSearchFromTag = (q) => {
+      document.getElementById("search-ui-input").value = q;
+      executeSearch(q);
+    };
+
+    window.handleSearchInput = (e) => {
+      if (e.key === 'Enter') {
+        const queryText = e.target.value.trim();
+        executeSearch(queryText);
+      }
+    };
+
+    window.switchSearchTab = (tab) => {
+      activeSearchTab = tab;
+      document.getElementById("tab-video").classList.toggle("active", tab === 'video');
+      document.getElementById("tab-user").classList.toggle("active", tab === 'user');
+      if (currentSearchQuery) {
+        executeSearch(currentSearchQuery, false);
+      }
+    };
+
+    async function executeSearch(queryText, saveHistory = true) {
+      if (!queryText) return;
+      currentSearchQuery = queryText;
+      if (saveHistory) saveSearchQueryToHistory(queryText);
+
+      const container = document.getElementById("search-results-container");
+      container.innerHTML = `<div style="text-align: center; color: #94a3b8; padding: 20px;">Đang tìm kiếm...</div>`;
+
+      if (activeSearchTab === 'video') {
+        const snapshot = await getDocs(collection(db, "videos"));
+        let html = "";
+        snapshot.forEach(docSnap => {
+          const d = docSnap.data();
+          if (d.title.toLowerCase().includes(queryText.toLowerCase()) || d.author.toLowerCase().includes(queryText.toLowerCase())) {
+            html += createShortCard(docSnap.id, d);
+          }
+        });
+        container.innerHTML = html || `<div style="text-align: center; color: #64748b; padding: 20px;">Không tìm thấy video nào.</div>`;
+        setTimeout(initVideoObserver, 100);
+      } else {
+        // Tìm kiếm Người dùng / Kênh
+        const snapshot = await getDocs(collection(db, "users"));
+        let html = "";
+        snapshot.forEach(docSnap => {
+          const d = docSnap.data();
+          if (d.username.toLowerCase().includes(queryText.toLowerCase())) {
+            html += `
+              <div class="user-result-card" onclick="viewUserProfileFromSearch('${d.username}')">
+                <div class="user-info-left">
+                  <div class="user-avatar">${d.username.charAt(0).toUpperCase()}</div>
+                  <div>
+                    <div style="font-weight: bold; font-size: 0.95rem;">@${d.username}</div>
+                    <div style="font-size: 0.75rem; color: #94a3b8;">${d.subscribers ? d.subscribers.length : 0} Người đăng ký</div>
+                  </div>
+                </div>
+                <button class="sub-btn">Xem kênh</button>
+              </div>
+            `;
+          }
+        });
+        container.innerHTML = html || `<div style="text-align: center; color: #64748b; padding: 20px;">Không tìm thấy kênh người dùng nào.</div>`;
+      }
+    }
+
+    window.viewUserProfileFromSearch = (username) => {
+      closeSearchUI();
+      switchTab('profile', username);
     };
 
     // Tải thông tin người dùng từ localStorage
@@ -350,13 +599,13 @@
 
     function updateUIForLoggedInUser() {
       if (currentUser) {
-        document.getElementById("top-user-btn").innerText = "@" + currentUser.username;
         document.getElementById("profile-name").innerText = "@" + currentUser.username;
         document.getElementById("logout-btn").style.display = "inline-block";
+        document.getElementById("drawer-auth-text").innerText = `Đăng xuất (@${currentUser.username})`;
       } else {
-        document.getElementById("top-user-btn").innerText = "Đăng Nhập";
         document.getElementById("profile-name").innerText = "@khach";
         document.getElementById("logout-btn").style.display = "none";
+        document.getElementById("drawer-auth-text").innerText = "Đăng Nhập";
       }
     }
 
@@ -431,22 +680,18 @@
       switchTab('home');
     };
 
-    window.switchTab = (tabName) => {
-      if ((tabName === 'create' || tabName === 'liked') && !checkLoginRequired()) {
+    window.switchTab = (tabName, customUser = null) => {
+      if ((tabName === 'create' || tabName === 'liked' || tabName === 'subscribed') && !checkLoginRequired()) {
         return;
       }
 
       document.querySelectorAll(".page-view").forEach(el => el.classList.remove("active"));
-      document.querySelectorAll(".nav-item").forEach(el => el.classList.remove("active"));
-      
       document.getElementById(`view-${tabName}`).classList.add("active");
-      if (event && event.currentTarget) {
-        event.currentTarget.classList.add("active");
-      }
 
       if (tabName === 'home') loadHomeVideos();
       if (tabName === 'liked') loadLikedVideos();
-      if (tabName === 'profile') loadProfileVideos();
+      if (tabName === 'subscribed') loadSubscribedChannels();
+      if (tabName === 'profile') loadProfileVideos(customUser);
     };
 
     // Hàm kiểm tra & Chuẩn hóa URL
@@ -694,8 +939,36 @@
       setTimeout(initVideoObserver, 100);
     }
 
-    async function loadProfileVideos() {
-      const authorName = currentUser ? currentUser.username : "khach";
+    async function loadSubscribedChannels() {
+      const listContainer = document.getElementById("subscribed-channels-list");
+      listContainer.innerHTML = `<div style="text-align: center; color: #94a3b8;">Đang tải danh sách...</div>`;
+
+      const snapshot = await getDocs(collection(db, "users"));
+      let html = "";
+      snapshot.forEach(docSnap => {
+        const d = docSnap.data();
+        if (d.subscribers && d.subscribers.includes(currentUser.uid)) {
+          html += `
+            <div class="user-result-card" onclick="switchTab('profile', '${d.username}')">
+              <div class="user-info-left">
+                <div class="user-avatar">${d.username.charAt(0).toUpperCase()}</div>
+                <div>
+                  <div style="font-weight: bold; font-size: 0.95rem;">@${d.username}</div>
+                  <div style="font-size: 0.75rem; color: #10b981;">✓ Đã đăng ký</div>
+                </div>
+              </div>
+              <button class="sub-btn" style="background: #374151;">Xem Kênh</button>
+            </div>
+          `;
+        }
+      });
+      listContainer.innerHTML = html || `<div style="text-align: center; color: #64748b; padding: 20px;">Bạn chưa đăng ký kênh nào.</div>`;
+    }
+
+    async function loadProfileVideos(targetUsername = null) {
+      const authorName = targetUsername || (currentUser ? currentUser.username : "khach");
+      document.getElementById("profile-name").innerText = "@" + authorName;
+
       const q = query(collection(db, "videos"), where("author", "==", authorName));
       const snapshot = await getDocs(q);
       const feed = document.getElementById("profile-feed");
@@ -705,25 +978,6 @@
       });
       setTimeout(initVideoObserver, 100);
     }
-
-    // Tìm kiếm Video / Kênh
-    window.handleSearch = async (e) => {
-      if (e.key === 'Enter') {
-        const text = e.target.value.trim().toLowerCase();
-        if (!text) return loadHomeVideos();
-
-        const snapshot = await getDocs(collection(db, "videos"));
-        const feed = document.getElementById("home-feed");
-        feed.innerHTML = "";
-        snapshot.forEach(docSnap => {
-          const d = docSnap.data();
-          if (d.title.toLowerCase().includes(text) || d.author.toLowerCase().includes(text)) {
-            feed.innerHTML += createShortCard(docSnap.id, d);
-          }
-        });
-        setTimeout(initVideoObserver, 100);
-      }
-    };
 
     // Thả tim
     window.toggleLike = async (id, currentLiked) => {

@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>LandmeVid - Vùng Đất Meme & Short Video</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #000; color: #fff; overflow: hidden; height: 100vh; width: 100vw; }
+
+    /* Màn hình Đăng nhập / Đăng ký Modal Overlay */
+    #auth-screen { position: fixed; inset: 0; z-index: 200; background: rgba(9, 13, 22, 0.95); backdrop-filter: blur(10px); display: none; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
+    #auth-screen h1 { font-size: 2.5rem; background: linear-gradient(135deg, #a855f7, #ec4899); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 20px; }
+    .auth-form { width: 100%; max-width: 320px; display: flex; flex-direction: column; gap: 12px; position: relative; }
+    .auth-form input { padding: 14px; border-radius: 8px; border: 1px solid #374151; background: #1f2937; color: #fff; outline: none; font-size: 16px; }
+    .auth-form button { padding: 14px; background: linear-gradient(135deg, #a855f7, #ec4899); color: #fff; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 16px; }
+    .auth-toggle { text-align: center; color: #9ca3af; font-size: 0.85rem; cursor: pointer; margin-top: 10px; }
+    .close-auth { position: absolute; top: -40px; right: 0; color: #9ca3af; font-size: 1.5rem; cursor: pointer; }
+
+    /* App Container */
+    #app { display: flex; height: 100vh; flex-direction: column; position: relative; }
+
+    /* Thanh tìm kiếm top */
+    .top-bar { position: absolute; top: 0; left: 0; right: 0; z-index: 10; padding: 12px; padding-top: max(12px, env(safe-area-inset-top)); display: flex; gap: 8px; align-items: center; background: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent); pointer-events: none; }
+    .top-bar input, .top-bar button { pointer-events: auto; }
+    .top-bar input { flex: 1; padding: 8px 14px; border-radius: 20px; border: none; background: rgba(255,255,255,0.25); color: #fff; backdrop-filter: blur(5px); outline: none; font-size: 14px; }
+    .auth-btn-top { background: linear-gradient(135deg, #a855f7, #ec4899); color: white; border: none; padding: 6px 14px; border-radius: 20px; font-size: 0.8rem; font-weight: bold; cursor: pointer; white-space: nowrap; }
+
+    /* Container Lướt Video */
+    .views-container { flex: 1; position: relative; overflow: hidden; }
+    .page-view { position: absolute; inset: 0; display: none; background: #000; }
+    .page-view.active { display: flex; }
+
+    /* Feeds Scroll kiểu TikTok */
+    .video-feed { width: 100%; height: 100%; overflow-y: scroll; scroll-snap-type: y mandatory; -webkit-overflow-scrolling: touch; }
+    .video-feed::-webkit-scrollbar { display: none; }
+    
+    .short-card { width: 100%; height: 100%; scroll-snap-align: start; position: relative; background: #000; flex-shrink: 0; overflow: hidden; }
+    
+    /* Khóa pointer-events hoàn toàn trên thẻ video để Safari không bắt được click bung Apple Player */
+    .short-player { width: 100%; height: 100%; border: none; object-fit: cover; pointer-events: none !important; }
+
+    /* Lớp phủ tương tác điều khiển JS */
+    .video-touch-overlay { position: absolute; inset: 0; z-index: 5; background: transparent; cursor: pointer; }
+
+    /* Nút Unmute nhanh góc trên màn hình video */
+    .sound-badge-top { position: absolute; top: 70px; left: 12px; z-index: 26; background: rgba(236, 72, 153, 0.85); backdrop-filter: blur(8px); padding: 8px 14px; border-radius: 20px; font-size: 0.8rem; color: #ffffff; font-weight: 700; display: flex; align-items: center; gap: 6px; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.5); pointer-events: auto; animation: pulse 2s infinite; }
+    @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+
+    /* Tác vụ bên phải Video */
+    .side-actions { position: absolute; right: 12px; bottom: 85px; display: flex; flex-direction: column; align-items: center; gap: 18px; z-index: 25; pointer-events: auto; }
+    .action-btn { display: flex; flex-direction: column; align-items: center; font-size: 0.75rem; cursor: pointer; text-shadow: 0 1px 3px rgba(0,0,0,0.8); }
+    .action-btn .icon { font-size: 1.8rem; margin-bottom: 2px; }
+    .action-btn.liked .icon { color: #ec4899; }
+    .action-btn.owner-btn .icon { color: #f59e0b; }
+    .action-btn.sound-btn .icon { color: #38bdf8; }
+
+    /* Thông tin Video bottom */
+    .video-overlay-info { position: absolute; left: 12px; bottom: 85px; right: 80px; z-index: 25; text-shadow: 0 1px 3px rgba(0,0,0,0.8); pointer-events: none; }
+    .video-overlay-info .author { font-weight: bold; font-size: 1rem; display: flex; align-items: center; gap: 8px; margin-bottom: 6px; pointer-events: auto; }
+    .sub-btn { background: #ec4899; border: none; color: white; padding: 4px 10px; border-radius: 4px; font-size: 0.75rem; cursor: pointer; font-weight: 600; }
+    .video-overlay-info .title { font-size: 0.9rem; line-height: 1.3; }
+
+    /* Thanh điều hướng Bottom Bar */
+    .nav-bar { height: calc(60px + env(safe-area-inset-bottom)); padding-bottom: env(safe-area-inset-bottom); background: #090d16; border-top: 1px solid #1f2937; display: flex; justify-content: space-around; align-items: center; z-index: 30; }
+    .nav-item { display: flex; flex-direction: column; align-items: center; color: #6b7280; font-size: 0.7rem; cursor: pointer; }
+    .nav-item.active { color: #ec4899; }
+    .nav-item .nav-icon { font-size: 1.3rem; margin-bottom: 2px; }
+
+    /* Form Upload Page */
+    .create-box { padding: 20px; width: 100%; max-width: 400px; margin: auto; display: flex; flex-direction: column; gap: 12px; }
+    .preview-box { width: 100%; height: 250px; background: #111827; border-radius: 8px; overflow: hidden; display: flex; align-items: center; justify-content: center; position: relative; text-align: center; padding: 15px; }
+    .create-box input { padding: 12px; border-radius: 8px; border: 1px solid #374151; background: #1f2937; color: #fff; outline: none; font-size: 14px; }
+    .create-box button { padding: 12px; background: linear-gradient(135deg, #a855f7, #ec4899); border: none; color: white; font-weight: bold; border-radius: 8px; cursor: pointer; font-size: 15px; }
+
+    /* Modal Comment & Edit */
+    .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 50; display: none; align-items: flex-end; }
+    .modal-content { width: 100%; height: 60%; background: #111827; border-radius: 16px 16px 0 0; padding: 15px; padding-bottom: max(15px, env(safe-area-inset-bottom)); display: flex; flex-direction: column; }
+    .comment-list { flex: 1; overflow-y: auto; margin: 10px 0; display: flex; flex-direction: column; gap: 10px; font-size: 0.85rem; }
+    .comment-input { display: flex; gap: 8px; }
+    .comment-input input { flex: 1; padding: 10px; border-radius: 8px; border: 1px solid #374151; background: #1f2937; color: #fff; font-size: 14px; }
+
+    /* Modal Quản lý Video */
+    .manage-box { display: flex; flex-direction: column; gap: 14px; margin-top: 15px; }
+    .manage-box input { padding: 12px; border-radius: 8px; border: 1px solid #374151; background: #1f2937; color: #fff; font-size: 14px; outline: none; }
+    .btn-action-group { display: flex; gap: 10px; }
+    .btn-save { flex: 1; padding: 12px; background: #10b981; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
+    .btn-delete { padding: 12px 18px; background: #ef4444; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
+  </style>
+</head>
+<body>
+
+  <!-- MÀN HÌNH ĐĂNG NHẬP / ĐĂNG KÝ (Dạng Modal) -->
+  <div id="auth-screen">
+    <div class="auth-form">
+      <span class="close-auth" onclick="closeAuthModal()">✕</span>
+      <h1 style="text-align: center;">LandmeVid</h1>
+      <input type="text" id="auth-username" placeholder="Tên người dùng (không dấu, không cách)" autocomplete="off" />
+      <input type="password" id="auth-password" placeholder="Mật khẩu (không dấu, không cách)" />
+      <button id="auth-btn" onclick="handleAuth()">Đăng Nhập</button>
+      <div class="auth-toggle" id="auth-toggle-btn" onclick="toggleAuthMode()">Chưa có tài khoản? Đăng ký ngay</div>
+    </div>
+  </div>
+
+  <!-- APP CHÍNH -->
+  <div id="app">
+    <!-- Thanh tìm kiếm -->
+    <div class="top-bar">
+      <input type="text" id="search-input" placeholder="Tìm kiếm video hoặc kênh..." onkeyup="handleSearch(event)" />
+      <button id="top-user-btn" class="auth-btn-top" onclick="openAuthModal()">Đăng Nhập</button>
+    </div>
+
+    <!-- Nội dung chính -->
+    <div class="views-container">
+      
+      <!-- 1. HOME (Mặc định xem miễn phí) -->
+      <div id="view-home" class="page-view active">
+        <div class="video-feed" id="home-feed"></div>
+      </div>
+
+      <!-- 2. CREATE -->
+      <div id="view-create" class="page-view" style="overflow-y: auto;">
+        <div class="create-box">
+          <h2>Đăng Short Video</h2>
+          <div class="preview-box" id="preview-container">
+            <span style="color: #6b7280;">Xem trước video</span>
+          </div>
+          <input type="text" id="upload-url" placeholder="Dán link Cloudinary .mp4 / YouTube..." oninput="updatePreview()" />
+          <input type="text" id="upload-title" placeholder="Ghi tiêu đề video..." />
+          <button onclick="publishVideo()">Tải Lên LandmeVid</button>
+        </div>
+      </div>
+
+      <!-- 3. LIKED -->
+      <div id="view-liked" class="page-view">
+        <div class="video-feed" id="liked-feed"></div>
+      </div>
+
+      <!-- 4. PROFILE -->
+      <div id="view-profile" class="page-view" style="flex-direction: column; padding: 70px 15px 15px; overflow-y: auto;">
+        <div style="text-align: center; margin-bottom: 20px;">
+          <h2 id="profile-name">@khach</h2>
+          <p id="profile-sub-count" style="color: #9ca3af; font-size: 0.85rem; margin-top: 5px;">0 Người đăng ký</p>
+          <button id="logout-btn" onclick="handleLogout()" style="margin-top: 10px; background: #374151; color: white; border: none; padding: 6px 14px; border-radius: 6px; cursor: pointer; font-size: 0.8rem; display: none;">Đăng xuất</button>
+        </div>
+        <h3 style="margin-bottom: 10px; font-size: 0.95rem; color: #ec4899;">Video đã đăng</h3>
+        <div class="video-feed" id="profile-feed" style="height: 400px;"></div>
+      </div>
+
+    </div>
+
+    <!-- Thanh Điều Hướng Dưới Cùng -->
+    <div class="nav-bar">
+      <div class="nav-item active" onclick="switchTab('home')">
+        <div class="nav-icon">🏠</div>
+        <span>Home</span>
+      </div>
+      <div class="nav-item" onclick="switchTab('create')">
+        <div class="nav-icon">➕</div>
+        <span>Create</span>
+      </div>
+      <div class="nav-item" onclick="switchTab('liked')">
+        <div class="nav-icon">❤️</div>
+        <span>Đã Tim</span>
+      </div>
+      <div class="nav-item" onclick="switchTab('profile')">
+        <div class="nav-icon">👤</div>
+        <span>Kênh</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Bình luận -->
+  <div class="modal" id="comment-modal">
+    <div class="modal-content">
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <h4>Bình luận</h4>
+        <span style="cursor: pointer; font-size: 1.2rem; padding: 4px;" onclick="closeComments()">✕</span>
+      </div>
+      <div class="comment-list" id="modal-comments-list"></div>
+      <div class="comment-input">
+        <input type="text" id="comment-text" placeholder="Thêm bình luận..." />
+        <button style="padding: 10px 15px; background: #ec4899; border: none; color: white; border-radius: 8px; font-weight: bold;" onclick="sendComment()">Gửi</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Quản Lý Video Chính Chủ (Sửa / Xóa) -->
+  <div class="modal" id="edit-modal">
+    <div class="modal-content" style="height: auto; min-height: 250px;">
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <h4>⚙️ Quản lý Video của bạn</h4>
+        <span style="cursor: pointer; font-size: 1.2rem; padding: 4px;" onclick="closeEditModal()">✕</span>
+      </div>
+      <div class="manage-box">
+        <label style="font-size: 0.8rem; color: #9ca3af;">Chỉnh sửa tiêu đề:</label>
+        <input type="text" id="edit-title-input" placeholder="Tiêu đề video mới..." />
+        <div class="btn-action-group">
+          <button class="btn-save" onclick="saveUpdatedTitle()">Lưu Tiêu Đề</button>
+          <button class="btn-delete" onclick="deleteCurrentVideo()">Xóa Video</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Firebase SDK Modules -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, deleteDoc, arrayUnion, arrayRemove, query, where, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAkavxi0tMXft1myb3HpIlIstyjJ53nDD8",
+      authDomain: "landmevid.firebaseapp.com",
+      projectId: "landmevid",
+      storageBucket: "landmevid.firebasestorage.app",
+      messagingSenderId: "636812270387",
+      appId: "1:636812270387:web:d55be5b0c4f24efc607c46",
+      measurementId: "G-1C6Y56BVY7"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    let currentUser = null;
+    let isSignUpMode = false;
+    let activeVideoIdForComment = null;
+    let activeVideoIdForEdit = null;
+    let isGlobalMuted = true; // Mặc định im lặng lần đầu vào để thỏa mãn quy định iOS Autoplay
+    let videoObserver = null;
+
+    // Lắng nghe cú chạm đầu tiên trên trang để giải phóng quyền Mở Âm Thanh
+    document.addEventListener('touchstart', unlockGlobalAudio, { once: true });
+    document.addEventListener('click', unlockGlobalAudio, { once: true });
+
+    function unlockGlobalAudio() {
+      // Khi người dùng có tương tác đầu tiên, mở khóa âm thanh
+      isGlobalMuted = false;
+      document.querySelectorAll('video').forEach(v => {
+        v.muted = false;
+        v.play().catch(() => {});
+      });
+      updateSoundUI();
+    }
+
+    // Tải thông tin người dùng từ localStorage
+    const savedUser = localStorage.getItem("landmevid_user");
+    if (savedUser) {
+      currentUser = JSON.parse(savedUser);
+      updateUIForLoggedInUser();
+    }
+
+    loadHomeVideos();
+
+    function updateUIForLoggedInUser() {
+      if (currentUser) {
+        document.getElementById("top-user-btn").innerText = "@" + currentUser.username;
+        document.getElementById("profile-name").innerText = "@" + currentUser.username;
+        document.getElementById("logout-btn").style.display = "inline-block";
+      } else {
+        document.getElementById("top-user-btn").innerText = "Đăng Nhập";
+        document.getElementById("profile-name").innerText = "@khach";
+        document.getElementById("logout-btn").style.display = "none";
+      }
+    }
+
+    window.openAuthModal = () => {
+      document.getElementById("auth-screen").style.display = "flex";
+    };
+
+    window.closeAuthModal = () => {
+      document.getElementById("auth-screen").style.display = "none";
+    };
+
+    function checkLoginRequired() {
+      if (!currentUser) {
+        openAuthModal();
+        return false;
+      }
+      return true;
+    }
+
+    window.toggleAuthMode = () => {
+      isSignUpMode = !isSignUpMode;
+      document.getElementById("auth-btn").innerText = isSignUpMode ? "Đăng Ký & Đăng Nhập" : "Đăng Nhập";
+      document.getElementById("auth-toggle-btn").innerText = isSignUpMode ? "Đã có tài khoản? Đăng nhập ngay" : "Chưa có tài khoản? Đăng ký ngay";
+    };
+
+    window.handleAuth = async () => {
+      const u = document.getElementById("auth-username").value.trim().toLowerCase().replace(/[^a-z0-9]/g, '');
+      const p = document.getElementById("auth-password").value.trim().replace(/\s/g, '');
+
+      if (!u || !p) return alert("Vui lòng nhập tên tài khoản và mật khẩu!");
+
+      try {
+        const userDocRef = doc(db, "users", u);
+        const userDoc = await getDoc(userDocRef);
+
+        if (isSignUpMode) {
+          if (userDoc.exists()) {
+            return alert("Tài khoản này đã tồn tại! Vui lòng chọn tên khác.");
+          }
+          const userData = { username: u, password: p, subscribers: [] };
+          await setDoc(userDocRef, userData);
+          
+          currentUser = { username: u, uid: u };
+          localStorage.setItem("landmevid_user", JSON.stringify(currentUser));
+          updateUIForLoggedInUser();
+          closeAuthModal();
+          loadHomeVideos();
+        } else {
+          if (!userDoc.exists()) {
+            return alert("Tài khoản không tồn tại!");
+          }
+          const userData = userDoc.data();
+          if (userData.password !== p) {
+            return alert("Sai mật khẩu!");
+          }
+
+          currentUser = { username: u, uid: u };
+          localStorage.setItem("landmevid_user", JSON.stringify(currentUser));
+          updateUIForLoggedInUser();
+          closeAuthModal();
+          loadHomeVideos();
+        }
+      } catch (err) {
+        alert("Lỗi: " + err.message);
+      }
+    };
+
+    window.handleLogout = () => {
+      localStorage.removeItem("landmevid_user");
+      currentUser = null;
+      updateUIForLoggedInUser();
+      switchTab('home');
+    };
+
+    window.switchTab = (tabName) => {
+      if ((tabName === 'create' || tabName === 'liked') && !checkLoginRequired()) {
+        return;
+      }
+
+      document.querySelectorAll(".page-view").forEach(el => el.classList.remove("active"));
+      document.querySelectorAll(".nav-item").forEach(el => el.classList.remove("active"));
+      
+      document.getElementById(`view-${tabName}`).classList.add("active");
+      if (event && event.currentTarget) {
+        event.currentTarget.classList.add("active");
+      }
+
+      if (tabName === 'home') loadHomeVideos();
+      if (tabName === 'liked') loadLikedVideos();
+      if (tabName === 'profile') loadProfileVideos();
+    };
+
+    // Hàm kiểm tra & Chuẩn hóa URL
+    function formatVideoSourceUrl(inputUrl) {
+      if (!inputUrl) return { type: 'none', url: '' };
+
+      if (inputUrl.includes('collection.cloudinary.com')) {
+        return { type: 'error_collection', url: '' };
+      }
+
+      if (inputUrl.includes('player.cloudinary.com/embed')) {
+        try {
+          const urlObj = new URL(inputUrl);
+          const cloudName = urlObj.searchParams.get('cloud_name');
+          const publicId = urlObj.searchParams.get('public_id');
+          if (cloudName && publicId) {
+            return { type: 'mp4', url: `https://res.cloudinary.com/${cloudName}/video/upload/${publicId}.mp4` };
+          }
+        } catch (e) {}
+      }
+
+      const ytRegExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|shorts\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+      const match = inputUrl.match(ytRegExp);
+      if (match && match[2].length === 11) {
+        const videoId = match[2];
+        return { type: 'youtube', url: `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&loop=1&playlist=${videoId}&playsinline=1&enablejsapi=1&controls=1` };
+      }
+
+      return { type: 'mp4', url: inputUrl };
+    }
+
+    // Xem trước Video
+    window.updatePreview = () => {
+      const rawUrl = document.getElementById("upload-url").value.trim();
+      const container = document.getElementById("preview-container");
+      const formatted = formatVideoSourceUrl(rawUrl);
+
+      if (formatted.type === 'error_collection') {
+        container.innerHTML = `<span style="color: #ef4444; font-size: 0.85rem;">⚠️ Đây là link bộ sưu tập! Vui lòng chọn video và bấm Copy URL (link có đuôi .mp4).</span>`;
+      } else if (formatted.type === 'youtube') {
+        container.innerHTML = `<iframe class="short-player" src="${formatted.url}" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>`;
+      } else if (formatted.type === 'mp4' && formatted.url) {
+        container.innerHTML = `<video class="short-player" src="${formatted.url}" controls autoplay muted loop playsinline webkit-playsinline disablepictureinpicture controlslist="nodownload nofullscreen noremoteplayback"></video>`;
+      } else {
+        container.innerHTML = `<span style="color: #6b7280;">Xem trước video</span>`;
+      }
+    };
+
+    // Đăng Video
+    window.publishVideo = async () => {
+      if (!checkLoginRequired()) return;
+
+      const rawUrl = document.getElementById("upload-url").value.trim();
+      const title = document.getElementById("upload-title").value.trim();
+
+      if (!rawUrl || !title) return alert("Vui lòng điền đủ link và tiêu đề!");
+
+      const formatted = formatVideoSourceUrl(rawUrl);
+
+      if (formatted.type === 'error_collection') {
+        return alert("Vui lòng lấy link video .mp4 trực tiếp từ Cloudinary!");
+      }
+
+      await addDoc(collection(db, "videos"), {
+        url: formatted.url, 
+        title, 
+        author: currentUser.username, 
+        authorId: currentUser.uid,
+        likes: [], 
+        comments: [], 
+        createdAt: new Date()
+      });
+
+      alert("Đăng video thành công!");
+      document.getElementById("upload-url").value = "";
+      document.getElementById("upload-title").value = "";
+      document.getElementById("preview-container").innerHTML = `<span style="color: #6b7280;">Xem trước video</span>`;
+      switchTab('home');
+    };
+
+    // Bật / Tắt Tiếng Video
+    window.toggleAudio = () => {
+      isGlobalMuted = !isGlobalMuted;
+      
+      document.querySelectorAll('video').forEach(v => {
+        v.muted = isGlobalMuted;
+        if (!isGlobalMuted) {
+          v.play().catch(() => {});
+        }
+      });
+
+      updateSoundUI();
+    };
+
+    function updateSoundUI() {
+      document.querySelectorAll('.sound-state-text').forEach(el => {
+        el.innerText = isGlobalMuted ? 'Tắt tiếng' : 'Đã bật tiếng';
+      });
+      document.querySelectorAll('.sound-state-icon').forEach(el => {
+        el.innerText = isGlobalMuted ? '🔇' : '🔊';
+      });
+      document.querySelectorAll('.sound-badge-top').forEach(el => {
+        el.style.display = isGlobalMuted ? 'flex' : 'none';
+      });
+    }
+
+    // Chạm vào màn hình để Bật/Tắt Play-Pause
+    window.handleCardClick = (id) => {
+      // Nếu âm thanh đang bị khóa, cú chạm này sẽ tự mở âm thanh
+      if (isGlobalMuted) {
+        unlockGlobalAudio();
+        return;
+      }
+
+      const vEl = document.getElementById(`video-${id}`);
+      if (!vEl) return;
+
+      if (vEl.paused) {
+        vEl.play().catch(() => {});
+      } else {
+        vEl.pause();
+      }
+    };
+
+    // Thiết lập chặn tuyệt đối Trình xem Apple (iOS Fullscreen Player)
+    function attachAppleFullscreenBlock(vEl) {
+      if (!vEl) return;
+
+      vEl.addEventListener('webkitbeginfullscreen', (e) => {
+        e.preventDefault();
+        if (vEl.webkitExitFullscreen) {
+          vEl.webkitExitFullscreen();
+        }
+      });
+
+      vEl.addEventListener('webkitendfullscreen', (e) => {
+        e.preventDefault();
+      });
+    }
+
+    // Tự động phát video khi lướt tới (IntersectionObserver)
+    function initVideoObserver() {
+      if (videoObserver) videoObserver.disconnect();
+
+      videoObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          const card = entry.target;
+          const video = card.querySelector('video');
+
+          if (entry.isIntersecting) {
+            if (video) {
+              video.muted = isGlobalMuted;
+              const playPromise = video.play();
+              if (playPromise !== undefined) {
+                playPromise.catch(() => {
+                  // Nếu Safari chặn phát có tiếng, chạy tạm im lặng
+                  video.muted = true;
+                  video.play().catch(() => {});
+                });
+              }
+            }
+          } else {
+            if (video) {
+              video.pause();
+              video.currentTime = 0;
+            }
+          }
+        });
+      }, { threshold: 0.6 });
+
+      document.querySelectorAll('.short-card').forEach(card => {
+        videoObserver.observe(card);
+      });
+    }
+
+    // Render Card Video
+    function createShortCard(id, data) {
+      const isLiked = currentUser && data.likes && data.likes.includes(currentUser.uid);
+      const isOwner = currentUser && (currentUser.username === data.author);
+      const formatted = formatVideoSourceUrl(data.url);
+      
+      const mediaHtml = (formatted.type === 'youtube') 
+        ? `<iframe class="short-player" src="${formatted.url}" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>`
+        : `<video id="video-${id}" class="short-player" src="${formatted.url}" loop ${isGlobalMuted ? 'muted' : ''} playsinline webkit-playsinline x5-playsinline disablepictureinpicture controlslist="nodownload nofullscreen noremoteplayback"></video>`;
+
+      const ownerActionHtml = isOwner ? `
+        <div class="action-btn owner-btn" onclick="openEditModal('${id}', '${data.title.replace(/'/g, "\\'")}')">
+          <span class="icon">⚙️</span>
+          <span>Sửa/Xóa</span>
+        </div>
+      ` : '';
+
+      const soundBtnHtml = (formatted.type !== 'youtube') ? `
+        <div class="action-btn sound-btn" onclick="toggleAudio()">
+          <span class="icon sound-state-icon">${isGlobalMuted ? '🔇' : '🔊'}</span>
+          <span class="sound-state-text">${isGlobalMuted ? 'Tắt tiếng' : 'Đã bật tiếng'}</span>
+        </div>
+      ` : '';
+
+      const soundBadgeHtml = (formatted.type !== 'youtube') ? `
+        <div class="sound-badge-top" onclick="toggleAudio()" style="display: ${isGlobalMuted ? 'flex' : 'none'};">
+          <span>🔊</span> <span>Chạm để bật âm thanh</span>
+        </div>
+      ` : '';
+
+      setTimeout(() => {
+        const vEl = document.getElementById(`video-${id}`);
+        if (vEl) attachAppleFullscreenBlock(vEl);
+      }, 50);
+
+      return `
+        <div class="short-card">
+          ${mediaHtml}
+          ${soundBadgeHtml}
+
+          <!-- Lớp phủ nhận tương tác phát/dừng hoàn toàn bằng JS -->
+          <div class="video-touch-overlay" onclick="handleCardClick('${id}')"></div>
+          
+          <div class="side-actions">
+            <div class="action-btn ${isLiked ? 'liked' : ''}" onclick="toggleLike('${id}', ${isLiked})">
+              <span class="icon">♥</span>
+              <span>${data.likes ? data.likes.length : 0}</span>
+            </div>
+            <div class="action-btn" onclick="openComments('${id}')">
+              <span class="icon">💬</span>
+              <span>${data.comments ? data.comments.length : 0}</span>
+            </div>
+            ${soundBtnHtml}
+            ${ownerActionHtml}
+          </div>
+          <div class="video-overlay-info">
+            <div class="author">
+              @${data.author}
+              ${!isOwner ? `<button class="sub-btn" onclick="subscribeUser('${data.authorId}')">Theo dõi</button>` : `<span style="font-size: 0.75rem; color: #a7f3d0;">(Video của bạn)</span>`}
+            </div>
+            <div class="title">${data.title}</div>
+          </div>
+        </div>
+      `;
+    }
+
+    // Load Feeds
+    async function loadHomeVideos() {
+      const snapshot = await getDocs(collection(db, "videos"));
+      const feed = document.getElementById("home-feed");
+      feed.innerHTML = "";
+      snapshot.forEach(docSnap => {
+        feed.innerHTML += createShortCard(docSnap.id, docSnap.data());
+      });
+      setTimeout(initVideoObserver, 100);
+    }
+
+    async function loadLikedVideos() {
+      if (!currentUser) return;
+      const q = query(collection(db, "videos"), where("likes", "array-contains", currentUser.uid));
+      const snapshot = await getDocs(q);
+      const feed = document.getElementById("liked-feed");
+      feed.innerHTML = "";
+      snapshot.forEach(docSnap => {
+        feed.innerHTML += createShortCard(docSnap.id, docSnap.data());
+      });
+      setTimeout(initVideoObserver, 100);
+    }
+
+    async function loadProfileVideos() {
+      const authorName = currentUser ? currentUser.username : "khach";
+      const q = query(collection(db, "videos"), where("author", "==", authorName));
+      const snapshot = await getDocs(q);
+      const feed = document.getElementById("profile-feed");
+      feed.innerHTML = "";
+      snapshot.forEach(docSnap => {
+        feed.innerHTML += createShortCard(docSnap.id, docSnap.data());
+      });
+      setTimeout(initVideoObserver, 100);
+    }
+
+    // Tìm kiếm Video / Kênh
+    window.handleSearch = async (e) => {
+      if (e.key === 'Enter') {
+        const text = e.target.value.trim().toLowerCase();
+        if (!text) return loadHomeVideos();
+
+        const snapshot = await getDocs(collection(db, "videos"));
+        const feed = document.getElementById("home-feed");
+        feed.innerHTML = "";
+        snapshot.forEach(docSnap => {
+          const d = docSnap.data();
+          if (d.title.toLowerCase().includes(text) || d.author.toLowerCase().includes(text)) {
+            feed.innerHTML += createShortCard(docSnap.id, d);
+          }
+        });
+        setTimeout(initVideoObserver, 100);
+      }
+    };
+
+    // Thả tim
+    window.toggleLike = async (id, currentLiked) => {
+      if (!checkLoginRequired()) return;
+      const ref = doc(db, "videos", id);
+      await updateDoc(ref, {
+        likes: currentLiked ? arrayRemove(currentUser.uid) : arrayUnion(currentUser.uid)
+      });
+      loadHomeVideos();
+    };
+
+    // Bình luận
+    window.openComments = async (id) => {
+      activeVideoIdForComment = id;
+      document.getElementById("comment-modal").style.display = "flex";
+      const docSnap = await getDoc(doc(db, "videos", id));
+      const comments = docSnap.data().comments || [];
+      const list = document.getElementById("modal-comments-list");
+      list.innerHTML = comments.map(c => `<div><b>@${c.user}:</b> ${c.text}</div>`).join('');
+    };
+
+    window.closeComments = () => {
+      document.getElementById("comment-modal").style.display = "none";
+    };
+
+    window.sendComment = async () => {
+      if (!checkLoginRequired()) return;
+      const text = document.getElementById("comment-text").value.trim();
+      if (!text || !activeVideoIdForComment) return;
+
+      const ref = doc(db, "videos", activeVideoIdForComment);
+      await updateDoc(ref, {
+        comments: arrayUnion({ user: currentUser.username, text })
+      });
+
+      document.getElementById("comment-text").value = "";
+      openComments(activeVideoIdForComment);
+    };
+
+    // Đăng ký kênh
+    window.subscribeUser = async (targetUserId) => {
+      if (!checkLoginRequired()) return;
+      if (!targetUserId) return;
+      const ref = doc(db, "users", targetUserId);
+      await updateDoc(ref, { subscribers: arrayUnion(currentUser.uid) });
+      alert("Đã đăng ký kênh!");
+    };
+
+    /* ===== CÁC HÀM QUẢN LÝ VIDEO CHÍNH CHỦ ===== */
+    window.openEditModal = (id, currentTitle) => {
+      activeVideoIdForEdit = id;
+      document.getElementById("edit-title-input").value = currentTitle;
+      document.getElementById("edit-modal").style.display = "flex";
+    };
+
+    window.closeEditModal = () => {
+      document.getElementById("edit-modal").style.display = "none";
+      activeVideoIdForEdit = null;
+    };
+
+    window.saveUpdatedTitle = async () => {
+      const newTitle = document.getElementById("edit-title-input").value.trim();
+      if (!newTitle || !activeVideoIdForEdit) return alert("Vui lòng nhập tiêu đề mới!");
+
+      try {
+        const videoRef = doc(db, "videos", activeVideoIdForEdit);
+        await updateDoc(videoRef, { title: newTitle });
+        alert("Cập nhật tiêu đề thành công!");
+        closeEditModal();
+        loadHomeVideos();
+      } catch (err) {
+        alert("Lỗi khi sửa tiêu đề: " + err.message);
+      }
+    };
+
+    window.deleteCurrentVideo = async () => {
+      if (!activeVideoIdForEdit) return;
+
+      const confirmDelete = confirm("Bạn có chắc chắn muốn xóa video này khỏi LandMeVid không?");
+      if (!confirmDelete) return;
+
+      try {
+        const videoRef = doc(db, "videos", activeVideoIdForEdit);
+        await deleteDoc(videoRef);
+        alert("Đã xóa video thành công!");
+        closeEditModal();
+        loadHomeVideos();
+      } catch (err) {
+        alert("Lỗi khi xóa video: " + err.message);
+      }
+    };
+  </script>
+</body>
+</html>
+

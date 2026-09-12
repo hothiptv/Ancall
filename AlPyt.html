@@ -1,0 +1,1209 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>PyAltide Studio - Professional Web Python IDE</title>
+    
+    <!-- Bootstrap 5 & Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    
+    <!-- Prism Syntax Highlighting -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrownight.min.css" id="prism-theme">
+
+    <!-- Pyodide Python Engine -->
+    <script src="https://cdn.jsdelivr.net/pyodide/v0.25.0/full/pyodide.js"></script>
+
+    <style>
+        :root[data-theme="dark"] {
+            --bg-primary: #18181c;
+            --bg-secondary: #222228;
+            --bg-tertiary: #2a2a34;
+            --text-main: #e0e0e0;
+            --text-sub: #a0a0ab;
+            --accent-color: #007acc;
+            --accent-glow: rgba(0, 122, 204, 0.4);
+            --border-color: #383845;
+            --console-text: #4ec9b0;
+            --gutter-bg: #1e1e24;
+            --error-bg: rgba(255, 77, 77, 0.18);
+            --error-border: #ff4d4d;
+            --warning-bg: rgba(255, 193, 7, 0.15);
+            --warning-border: #ffc107;
+            --highlight-match: rgba(255, 235, 59, 0.3);
+        }
+
+        :root[data-theme="light"] {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f4f5f8;
+            --bg-tertiary: #e9ecef;
+            --text-main: #212529;
+            --text-sub: #6c757d;
+            --accent-color: #0d6efd;
+            --accent-glow: rgba(13, 110, 253, 0.25);
+            --border-color: #dee2e6;
+            --console-text: #198754;
+            --gutter-bg: #f8f9fa;
+            --error-bg: rgba(220, 53, 69, 0.12);
+            --error-border: #dc3545;
+            --warning-bg: rgba(255, 193, 7, 0.2);
+            --warning-border: #ffc107;
+            --highlight-match: rgba(255, 193, 7, 0.35);
+        }
+
+        * {
+            box-sizing: border-box;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+
+        textarea#code-editor, #console-output {
+            -webkit-user-select: text !important;
+            -moz-user-select: text !important;
+            -ms-user-select: text !important;
+            user-select: text !important;
+        }
+
+        html, body {
+            height: 100%; margin: 0; padding: 0;
+            background-color: var(--bg-primary);
+            color: var(--text-main);
+            overflow: hidden;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            display: flex;
+            flex-direction: column;
+            font-size: var(--ui-scale, 1rem);
+        }
+
+        /* 1. TOPBAR FIXED WRAPPER */
+        .topbar {
+            height: 52px;
+            min-height: 52px;
+            background-color: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-color);
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between;
+            padding: 0 16px;
+            z-index: 20;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            flex-wrap: nowrap;
+            overflow: hidden;
+        }
+
+        .brand-title {
+            font-weight: 800; 
+            font-size: 1.15rem;
+            color: var(--accent-color);
+            display: flex; 
+            align-items: center; 
+            gap: 8px;
+            letter-spacing: 0.5px;
+            text-shadow: 0 0 10px var(--accent-glow);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .topbar-actions { 
+            display: flex; 
+            gap: 8px; 
+            align-items: center; 
+            flex-shrink: 0;
+        }
+
+        .btn-lang {
+            font-weight: 700;
+            font-size: 0.82rem;
+            padding: 5px 12px;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            background: var(--bg-tertiary);
+            color: var(--text-main);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .btn-lang:hover {
+            border-color: var(--accent-color);
+            transform: translateY(-1px);
+        }
+
+        /* 2. TOOLBAR & ZOOM SLIDER */
+        .toolbar {
+            height: 48px;
+            min-height: 48px;
+            background-color: var(--bg-tertiary);
+            border-bottom: 1px solid var(--border-color);
+            display: flex; align-items: center; padding: 0 10px; gap: 6px;
+            overflow-x: auto;
+            scrollbar-width: thin;
+            z-index: 15;
+            transition: max-height 0.3s ease, opacity 0.3s ease, padding 0.3s ease;
+        }
+
+        .toolbar.toolbar-hidden {
+            max-height: 0;
+            min-height: 0;
+            padding-top: 0;
+            padding-bottom: 0;
+            border: none;
+            opacity: 0;
+            overflow: hidden;
+            pointer-events: none;
+        }
+
+        .zoom-slider-container {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 0 6px;
+            color: var(--text-sub);
+            font-size: 0.8rem;
+            white-space: nowrap;
+        }
+
+        .zoom-slider-container input[type="range"] {
+            width: 80px;
+            accent-color: var(--accent-color);
+            cursor: pointer;
+        }
+
+        .btn-tool {
+            background: transparent; color: var(--text-main);
+            border: 1px solid transparent; border-radius: 8px;
+            width: 36px; height: 36px; min-width: 36px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.1rem; cursor: pointer; position: relative;
+            transition: all 0.2s ease;
+        }
+
+        .btn-tool:hover {
+            background: var(--bg-secondary);
+            border-color: var(--border-color);
+            transform: translateY(-1px);
+            box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+        }
+
+        .btn-tool:active { transform: scale(0.92); }
+
+        .btn-run {
+            color: #4ec9b0 !important;
+            font-size: 1.3rem;
+            background: rgba(78, 201, 176, 0.12);
+            border-color: rgba(78, 201, 176, 0.3);
+            animation: pulse-glow 2s infinite alternate;
+        }
+        .btn-run:hover { 
+            background: rgba(78, 201, 176, 0.25);
+            border-color: #4ec9b0;
+        }
+
+        .btn-clear-code { color: #ff6b6b !important; }
+        .btn-clear-code:hover {
+            background: rgba(255, 107, 107, 0.15);
+            border-color: rgba(255, 107, 107, 0.4);
+        }
+
+        @keyframes pulse-glow {
+            0% { box-shadow: 0 0 2px rgba(78, 201, 176, 0.2); }
+            100% { box-shadow: 0 0 10px rgba(78, 201, 176, 0.6); }
+        }
+
+        .error-counter-badge {
+            background-color: #dc3545;
+            color: #fff;
+            font-size: 0.7rem;
+            font-weight: 700;
+            padding: 1px 6px;
+            border-radius: 10px;
+            margin-left: 6px;
+        }
+
+        /* 3. TABS */
+        .file-tabs-bar {
+            background-color: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-color);
+            display: flex; gap: 4px; padding: 6px 10px 0 10px; overflow-x: auto;
+            min-height: 38px;
+            scrollbar-width: none;
+        }
+
+        .file-tab {
+            background-color: var(--bg-tertiary); color: var(--text-sub);
+            padding: 6px 14px; font-size: 0.85rem; border-radius: 6px 6px 0 0;
+            cursor: pointer; display: flex; align-items: center; gap: 8px;
+            border: 1px solid transparent; border-bottom: none;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+
+        .file-tab:hover { color: var(--text-main); }
+
+        .file-tab.active {
+            background-color: var(--bg-primary); color: var(--accent-color);
+            border-color: var(--border-color); font-weight: 600;
+            border-top: 2.5px solid var(--accent-color);
+        }
+
+        /* 4. WORKSPACE LAYOUT & FULL EDIT CONFIG */
+        .workspace {
+            flex: 1;
+            height: 0;
+            display: flex;
+            flex-direction: column;
+            padding: 8px;
+            gap: 0px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .editor-container {
+            flex: 1;
+            min-height: 32px;
+            position: relative;
+            border: 1px solid var(--border-color);
+            border-radius: 8px 8px 0 0;
+            overflow: hidden;
+            background: var(--bg-primary);
+            display: flex;
+        }
+
+        .editor-container:focus-within {
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 2px var(--accent-glow);
+        }
+
+        /* GUTTER & LINE NUMBERS */
+        .editor-gutter {
+            width: 58px;
+            min-width: 58px;
+            background-color: var(--gutter-bg);
+            border-right: 1px solid var(--border-color);
+            padding-top: 12px;
+            padding-bottom: 12px;
+            font-family: 'Consolas', 'Fira Code', 'Courier New', monospace;
+            font-size: 0.92rem;
+            line-height: 1.5;
+            color: var(--text-sub);
+            text-align: right;
+            overflow: hidden;
+            user-select: none;
+        }
+
+        .line-number-item {
+            padding-right: 8px;
+            padding-left: 2px;
+            position: relative;
+            height: 22.08px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+        }
+
+        .line-status-icon {
+            position: absolute;
+            left: 4px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .line-error-icon { color: #ff4d4d; }
+        .line-warning-icon { color: #ffc107; font-weight: bold; }
+
+        .line-has-error {
+            background-color: var(--error-bg);
+            border-left: 3px solid var(--error-border);
+        }
+
+        .line-has-warning {
+            background-color: var(--warning-bg);
+            border-left: 3px solid var(--warning-border);
+        }
+
+        /* CODE EDITING AREA */
+        .code-area {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+        }
+
+        textarea#code-editor, pre#code-highlight, pre#code-highlight code {
+            font-family: 'Consolas', 'Fira Code', 'Courier New', monospace !important;
+            font-size: 0.92rem !important;
+            line-height: 1.5 !important;
+            letter-spacing: 0px !important;
+            tab-size: 4 !important;
+            -moz-tab-size: 4 !important;
+        }
+
+        textarea#code-editor, pre#code-highlight, pre#code-highlight code {
+            white-space: pre !important;
+            word-break: normal !important;
+            word-wrap: normal !important;
+        }
+
+        .code-wrapped textarea#code-editor, 
+        .code-wrapped pre#code-highlight, 
+        .code-wrapped pre#code-highlight code {
+            white-space: pre-wrap !important;
+            word-break: break-word !important;
+            word-wrap: break-word !important;
+        }
+
+        textarea#code-editor, pre#code-highlight {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            margin: 0; padding: 12px;
+            border: none; outline: none;
+            overflow: auto;
+        }
+
+        textarea#code-editor {
+            color: transparent !important;
+            background: transparent !important;
+            caret-color: var(--text-main);
+            z-index: 2; resize: none;
+        }
+
+        pre#code-highlight {
+            z-index: 1;
+            pointer-events: none;
+            background: transparent !important;
+        }
+
+        pre#code-highlight code {
+            background: transparent !important;
+            padding: 0 !important;
+            display: block;
+        }
+
+        .match-highlight {
+            background-color: var(--highlight-match) !important;
+            border-radius: 3px;
+            outline: 1px dashed var(--accent-color);
+        }
+
+        /* Prism Theme Styles */
+        :root[data-theme="dark"] .token.comment { color: #7f848e !important; font-style: italic; }
+        :root[data-theme="dark"] .token.keyword { color: #c678dd !important; font-weight: bold; }
+        :root[data-theme="dark"] .token.string { color: #98c379 !important; }
+        :root[data-theme="dark"] .token.function { color: #61afef !important; }
+        :root[data-theme="dark"] .token.number { color: #d19a66 !important; }
+        :root[data-theme="dark"] .token.operator, :root[data-theme="dark"] .token.punctuation { color: #56b6c2 !important; }
+        :root[data-theme="dark"] .token.builtin { color: #e5c07b !important; }
+
+        :root[data-theme="light"] .token.comment { color: #a0a1a7 !important; font-style: italic; }
+        :root[data-theme="light"] .token.keyword { color: #a626a4 !important; font-weight: bold; }
+        :root[data-theme="light"] .token.string { color: #50a14f !important; }
+        :root[data-theme="light"] .token.function { color: #4078f2 !important; }
+        :root[data-theme="light"] .token.number { color: #b76b00 !important; }
+        :root[data-theme="light"] .token.operator, :root[data-theme="light"] .token.punctuation { color: #0184bc !important; }
+        :root[data-theme="light"] .token.builtin { color: #c18401 !important; }
+
+        /* 5. VERTICAL RESIZE HANDLE */
+        .drag-resizer {
+            height: 10px;
+            min-height: 10px;
+            background-color: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-left: none; border-right: none;
+            cursor: ns-resize;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+            transition: background-color 0.2s ease;
+            touch-action: none;
+        }
+
+        .drag-resizer:hover, .drag-resizer.dragging {
+            background-color: var(--accent-color);
+            color: #fff;
+        }
+
+        .drag-handle-icon {
+            font-size: 0.85rem;
+            line-height: 1;
+            color: var(--text-sub);
+            pointer-events: none;
+        }
+
+        /* 6. CONSOLE PANEL (MẶC ĐỊNH THU GỌN LẠI) */
+        .console-panel {
+            height: 40px !important;
+            min-height: 40px;
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 0 0 8px 8px;
+            display: flex; flex-direction: column; overflow: hidden;
+            flex-shrink: 0;
+            transition: transform 0.2s ease;
+        }
+
+        .console-panel.collapsed { height: 40px !important; }
+
+        /* Full màn hình khi Run Code */
+        .workspace.fullscreen-run {
+            position: fixed !important;
+            top: 52px !important;
+            left: 0 !important;
+            width: 100vw !important;
+            height: calc(100vh - 52px) !important;
+            z-index: 1005 !important;
+            background: var(--bg-primary);
+            padding: 10px !important;
+        }
+        .workspace.fullscreen-run .editor-container,
+        .workspace.fullscreen-run .file-tabs-bar,
+        .workspace.fullscreen-run .drag-resizer {
+            display: none !important;
+        }
+        .workspace.fullscreen-run .console-panel {
+            flex: 1 !important;
+            height: 100% !important;
+            border-radius: 8px !important;
+        }
+
+        .console-header {
+            height: 40px;
+            min-height: 40px;
+            padding: 0 12px; font-size: 0.85rem; font-weight: 600;
+            background-color: var(--bg-tertiary); color: var(--text-sub);
+            border-bottom: 1px solid var(--border-color);
+            display: flex; justify-content: space-between; align-items: center;
+        }
+
+        .console-actions { display: flex; gap: 6px; align-items: center; }
+
+        .btn-console-icon {
+            background: transparent; border: 1px solid var(--border-color); color: var(--text-main);
+            border-radius: 6px; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center;
+            font-size: 0.9rem; cursor: pointer; transition: all 0.2s;
+        }
+
+        .btn-console-icon:hover { background: var(--bg-secondary); border-color: var(--accent-color); color: var(--accent-color); }
+
+        #console-output {
+            flex: 1; padding: 12px; font-family: 'Consolas', monospace;
+            color: var(--console-text); overflow-y: auto;
+            white-space: pre-wrap; word-break: break-all; font-size: 0.88rem;
+            line-height: 1.45;
+        }
+
+        /* 7. VIRTUAL KEYBOARD NAVIGATION BAR */
+        .virtual-nav-bar {
+            position: fixed; bottom: -60px; left: 0; width: 100%; height: 48px;
+            background-color: var(--bg-secondary); border-top: 1px solid var(--border-color);
+            display: flex; align-items: center; justify-content: space-between; padding: 0 16px;
+            z-index: 999; box-shadow: 0 -4px 15px rgba(0,0,0,0.3);
+            transition: bottom 0.25s cubic-bezier(0.1, 0.9, 0.2, 1);
+        }
+        .virtual-nav-bar.active { bottom: 0; }
+        .nav-bar-group { display: flex; gap: 8px; align-items: center; }
+        .btn-vnav {
+            background-color: var(--bg-tertiary); color: var(--text-main);
+            border: 1px solid var(--border-color); border-radius: 6px; padding: 6px 14px;
+            font-size: 0.85rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px;
+        }
+        .btn-vnav:hover { border-color: var(--accent-color); background-color: var(--accent-color); color: #fff; }
+
+        /* 8. TOUR OVERLAY */
+        #tour-overlay {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(0, 0, 0, 0.65); z-index: 9998; display: none; opacity: 0; transition: opacity 0.3s ease;
+        }
+        #tour-overlay.active { display: block; opacity: 1; }
+        .tour-card {
+            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 10002; width: 360px; max-width: 90vw; background: var(--bg-secondary);
+            border: 1.5px solid var(--accent-color); border-radius: 12px; padding: 20px; color: var(--text-main);
+            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.6); display: none;
+        }
+        .tour-card.active { display: block; }
+    </style>
+</head>
+<body>
+
+    <!-- 1. TOPBAR -->
+    <div class="topbar">
+        <div class="brand-title">
+            <i class="bi bi-code-slash fs-4"></i> PyAltide Studio <span id="error-badge-container"></span>
+        </div>
+        <div class="topbar-actions">
+            <button class="btn-tool" id="btn-toggle-toolbar" onclick="toggleToolbar()" title="Ẩn/Hiện Thanh Công Cụ">
+                <i class="bi bi-layout-sidebar-inset" id="toolbar-toggle-icon"></i>
+            </button>
+            <button class="btn-tool" id="btn-guide-toggle" onclick="startTour()" title="Hướng Dẫn">
+                <i class="bi bi-question-circle-fill" style="color: var(--accent-color);"></i>
+            </button>
+            <button class="btn-lang" id="btn-lang-toggle" onclick="toggleLanguage()" title="Chuyển Ngôn Ngữ">VI</button>
+            <button class="btn-tool" id="btn-theme-toggle" onclick="toggleTheme()" title="Đổi Giao Diện">
+                <i class="bi bi-moon-stars-fill"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- 2. TOOLBAR -->
+    <div class="toolbar" id="main-toolbar">
+        <button class="btn-tool btn-run" id="tool-run" onclick="runPython()" title="Chạy Code (Full Console)">
+            <i class="bi bi-play-fill"></i>
+        </button>
+        <button class="btn-tool" id="tool-new" onclick="createNewFile()" title="Tạo File Mới">
+            <i class="bi bi-file-earmark-plus"></i>
+        </button>
+        <button class="btn-tool" id="tool-rename" onclick="renameCurrentFile()" title="Đổi Tên File">
+            <i class="bi bi-pencil-square"></i>
+        </button>
+        <button class="btn-tool" id="tool-delete" onclick="deleteCurrentFile()" title="Xóa File">
+            <i class="bi bi-trash"></i>
+        </button>
+        <button class="btn-tool btn-clear-code" id="tool-clear-code" onclick="clearEditorCode()" title="Xóa Trắng Code">
+            <i class="bi bi-file-earmark-x"></i>
+        </button>
+        <button class="btn-tool" id="tool-download" onclick="downloadFile()" title="Tải File Về">
+            <i class="bi bi-download"></i>
+        </button>
+        <button class="btn-tool" id="tool-copy" onclick="copyCode()" title="Sao Chép Code">
+            <i class="bi bi-clipboard"></i>
+        </button>
+        <button class="btn-tool" id="tool-paste" onclick="pasteCode()" title="Dán Code">
+            <i class="bi bi-clipboard-plus"></i>
+        </button>
+        <button class="btn-tool" id="tool-wrap" onclick="toggleWordWrap()" title="Bật/Tắt Xuống Dòng Code">
+            <i class="bi bi-text-wrap" id="wrap-icon"></i>
+        </button>
+        <button class="btn-tool" id="tool-toggle-console" onclick="toggleConsole()" title="Thu Gói/Mở Rộng Console">
+            <i class="bi bi-terminal"></i>
+        </button>
+        <button class="btn-tool" id="tool-clear-console" onclick="clearConsole()" title="Xóa Sạch Console">
+            <i class="bi bi-eraser"></i>
+        </button>
+        
+        <!-- Zoom Slider -->
+        <div class="zoom-slider-container" title="Thu phóng giao diện">
+            <i class="bi bi-zoom-in"></i>
+            <input type="range" id="zoom-range" min="0.8" max="1.3" step="0.05" value="1" oninput="changeZoom(this.value)">
+        </div>
+    </div>
+
+    <!-- 3. FILE TABS -->
+    <div class="file-tabs-bar" id="file-tabs"></div>
+
+    <!-- 4. WORKSPACE -->
+    <div class="workspace" id="workspace-container">
+        <!-- EDITOR CONTAINER -->
+        <div class="editor-container" id="editor-wrapper">
+            <!-- Line Numbers & Status Gutters -->
+            <div class="editor-gutter" id="editor-gutter">
+                <div class="line-number-item">1</div>
+            </div>
+
+            <!-- Code Highlighting Area -->
+            <div class="code-area">
+                <textarea id="code-editor" spellcheck="false" placeholder="# Viết code Python tại đây..." oninput="onEditorInput()" onkeydown="onEditorKeyDown(event)" onselectionchange="onEditorSelectionChange()" onclick="onEditorSelectionChange()" onkeyup="onEditorSelectionChange()" onscroll="syncScroll()"></textarea>
+                <pre id="code-highlight" class="language-python"><code class="language-python" id="highlight-content"></code></pre>
+            </div>
+        </div>
+
+        <!-- 5. DRAG RESIZE HANDLE -->
+        <div class="drag-resizer" id="drag-resizer" title="Kéo lên/xuống để thay đổi chiều cao">
+            <i class="bi bi-arrows-collapse-vertical drag-handle-icon"></i>
+        </div>
+
+        <!-- 6. CONSOLE PANEL (MẶC ĐỊNH THU GỌN KHỎI CHIẾM DIỆN TÍCH) -->
+        <div class="console-panel collapsed" id="console-panel">
+            <div class="console-header" id="console-header-el">
+                <span><i class="bi bi-terminal me-1"></i> <span id="lbl-console-header">Console</span> <span id="py-status" class="badge bg-warning ms-2">Đang nạp...</span></span>
+                <div class="console-actions">
+                    <button class="btn-console-icon" id="btn-copy-multipurpose" onclick="copyMultipurposeLog()" title="Sao chép Code kèm Console lần chạy gần nhất"><i class="bi bi-clipboard-check"></i></button>
+                    <button class="btn-console-icon" id="btn-exit-fullscreen" onclick="exitFullscreenRun()" title="Quay lại giao diện Code"><i class="bi bi-arrow-return-left"></i></button>
+                    <button class="btn-console-icon" id="btn-expand-console" onclick="toggleConsole()" title="Thu gọn / Mở rộng"><i class="bi bi-chevron-up" id="console-toggle-icon"></i></button>
+                </div>
+            </div>
+            <div id="console-output">> Đang khởi tạo môi trường Pyodide...</div>
+        </div>
+    </div>
+
+    <!-- VIRTUAL KEYBOARD NAVIGATION BAR -->
+    <div class="virtual-nav-bar" id="virtual-nav-bar">
+        <div class="nav-bar-group">
+            <button class="btn-vnav" onclick="moveCursorLine(-1)"><i class="bi bi-chevron-up"></i> Cách Lên</button>
+            <button class="btn-vnav" onclick="moveCursorLine(1)"><i class="bi bi-chevron-down"></i> Cách Xuống</button>
+        </div>
+        <div class="nav-bar-group">
+            <button class="btn-vnav" onclick="insertTabIndent()"><i class="bi bi-code"></i> Tab</button>
+        </div>
+    </div>
+
+    <!-- GUIDED TOUR MODAL -->
+    <div id="tour-overlay"></div>
+    <div id="tour-card" class="tour-card">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+            <span class="fw-bold" id="tour-step-title">Hướng Dẫn Sử Dụng</span>
+            <span id="tour-step-badge" class="badge bg-primary">PyAltide</span>
+        </div>
+        <div class="mb-3" id="tour-step-desc" style="font-size: 0.9rem; line-height: 1.4;">
+            Chào mừng bạn đến với PyAltide Studio Pro!<br><br>
+            • Chỉnh sửa mã nguồn Python mượt mà với tính năng tự động kiểm tra lỗi cú pháp chuẩn AST.<br>
+            • Nhấn nút Play màu xanh để chạy chương trình trên toàn màn hình Console.<br>
+            • Quản lý nhiều tệp tin dễ dàng qua thanh tab phía trên.
+        </div>
+        <div class="d-flex justify-content-end gap-2">
+            <button class="btn btn-sm btn-secondary" onclick="endTour()">Đóng</button>
+        </div>
+    </div>
+
+    <!-- Bootstrap & Prism JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+
+    <script>
+        let pyodide = null;
+        let micropip = null;
+        let currentLang = localStorage.getItem('pyaltide_lang') || 'vi';
+        
+        let lineStatuses = {}; 
+        let autoCheckDebounce = null;
+        let selectedToken = '';
+        let isCodeWrapped = false;
+        let currentRunCodeSnapshot = '';
+        let currentRunConsoleSnapshot = '';
+        let isFullscreenRunActive = false;
+
+        const i18n = {
+            en: {
+                ready: 'Ready',
+                loading: 'Loading...',
+                error: 'Error',
+                initSuccess: '> Python environment is ready! Official AST syntax checking enabled.',
+                consoleHeader: 'Console Output',
+                copiedMulti: 'Copied current run code and console log!',
+                copiedCode: 'Code copied to clipboard!',
+                copiedLog: 'Console log copied to clipboard!',
+                pastePermission: 'Please grant clipboard permissions!',
+                minOneFile: 'At least 1 file must be kept!',
+                promptNewFile: 'Enter new file name (e.g. script.py):',
+                promptRename: 'Enter new file name:',
+                confirmDelete: 'Delete file ',
+                confirmClearCode: 'Are you sure you want to clear all code in this file?',
+                editorPlaceholder: '# Write Python code here...',
+                sampleCode: '# Professional Python IDE with AST Syntax Checking!\nimport math\n\ndef calculate_circle(radius):\n    area = math.pi * (radius ** 2)\n    return area\n\nprint("Hello PyAltide Studio!")\n'
+            },
+            vi: {
+                ready: 'Sẵn sàng',
+                loading: 'Đang nạp...',
+                error: 'Lỗi',
+                initSuccess: '> Môi trường Python đã sẵn sàng! Đã bật kiểm tra cú pháp chuẩn Python AST.',
+                consoleHeader: 'Màn hình Console',
+                copiedMulti: 'Đã sao chép cả mã nguồn và kết quả console của lần chạy này!',
+                copiedCode: 'Đã copy mã nguồn!',
+                copiedLog: 'Đã copy toàn bộ Log Console!',
+                pastePermission: 'Vui lòng cấp quyền truy cập Clipboard!',
+                minOneFile: 'Phải giữ lại ít nhất 1 file!',
+                promptNewFile: 'Nhập tên file mới (ví dụ: script.py):',
+                promptRename: 'Nhập tên file mới:',
+                confirmDelete: 'Xóa file ',
+                confirmClearCode: 'Bạn có chắc chắn muốn xóa sạch toàn bộ code trong file này?',
+                editorPlaceholder: '# Viết code Python tại đây...',
+                sampleCode: '# Tính năng tự động thụt lề (Auto-Indent) đã hoạt động!\nimport math\n\ndef tinh_dien_tich_tron(ban_kinh):\n    return math.pi * (ban_kinh ** 2)\n\nprint("Hello PyAltide Studio!")\nr = 5\nprint(f"Diện tích = {tinh_dien_tich_tron(r):.2f}")'
+            }
+        };
+
+        let filesData = {};
+        try {
+            const stored = localStorage.getItem('pyaltide_pro_files');
+            if (stored) filesData = JSON.parse(stored);
+        } catch(e) { console.error('Storage error', e); }
+
+        if (!filesData || Object.keys(filesData).length === 0) {
+            filesData = { 'main.py': i18n[currentLang].sampleCode };
+        }
+
+        let currentFileName = localStorage.getItem('pyaltide_pro_active');
+        if (!currentFileName || !filesData[currentFileName]) {
+            currentFileName = Object.keys(filesData)[0] || 'main.py';
+        }
+
+        function saveStorage() {
+            try {
+                localStorage.setItem('pyaltide_pro_files', JSON.stringify(filesData));
+                localStorage.setItem('pyaltide_pro_active', currentFileName);
+            } catch(e) { console.error('Storage error', e); }
+        }
+
+        function toggleToolbar() {
+            const toolbar = document.getElementById('main-toolbar');
+            const icon = document.getElementById('toolbar-toggle-icon');
+            toolbar.classList.toggle('toolbar-hidden');
+            if (toolbar.classList.contains('toolbar-hidden')) {
+                icon.className = 'bi bi-layout-sidebar';
+            } else {
+                icon.className = 'bi bi-layout-sidebar-inset';
+            }
+        }
+
+        function changeZoom(val) {
+            document.documentElement.style.setProperty('--ui-scale', val + 'rem');
+            localStorage.setItem('pyaltide_zoom', val);
+        }
+
+        const savedZoom = localStorage.getItem('pyaltide_zoom');
+        if (savedZoom) {
+            document.getElementById('zoom-range').value = savedZoom;
+            changeZoom(savedZoom);
+        }
+
+        function toggleWordWrap() {
+            isCodeWrapped = !isCodeWrapped;
+            const editorWrapper = document.getElementById('editor-wrapper');
+            const icon = document.getElementById('wrap-icon');
+            if (isCodeWrapped) {
+                editorWrapper.classList.add('code-wrapped');
+                icon.className = 'bi bi-text-wrap text-info';
+            } else {
+                editorWrapper.classList.remove('code-wrapped');
+                icon.className = 'bi bi-text-wrap';
+            }
+        }
+
+        function syncScroll() {
+            const textarea = document.getElementById('code-editor');
+            const highlight = document.getElementById('code-highlight');
+            const gutter = document.getElementById('editor-gutter');
+            highlight.scrollTop = textarea.scrollTop;
+            highlight.scrollLeft = textarea.scrollLeft;
+            gutter.scrollTop = textarea.scrollTop;
+        }
+
+        function updateSyntaxHighlighting(code, highlightToken = '') {
+            const highlightCode = document.getElementById('highlight-content');
+            let htmlContent = '';
+            if (window.Prism && Prism.languages && Prism.languages.python) {
+                htmlContent = Prism.highlight(code, Prism.languages.python, 'python');
+            } else {
+                htmlContent = escapeHtml(code);
+            }
+            if (highlightToken && highlightToken.trim().length >= 2) {
+                const escapedToken = escapeRegExp(highlightToken.trim());
+                htmlContent = htmlContent.replace(new RegExp(`(${escapedToken})`, 'g'), '<span class="match-highlight">$1</span>');
+            }
+            highlightCode.innerHTML = htmlContent;
+        }
+
+        function escapeRegExp(string) {
+            return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        }
+
+        function escapeHtml(text) {
+            return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        }
+
+        function onEditorSelectionChange() {
+            const textarea = document.getElementById('code-editor');
+            const start = textarea.selectionStart;
+            const end = textarea.selectionEnd;
+            selectedToken = (start !== undefined && end !== undefined && end > start) ? textarea.value.substring(start, end) : '';
+            updateSyntaxHighlighting(textarea.value, selectedToken);
+        }
+
+        function onEditorKeyDown(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                const textarea = document.getElementById('code-editor');
+                const start = textarea.selectionStart;
+                const end = textarea.selectionEnd;
+                const value = textarea.value;
+
+                const lineStart = value.lastIndexOf('\n', start - 1) + 1;
+                const currentLine = value.substring(lineStart, start);
+                const indentMatch = currentLine.match(/^([ \t]*)/);
+                let indent = indentMatch ? indentMatch[1] : '';
+                if (currentLine.trim().endsWith(':')) indent += '    ';
+
+                const insertion = '\n' + indent;
+                textarea.value = value.substring(0, start) + insertion + value.substring(end);
+                textarea.selectionStart = textarea.selectionEnd = start + insertion.length;
+                onEditorInput();
+            }
+        }
+
+        function performRealtimeSyntaxCheck(code) {
+            lineStatuses = {}; 
+            if (!code || code.trim() === '') {
+                renderGutterStatus();
+                return;
+            }
+
+            if (pyodide) {
+                try {
+                    pyodide.globals.set('_code_to_check', code);
+                    const resJsonStr = pyodide.runPython(`
+import ast, json
+def _check_syntax():
+    try:
+        ast.parse(_code_to_check)
+        return ""
+    except SyntaxError as e:
+        return json.dumps({"line": e.lineno if e.lineno else 1, "msg": e.msg if e.msg else "Syntax Error"})
+    except Exception as e:
+        return json.dumps({"line": 1, "msg": str(e)})
+_check_syntax()
+`);
+                    if (resJsonStr && resJsonStr.trim() !== "") {
+                        const errObj = JSON.parse(resJsonStr);
+                        lineStatuses[errObj.line] = { type: 'error', msg: errObj.msg };
+                    }
+                } catch (err) {}
+            }
+
+            const lines = code.split('\n');
+            for (let i = 0; i < lines.length; i++) {
+                const lineNum = i + 1;
+                const trimmed = lines[i].trim();
+                if (trimmed.match(/^(def|if|elif|else|for|while|try|except|finally|class|with)\b/) && !trimmed.endsWith(':') && !trimmed.endsWith('\\')) {
+                    if (!lineStatuses[lineNum]) {
+                        lineStatuses[lineNum] = { type: 'error', msg: 'Missing colon ":"' };
+                    }
+                }
+            }
+            renderGutterStatus();
+        }
+
+        function renderGutterStatus() {
+            const code = document.getElementById('code-editor').value;
+            const lines = code.split('\n');
+            const gutter = document.getElementById('editor-gutter');
+            gutter.innerHTML = '';
+
+            let errorCount = 0;
+            for (let i = 0; i < lines.length; i++) {
+                const lineNum = i + 1;
+                const lineEl = document.createElement('div');
+                lineEl.className = 'line-number-item';
+
+                const status = lineStatuses[lineNum];
+                if (status) {
+                    const icon = document.createElement('i');
+                    lineEl.classList.add('line-has-error');
+                    icon.className = 'bi bi-exclamation-triangle-fill line-status-icon line-error-icon';
+                    icon.title = `Dòng ${lineNum}: ${status.msg}`;
+                    lineEl.appendChild(icon);
+                    errorCount++;
+                }
+                lineEl.appendChild(document.createTextNode(lineNum));
+                gutter.appendChild(lineEl);
+            }
+
+            const badgeContainer = document.getElementById('error-badge-container');
+            badgeContainer.innerHTML = errorCount > 0 ? `<span class="error-counter-badge">${errorCount} ⚠️</span>` : '';
+        }
+
+        function onEditorInput() {
+            const code = document.getElementById('code-editor').value;
+            filesData[currentFileName] = code;
+            saveStorage();
+            updateSyntaxHighlighting(code, selectedToken);
+
+            if (autoCheckDebounce) clearTimeout(autoCheckDebounce);
+            autoCheckDebounce = setTimeout(() => performRealtimeSyntaxCheck(code), 100);
+            syncScroll();
+        }
+
+        // Virtual Keyboard Handler for Mobile
+        const virtualNavBar = document.getElementById('virtual-nav-bar');
+        let initialWindowHeight = window.innerHeight;
+        window.addEventListener('resize', () => {
+            if (window.innerHeight < initialWindowHeight - 150) {
+                virtualNavBar.classList.add('active');
+            } else {
+                virtualNavBar.classList.remove('active');
+            }
+        });
+
+        function moveCursorLine(direction) {
+            const textarea = document.getElementById('code-editor');
+            const lines = textarea.value.split('\n');
+            let pos = textarea.selectionStart;
+            let currentLineIdx = 0, charCount = 0;
+            for (let i = 0; i < lines.length; i++) {
+                charCount += lines[i].length + 1;
+                if (pos <= charCount) { currentLineIdx = i; break; }
+            }
+            let targetLineIdx = currentLineIdx + direction;
+            if (targetLineIdx >= 0 && targetLineIdx < lines.length) {
+                let newPos = 0;
+                for (let i = 0; i < targetLineIdx; i++) newPos += lines[i].length + 1;
+                textarea.focus();
+                textarea.setSelectionRange(newPos, newPos);
+            }
+        }
+
+        function insertTabIndent() {
+            const textarea = document.getElementById('code-editor');
+            const start = textarea.selectionStart;
+            const val = textarea.value;
+            textarea.value = val.substring(0, start) + "    " + val.substring(textarea.selectionEnd);
+            textarea.selectionStart = textarea.selectionEnd = start + 4;
+            onEditorInput();
+            textarea.focus();
+        }
+
+        function toggleLanguage() {
+            currentLang = currentLang === 'en' ? 'vi' : 'en';
+            localStorage.setItem('pyaltide_lang', currentLang);
+            document.documentElement.setAttribute('lang', currentLang);
+            document.getElementById('btn-lang-toggle').innerText = currentLang.toUpperCase();
+            applyLanguage();
+        }
+
+        function applyLanguage() {
+            const t = i18n[currentLang];
+            document.getElementById('lbl-console-header').innerText = t.consoleHeader;
+            document.getElementById('code-editor').placeholder = t.editorPlaceholder;
+        }
+
+        function toggleTheme() {
+            const htmlTag = document.documentElement;
+            const prismTheme = document.getElementById('prism-theme');
+            const themeBtn = document.getElementById('btn-theme-toggle');
+
+            if (htmlTag.getAttribute('data-theme') === 'dark') {
+                htmlTag.setAttribute('data-theme', 'light');
+                prismTheme.href = 'https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css';
+                themeBtn.innerHTML = '<i class="bi bi-sun-fill"></i>';
+                localStorage.setItem('pyaltide_theme', 'light');
+            } else {
+                htmlTag.setAttribute('data-theme', 'dark');
+                prismTheme.href = 'https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrownight.min.css';
+                themeBtn.innerHTML = '<i class="bi bi-moon-stars-fill"></i>';
+                localStorage.setItem('pyaltide_theme', 'dark');
+            }
+            onEditorInput();
+        }
+        if (localStorage.getItem('pyaltide_theme') === 'light') toggleTheme();
+
+        async function initPyodideEngine() {
+            try {
+                pyodide = await loadPyodide();
+                await pyodide.loadPackage("micropip");
+                micropip = pyodide.pyimport("micropip");
+                
+                pyodide.globals.set("js_input", (promptText) => prompt(promptText || "") || "");
+                pyodide.runPython("import builtins\nbuiltins.input = lambda p='': js_input(str(p))");
+
+                const status = document.getElementById('py-status');
+                status.className = 'badge bg-success ms-2';
+                status.innerText = i18n[currentLang].ready;
+                document.getElementById('console-output').innerText = i18n[currentLang].initSuccess;
+                performRealtimeSyntaxCheck(document.getElementById('code-editor').value);
+            } catch (err) {
+                document.getElementById('py-status').innerText = i18n[currentLang].error;
+                document.getElementById('console-output').innerText = '> Error loading Pyodide: ' + err.message;
+            }
+        }
+
+        function renderTabs() {
+            const container = document.getElementById('file-tabs');
+            container.innerHTML = '';
+            for (let name in filesData) {
+                const tab = document.createElement('div');
+                tab.className = `file-tab ${name === currentFileName ? 'active' : ''}`;
+                tab.innerHTML = `<i class="bi bi-file-earmark-code"></i> ${name}`;
+                tab.onclick = () => switchFile(name);
+                container.appendChild(tab);
+            }
+        }
+
+        function switchFile(name) {
+            filesData[currentFileName] = document.getElementById('code-editor').value;
+            currentFileName = name;
+            saveStorage();
+            renderTabs();
+            document.getElementById('code-editor').value = filesData[name] || '';
+            onEditorInput();
+        }
+
+        function createNewFile() {
+            const name = prompt(i18n[currentLang].promptNewFile);
+            if (name && name.trim()) {
+                filesData[name.trim()] = '';
+                switchFile(name.trim());
+            }
+        }
+
+        function renameCurrentFile() {
+            const newName = prompt(i18n[currentLang].promptRename, currentFileName);
+            if (newName && newName.trim() && newName !== currentFileName) {
+                filesData[newName.trim()] = filesData[currentFileName];
+                delete filesData[currentFileName];
+                currentFileName = newName.trim();
+                saveStorage();
+                renderTabs();
+            }
+        }
+
+        function deleteCurrentFile() {
+            if (Object.keys(filesData).length <= 1) {
+                alert(i18n[currentLang].minOneFile);
+                return;
+            }
+            if (confirm(`${i18n[currentLang].confirmDelete} ${currentFileName}?`)) {
+                delete filesData[currentFileName];
+                currentFileName = Object.keys(filesData)[0];
+                saveStorage();
+                renderTabs();
+                switchFile(currentFileName);
+            }
+        }
+
+        function clearEditorCode() {
+            if (confirm(i18n[currentLang].confirmClearCode)) {
+                document.getElementById('code-editor').value = '';
+                onEditorInput();
+            }
+        }
+
+        function downloadFile() {
+            const blob = new Blob([filesData[currentFileName]], { type: 'text/plain' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = currentFileName;
+            a.click();
+        }
+
+        function copyCode() {
+            navigator.clipboard.writeText(document.getElementById('code-editor').value);
+            alert(i18n[currentLang].copiedCode);
+        }
+
+        async function pasteCode() {
+            try {
+                const text = await navigator.clipboard.readText();
+                document.getElementById('code-editor').value += text;
+                onEditorInput();
+            } catch (err) { alert(i18n[currentLang].pastePermission); }
+        }
+
+        function toggleConsole() {
+            const panel = document.getElementById('console-panel');
+            const icon = document.getElementById('console-toggle-icon');
+            panel.classList.toggle('collapsed');
+            icon.className = panel.classList.contains('collapsed') ? 'bi bi-chevron-up' : 'bi bi-chevron-down';
+        }
+
+        function clearConsole() {
+            document.getElementById('console-output').innerText = '';
+        }
+
+        function copyMultipurposeLog() {
+            const combinedContent = `File: ${currentFileName}\n--- CODE ---\n${currentRunCodeSnapshot}\n\n--- CONSOLE OUTPUT ---\n${currentRunConsoleSnapshot}`;
+            navigator.clipboard.writeText(combinedContent);
+            alert(i18n[currentLang].copiedMulti);
+        }
+
+        // Drag Resizer
+        const dragResizer = document.getElementById('drag-resizer');
+        const workspace = document.getElementById('workspace-container');
+        const editorWrapper = document.getElementById('editor-wrapper');
+        const consolePanel = document.getElementById('console-panel');
+        let isDragging = false;
+
+        function startDragging(e) {
+            isDragging = true;
+            dragResizer.classList.add('dragging');
+            e.preventDefault();
+        }
+        function onDragging(e) {
+            if (!isDragging) return;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            const workspaceRect = workspace.getBoundingClientRect();
+            let newEditorHeight = clientY - workspaceRect.top;
+            if (newEditorHeight < 32) newEditorHeight = 32;
+            if (newEditorHeight > workspaceRect.height - 50) newEditorHeight = workspaceRect.height - 50;
+            editorWrapper.style.flex = 'none';
+            editorWrapper.style.height = `${newEditorHeight}px`;
+            consolePanel.style.height = `${workspaceRect.height - newEditorHeight - 10}px`;
+            syncScroll();
+        }
+        function stopDragging() {
+            if (isDragging) {
+                isDragging = false;
+                dragResizer.classList.remove('dragging');
+            }
+        }
+        dragResizer.addEventListener('mousedown', startDragging);
+        dragResizer.addEventListener('touchstart', startDragging, { passive: false });
+        window.addEventListener('mousemove', onDragging);
+        window.addEventListener('touchmove', onDragging, { passive: false });
+        window.addEventListener('mouseup', stopDragging);
+        window.addEventListener('touchend', stopDragging);
+
+        // RUN PYTHON CODE & FULLSCREEN CONSOLE MODE
+        async function runPython() {
+            const consoleBox = document.getElementById('console-output');
+            if (!pyodide) {
+                consoleBox.innerText += '\n[Lỗi]: Python chưa sẵn sàng!';
+                return;
+            }
+
+            isFullscreenRunActive = true;
+            workspace.classList.add('fullscreen-run');
+            document.getElementById('console-panel').classList.remove('collapsed');
+            
+            consoleBox.innerText = `> Đang thực thi ${currentFileName}...`;
+            currentRunCodeSnapshot = filesData[currentFileName];
+            let code = currentRunCodeSnapshot;
+
+            try {
+                pyodide.setStdout({
+                    batched: (str) => {
+                        consoleBox.innerText += '\n' + str;
+                        consoleBox.scrollTop = consoleBox.scrollHeight;
+                    }
+                });
+                await pyodide.runPythonAsync(code);
+            } catch (err) {
+                consoleBox.innerText += '\n[Runtime Error]: ' + err.message;
+            }
+
+            currentRunConsoleSnapshot = consoleBox.innerText;
+            document.addEventListener('keydown', handleFullscreenExitKey);
+        }
+
+        function handleFullscreenExitKey(e) {
+            if (e.key === 'Escape' && isFullscreenRunActive) {
+                exitFullscreenRun();
+            }
+        }
+
+        function exitFullscreenRun() {
+            isFullscreenRunActive = false;
+            workspace.classList.remove('fullscreen-run');
+            document.removeEventListener('keydown', handleFullscreenExitKey);
+        }
+
+        // Tour Hướng Dẫn Đơn Giản
+        function startTour() {
+            document.getElementById('tour-overlay').classList.add('active');
+            document.getElementById('tour-card').classList.add('active');
+        }
+        function endTour() {
+            document.getElementById('tour-overlay').classList.remove('active');
+            document.getElementById('tour-card').classList.remove('active');
+        }
+
+        // Khởi chạy hệ thống
+        document.getElementById('btn-lang-toggle').innerText = currentLang.toUpperCase();
+        applyLanguage();
+        renderTabs();
+        document.getElementById('code-editor').value = filesData[currentFileName] || '';
+        onEditorInput();
+        initPyodideEngine();
+    </script>
+</body>
+</html>

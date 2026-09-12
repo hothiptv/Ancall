@@ -29,8 +29,9 @@
             --gutter-bg: #1e1e24;
             --error-bg: rgba(255, 77, 77, 0.18);
             --error-border: #ff4d4d;
-            --success-border: #198754;
-            --success-bg: rgba(25, 135, 84, 0.18);
+            --warning-bg: rgba(255, 193, 7, 0.15);
+            --warning-border: #ffc107;
+            --highlight-match: rgba(255, 235, 59, 0.3);
         }
 
         :root[data-theme="light"] {
@@ -46,8 +47,9 @@
             --gutter-bg: #f8f9fa;
             --error-bg: rgba(220, 53, 69, 0.12);
             --error-border: #dc3545;
-            --success-border: #198754;
-            --success-bg: rgba(25, 135, 84, 0.15);
+            --warning-bg: rgba(255, 193, 7, 0.2);
+            --warning-border: #ffc107;
+            --highlight-match: rgba(255, 193, 7, 0.35);
         }
 
         * {
@@ -75,27 +77,42 @@
             flex-direction: column;
         }
 
-        /* 1. TOPBAR */
+        /* 1. TOPBAR FIXED WRAPPER */
         .topbar {
             height: 52px;
             min-height: 52px;
             background-color: var(--bg-secondary);
             border-bottom: 1px solid var(--border-color);
-            display: flex; align-items: center; justify-content: space-between;
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between;
             padding: 0 16px;
             z-index: 20;
             box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            flex-wrap: nowrap;
+            overflow: hidden;
         }
 
         .brand-title {
-            font-weight: 800; font-size: 1.2rem;
+            font-weight: 800; 
+            font-size: 1.15rem;
             color: var(--accent-color);
-            display: flex; align-items: center; gap: 10px;
+            display: flex; 
+            align-items: center; 
+            gap: 8px;
             letter-spacing: 0.5px;
             text-shadow: 0 0 10px var(--accent-glow);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
-        .topbar-actions { display: flex; gap: 8px; align-items: center; }
+        .topbar-actions { 
+            display: flex; 
+            gap: 8px; 
+            align-items: center; 
+            flex-shrink: 0;
+        }
 
         .btn-lang {
             font-weight: 700;
@@ -155,9 +172,28 @@
             border-color: #4ec9b0;
         }
 
+        .btn-clear-code {
+            color: #ff6b6b !important;
+        }
+        .btn-clear-code:hover {
+            background: rgba(255, 107, 107, 0.15);
+            border-color: rgba(255, 107, 107, 0.4);
+        }
+
         @keyframes pulse-glow {
             0% { box-shadow: 0 0 2px rgba(78, 201, 176, 0.2); }
             100% { box-shadow: 0 0 10px rgba(78, 201, 176, 0.6); }
+        }
+
+        /* ERROR BADGE COUNTER */
+        .error-counter-badge {
+            background-color: #dc3545;
+            color: #fff;
+            font-size: 0.7rem;
+            font-weight: 700;
+            padding: 1px 6px;
+            border-radius: 10px;
+            margin-left: 6px;
         }
 
         /* 3. TABS */
@@ -216,8 +252,8 @@
 
         /* LINE NUMBERS & STATUS GUTTER COLUMN */
         .editor-gutter {
-            width: 52px;
-            min-width: 52px;
+            width: 58px;
+            min-width: 58px;
             background-color: var(--gutter-bg);
             border-right: 1px solid var(--border-color);
             padding: 12px 0;
@@ -243,7 +279,7 @@
 
         .line-status-icon {
             position: absolute;
-            left: 5px;
+            left: 4px;
             font-size: 0.85rem;
             cursor: pointer;
             display: flex;
@@ -256,6 +292,11 @@
             animation: error-shake 0.3s ease;
         }
 
+        .line-warning-icon {
+            color: #ffc107;
+            font-weight: bold;
+        }
+
         @keyframes error-shake {
             0%, 100% { transform: translateX(0); }
             25% { transform: translateX(-2px); }
@@ -265,6 +306,11 @@
         .line-has-error {
             background-color: var(--error-bg);
             border-left: 3px solid var(--error-border);
+        }
+
+        .line-has-warning {
+            background-color: var(--warning-bg);
+            border-left: 3px solid var(--warning-border);
         }
 
         /* CODE EDITING AREA WITH PERFECT OVERLAY SYNTAX HIGHLIGHTING */
@@ -309,6 +355,13 @@
             background: transparent !important;
             padding: 0 !important;
             display: block;
+        }
+
+        /* HIGHLIGHT MATCHED TOKENS */
+        .match-highlight {
+            background-color: var(--highlight-match) !important;
+            border-radius: 3px;
+            outline: 1px dashed var(--accent-color);
         }
 
         :root[data-theme="dark"] .token.comment, 
@@ -363,7 +416,7 @@
 
         /* 6. CONSOLE PANEL */
         .console-panel {
-            height: 220px;
+            height: 200px;
             min-height: 40px;
             background-color: var(--bg-secondary);
             border: 1px solid var(--border-color);
@@ -403,13 +456,56 @@
             line-height: 1.45;
         }
 
-        .modal-content {
-            background-color: var(--bg-secondary); color: var(--text-main);
-            border: 1px solid var(--border-color); border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        /* 7. FLOATING VIRTUAL KEYBOARD NAVIGATION BAR */
+        .virtual-nav-bar {
+            position: fixed;
+            bottom: -60px;
+            left: 0;
+            width: 100%;
+            height: 48px;
+            background-color: var(--bg-secondary);
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 16px;
+            z-index: 999;
+            box-shadow: 0 -4px 15px rgba(0,0,0,0.3);
+            transition: bottom 0.25s cubic-bezier(0.1, 0.9, 0.2, 1);
         }
 
-        /* 7. SPOTLIGHT GUIDED TOUR OVERLAY SYSTEM */
+        .virtual-nav-bar.active {
+            bottom: 0;
+        }
+
+        .nav-bar-group {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .btn-vnav {
+            background-color: var(--bg-tertiary);
+            color: var(--text-main);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 6px 14px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+
+        .btn-vnav:hover {
+            border-color: var(--accent-color);
+            background-color: var(--accent-color);
+            color: #fff;
+        }
+
+        /* 8. SPOTLIGHT GUIDED TOUR OVERLAY SYSTEM */
         #tour-overlay {
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
             background: rgba(0, 0, 0, 0.65);
@@ -489,16 +585,13 @@
     <!-- 1. TOPBAR -->
     <div class="topbar">
         <div class="brand-title">
-            <i class="bi bi-code-slash fs-3"></i> PyAltide Studio
+            <i class="bi bi-code-slash fs-4"></i> PyAltide Studio <span id="error-badge-container"></span>
         </div>
         <div class="topbar-actions">
-            <!-- Tour Guide Button -->
             <button class="btn-tool" id="btn-guide-toggle" onclick="startTour()" title="Hướng Dẫn">
                 <i class="bi bi-question-circle-fill" style="color: var(--accent-color);"></i>
             </button>
-            <!-- Toggle Language -->
             <button class="btn-lang" id="btn-lang-toggle" onclick="toggleLanguage()" title="Chuyển Ngôn Ngữ">VI</button>
-            <!-- Toggle Theme -->
             <button class="btn-tool" id="btn-theme-toggle" onclick="toggleTheme()" title="Đổi Giao Diện">
                 <i class="bi bi-moon-stars-fill"></i>
             </button>
@@ -518,6 +611,9 @@
         </button>
         <button class="btn-tool" id="tool-delete" onclick="deleteCurrentFile()">
             <i class="bi bi-trash"></i>
+        </button>
+        <button class="btn-tool btn-clear-code" id="tool-clear-code" onclick="clearEditorCode()">
+            <i class="bi bi-file-earmark-x"></i>
         </button>
         <button class="btn-tool" id="tool-download" onclick="downloadFile()">
             <i class="bi bi-download"></i>
@@ -550,7 +646,7 @@
 
             <!-- Code Highlighting Area -->
             <div class="code-area">
-                <textarea id="code-editor" spellcheck="false" placeholder="# Viết code Python tại đây..." oninput="onEditorInput()" onscroll="syncScroll()"></textarea>
+                <textarea id="code-editor" spellcheck="false" placeholder="# Viết code Python tại đây..." oninput="onEditorInput()" onkeydown="onEditorKeyDown(event)" onselectionchange="onEditorSelectionChange()" onclick="onEditorSelectionChange()" onkeyup="onEditorSelectionChange()" onscroll="syncScroll()"></textarea>
                 <pre id="code-highlight" class="language-python"><code class="language-python" id="highlight-content"></code></pre>
             </div>
         </div>
@@ -573,13 +669,24 @@
         </div>
     </div>
 
+    <!-- VIRTUAL KEYBOARD NAVIGATION BAR -->
+    <div class="virtual-nav-bar" id="virtual-nav-bar">
+        <div class="nav-bar-group">
+            <button class="btn-vnav" onclick="moveCursorLine(-1)"><i class="bi bi-chevron-up"></i> Cách Lên</button>
+            <button class="btn-vnav" onclick="moveCursorLine(1)"><i class="bi bi-chevron-down"></i> Cách Xuống</button>
+        </div>
+        <div class="nav-bar-group">
+            <button class="btn-vnav" onclick="insertTabIndent()"><i class="bi bi-code"></i> Tab (Thụt dòng)</button>
+        </div>
+    </div>
+
     <!-- GUIDED TOUR ELEMENTS -->
     <div id="tour-overlay"></div>
     <div id="tour-highlight-frame" class="tour-highlight-frame" style="display: none;"></div>
     <div id="tour-card" class="tour-card">
         <div class="tour-card-header">
             <span id="tour-step-title">Hướng Dẫn</span>
-            <span id="tour-step-badge" class="badge bg-secondary">1/15</span>
+            <span id="tour-step-badge" class="badge bg-secondary">1/16</span>
         </div>
         <div class="tour-card-body" id="tour-step-desc">
             Nội dung hướng dẫn...
@@ -601,11 +708,10 @@
         let micropip = null;
         let currentLang = localStorage.getItem('pyaltide_lang') || 'vi';
         
-        // Track line states for syntax errors
-        let lineStatuses = {}; // format: { lineNum: { type: 'error', msg: '' } }
+        let lineStatuses = {}; 
         let autoCheckDebounce = null;
+        let selectedToken = '';
 
-        // COMPREHENSIVE MULTI-LANGUAGE DICTIONARY
         const i18n = {
             en: {
                 ready: 'Ready',
@@ -618,6 +724,7 @@
                 newFile: { title: 'New File', desc: 'Create a new Python file tab.' },
                 renameFile: { title: 'Rename File', desc: 'Rename current active Python file.' },
                 deleteFile: { title: 'Delete File', desc: 'Remove current Python file.' },
+                clearCode: { title: 'Clear Editor', desc: 'Clear all code in the current editor.' },
                 download: { title: 'Download File', desc: 'Download current file as .py' },
                 copy: { title: 'Copy Code', desc: 'Copy code editor content.' },
                 paste: { title: 'Paste Code', desc: 'Paste clipboard content into editor.' },
@@ -633,9 +740,10 @@
                 promptNewFile: 'Enter new file name (e.g. script.py):',
                 promptRename: 'Enter new file name:',
                 confirmDelete: 'Delete file ',
+                confirmClearCode: 'Are you sure you want to clear all code in this file?',
                 editorPlaceholder: '# Write Python code here...',
                 initConsoleMsg: '> Initializing Pyodide Engine...',
-                sampleCode: '# Real-time Python AST Syntax Checking & Prism Highlighting Enabled!\n# Try typing bad Python code below to see exact error lines (!)\n\nimport math\n\ndef calculate_circle(radius):\n    # Calculate area of a circle\n    area = math.pi * (radius ** 2)\n    return area\n\nprint("Hello PyAltide Studio!")\nr = 5\nprint(f"Area of circle with radius {r} = {calculate_circle(r):.2f}")',
+                sampleCode: '# Professional Python IDE with AST Syntax Checking & Multi-Match Highlighting!\nimport math\n\ndef calculate_circle(radius):\n    # Calculate area of a circle\n    area = math.pi * (radius ** 2)\n    return area\n\nprint("Hello PyAltide Studio!")\nmsg = "Hello"\nprint(msg)\nr = 5\nprint(f"Area of circle = {calculate_circle(r):.2f}")',
                 tourPrev: 'Back',
                 tourNext: 'Next',
                 tourSkip: 'Skip',
@@ -645,17 +753,18 @@
                     { target: 'tool-new', title: '2. New File', desc: 'Create a new Python file tab.' },
                     { target: 'tool-rename', title: '3. Rename File', desc: 'Rename current file.' },
                     { target: 'tool-delete', title: '4. Delete File', desc: 'Delete current Python tab.' },
-                    { target: 'tool-download', title: '5. Download File', desc: 'Download script as .py file.' },
-                    { target: 'tool-copy', title: '6. Copy Code', desc: 'Copy editor content.' },
-                    { target: 'tool-paste', title: '7. Paste Code', desc: 'Paste clipboard content.' },
-                    { target: 'tool-toggle-console', title: '8. Toggle Console', desc: 'Minimize or expand terminal.' },
-                    { target: 'tool-clear-console', title: '9. Clear Console', desc: 'Clear console logs.' },
-                    { target: 'file-tabs', title: '10. Multi-Tab Bar', desc: 'Switch open Python files.' },
-                    { target: 'editor-wrapper', title: '11. Code Editor & Live AST Error Check', desc: 'Syntax errors are detected instantly with Python AST.' },
-                    { target: 'drag-resizer', title: '12. Vertical Resize Handle', desc: 'Drag up/down to adjust editor height.' },
-                    { target: 'console-panel', title: '13. Terminal Console', desc: 'View program output and errors.' },
-                    { target: 'btn-lang-toggle', title: '14. Language Toggle', desc: 'Switch between VI and EN.' },
-                    { target: 'btn-theme-toggle', title: '15. Theme Selector', desc: 'Switch Dark/Light theme.' }
+                    { target: 'tool-clear-code', title: '5. Clear Editor', desc: 'Quickly clear all code in current tab.' },
+                    { target: 'tool-download', title: '6. Download File', desc: 'Download script as .py file.' },
+                    { target: 'tool-copy', title: '7. Copy Code', desc: 'Copy editor content.' },
+                    { target: 'tool-paste', title: '8. Paste Code', desc: 'Paste clipboard content.' },
+                    { target: 'tool-toggle-console', title: '9. Toggle Console', desc: 'Minimize or expand terminal.' },
+                    { target: 'tool-clear-console', title: '10. Clear Console', desc: 'Clear console logs.' },
+                    { target: 'file-tabs', title: '11. Multi-Tab Bar', desc: 'Switch open Python files.' },
+                    { target: 'editor-wrapper', title: '12. Code Editor & Live AST Error Check', desc: 'Syntax errors show red warning, auto indent active.' },
+                    { target: 'drag-resizer', title: '13. Vertical Resize Handle', desc: 'Drag up/down to adjust editor height.' },
+                    { target: 'console-panel', title: '14. Terminal Console', desc: 'View program output and errors.' },
+                    { target: 'btn-lang-toggle', title: '15. Language Toggle', desc: 'Switch between VI and EN.' },
+                    { target: 'btn-theme-toggle', title: '16. Theme Selector', desc: 'Switch Dark/Light theme.' }
                 ]
             },
             vi: {
@@ -669,6 +778,7 @@
                 newFile: { title: 'Tạo File Mới', desc: 'Tạo thêm một tab file Python mới.' },
                 renameFile: { title: 'Đổi Tên File', desc: 'Thay đổi tên cho file Python đang chọn.' },
                 deleteFile: { title: 'Xóa File', desc: 'Xóa file hiện tại khỏi danh sách.' },
+                clearCode: { title: 'Xóa Sạch Code', desc: 'Xóa toàn bộ mã trong khung soạn thảo hiện tại.' },
                 download: { title: 'Tải File Về', desc: 'Tải mã nguồn (.py) về thiết bị của bạn.' },
                 copy: { title: 'Sao Chép Code', desc: 'Chép toàn bộ nội dung code vào bộ nhớ tạm.' },
                 paste: { title: 'Dán Code', desc: 'Dán đoạn mã từ bộ nhớ tạm vào Editor.' },
@@ -684,9 +794,10 @@
                 promptNewFile: 'Nhập tên file mới (ví dụ: script.py):',
                 promptRename: 'Nhập tên file mới:',
                 confirmDelete: 'Xóa file ',
+                confirmClearCode: 'Bạn có chắc chắn muốn xóa sạch toàn bộ code trong file này?',
                 editorPlaceholder: '# Viết code Python tại đây...',
                 initConsoleMsg: '> Đang khởi tạo môi trường Pyodide...',
-                sampleCode: '# Tự động tô màu Syntax Highlighting & kiểm tra lỗi chuẩn Python AST!\n# Khi bạn viết sai cú pháp, dòng bị lỗi sẽ hiện biểu tượng chấm cảm đỏ (!).\n\nimport math\n\ndef tinh_dien_tich_tron(ban_kinh):\n    # Tính diện tích hình tròn\n    return math.pi * (ban_kinh ** 2)\n\nprint("Chào mừng bạn đến với PyAltide Studio!")\nr = 5\nprint(f"Diện tích hình tròn bán kính {r} là: {tinh_dien_tich_tron(r):.2f}")',
+                sampleCode: '# Tính năng tự động thụt lề (Auto-Indent) đã hoạt động khi xuống dòng!\nimport math\n\ndef tinh_dien_tich_tron(ban_kinh):\n    # Tính diện tích hình tròn\n    return math.pi * (ban_kinh ** 2)\n\nprint("Hello PyAltide Studio!")\nloi_chao = "Hello"\nprint(loi_chao)\nr = 5\nprint(f"Diện tích hình tròn bán kính {r} là: {tinh_dien_tich_tron(r):.2f}")',
                 tourPrev: 'Quay lại',
                 tourNext: 'Tiếp tục',
                 tourSkip: 'Bỏ qua',
@@ -696,22 +807,22 @@
                     { target: 'tool-new', title: '2. Tạo File Mới', desc: 'Mở thêm một tab file Python mới.' },
                     { target: 'tool-rename', title: '3. Đổi Tên File', desc: 'Thay đổi tên cho file Python hiện tại.' },
                     { target: 'tool-delete', title: '4. Xóa File', desc: 'Xóa file Python đang chọn.' },
-                    { target: 'tool-download', title: '5. Tải File Về', desc: 'Tải file .py về máy tính hoặc điện thoại.' },
-                    { target: 'tool-copy', title: '6. Copy Mã Nguồn', desc: 'Sao chép nhanh toàn bộ code.' },
-                    { target: 'tool-paste', title: '7. Dán Mã Nguồn', desc: 'Dán nhanh mã từ khay nhớ tạm.' },
-                    { target: 'tool-toggle-console', title: '8. Thu Gọn Console', desc: 'Đóng/mở khung màn hình kết quả chạy.' },
-                    { target: 'tool-clear-console', title: '9. Xóa Màn Hình Log', desc: 'Xóa sạch tất cả nội dung log cũ.' },
-                    { target: 'file-tabs', title: '10. Thanh Tab File', desc: 'Chuyển đổi qua lại giữa các file Python.' },
-                    { target: 'editor-wrapper', title: '11. Khung Code & Kiểm Tra Lỗi AST', desc: 'Phát hiện chính xác dòng lỗi cú pháp với Python AST chính thức.' },
-                    { target: 'drag-resizer', title: '12. Thanh Kéo Chiều Cao', desc: 'Ấn giữ và kéo thanh này lên/xuống để đổi kích thước.' },
-                    { target: 'console-panel', title: '13. Màn Hình Console Output', desc: 'Nơi hiển thị kết quả chạy code và lỗi runtime.' },
-                    { target: 'btn-lang-toggle', title: '14. Nút Đổi Ngôn Ngữ', desc: 'Chuyển đổi giao diện Tiếng Việt / Tiếng Anh.' },
-                    { target: 'btn-theme-toggle', title: '15. Nút Đổi Giao Diện', desc: 'Chuyển giữa Chế độ Tối và Sáng.' }
+                    { target: 'tool-clear-code', title: '5. Xóa Sạch Code', desc: 'Làm sạch trắng khung soạn thảo hiện tại.' },
+                    { target: 'tool-download', title: '6. Tải File Về', desc: 'Tải file .py về máy tính hoặc điện thoại.' },
+                    { target: 'tool-copy', title: '7. Copy Mã Nguồn', desc: 'Sao chép nhanh toàn bộ code.' },
+                    { target: 'tool-paste', title: '8. Dán Mã Nguồn', desc: 'Dán nhanh mã từ khay nhớ tạm.' },
+                    { target: 'tool-toggle-console', title: '9. Thu Gọn Console', desc: 'Đóng/mở khung màn hình kết quả chạy.' },
+                    { target: 'tool-clear-console', title: '10. Xóa Màn Hình Log', desc: 'Xóa sạch tất cả nội dung log cũ.' },
+                    { target: 'file-tabs', title: '11. Thanh Tab File', desc: 'Chuyển đổi qua lại giữa các file Python.' },
+                    { target: 'editor-wrapper', title: '12. Khung Code & Auto-Indent', desc: 'Tự động canh lề thụt dòng khi bấm Enter, lọc bỏ cảnh báo nhầm lẫn.' },
+                    { target: 'drag-resizer', title: '13. Thanh Kéo Chiều Cao', desc: 'Ấn giữ và kéo thanh này lên/xuống để đổi kích thước.' },
+                    { target: 'console-panel', title: '14. Màn Hình Console Output', desc: 'Nơi hiển thị kết quả chạy code và lỗi runtime.' },
+                    { target: 'btn-lang-toggle', title: '15. Nút Đổi Ngôn Ngữ', desc: 'Chuyển đổi giao diện Tiếng Việt / Tiếng Anh.' },
+                    { target: 'btn-theme-toggle', title: '16. Nút Đổi Giao Diện', desc: 'Chuyển giữa Chế độ Tối và Sáng.' }
                 ]
             }
         };
 
-        // INITIALIZE STORAGE SAFELY
         let filesData = {};
         try {
             const stored = localStorage.getItem('pyaltide_pro_files');
@@ -738,7 +849,6 @@
             }
         }
 
-        // SYNC SCROLL FOR EDITOR & LINE NUMBERS
         function syncScroll() {
             const textarea = document.getElementById('code-editor');
             const highlight = document.getElementById('code-highlight');
@@ -749,19 +859,79 @@
             gutter.scrollTop = textarea.scrollTop;
         }
 
-        // DIRECT PRISM SYNTAX HIGHLIGHTING ENGINE
-        function updateSyntaxHighlighting(code) {
+        function updateSyntaxHighlighting(code, highlightToken = '') {
             const highlightCode = document.getElementById('highlight-content');
+            let htmlContent = '';
+
             if (window.Prism && Prism.languages && Prism.languages.python) {
-                highlightCode.innerHTML = Prism.highlight(code, Prism.languages.python, 'python');
+                htmlContent = Prism.highlight(code, Prism.languages.python, 'python');
             } else {
-                highlightCode.textContent = code;
+                htmlContent = escapeHtml(code);
+            }
+
+            if (highlightToken && highlightToken.trim().length >= 2) {
+                const escapedToken = escapeRegExp(highlightToken.trim());
+                const regex = new RegExp(`(${escapedToken})`, 'g');
+                htmlContent = htmlContent.replace(regex, '<span class="match-highlight">$1</span>');
+            }
+
+            highlightCode.innerHTML = htmlContent;
+        }
+
+        function escapeRegExp(string) {
+            return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        }
+
+        function escapeHtml(text) {
+            return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        }
+
+        function onEditorSelectionChange() {
+            const textarea = document.getElementById('code-editor');
+            const start = textarea.selectionStart;
+            const end = textarea.selectionEnd;
+            if (start !== undefined && end !== undefined && end > start) {
+                selectedToken = textarea.value.substring(start, end);
+            } else {
+                selectedToken = '';
+            }
+            updateSyntaxHighlighting(textarea.value, selectedToken);
+        }
+
+        // TÍNH NĂNG AUTO-INDENT KHI BẤM ENTER
+        function onEditorKeyDown(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                const textarea = document.getElementById('code-editor');
+                const start = textarea.selectionStart;
+                const end = textarea.selectionEnd;
+                const value = textarea.value;
+
+                // Tìm dòng hiện tại trước con trỏ để lấy khoảng trắng thụt lề (indent)
+                const lineStart = value.lastIndexOf('\n', start - 1) + 1;
+                const currentLine = value.substring(lineStart, start);
+                
+                // Lấy các khoảng trắng (spaces/tabs) ở đầu dòng hiện tại
+                const indentMatch = currentLine.match(/^([ \t]*)/);
+                let indent = indentMatch ? indentMatch[1] : '';
+
+                // Nếu dòng hiện tại kết thúc bằng dấu hai chấm `:`, tự động thụt thêm 4 khoảng trắng
+                const trimmedCurrent = currentLine.trim();
+                if (trimmedCurrent.endsWith(':')) {
+                    indent += '    ';
+                }
+
+                // Chèn ký tự xuống dòng kèm khoảng trắng thụt lề
+                const insertion = '\n' + indent;
+                textarea.value = value.substring(0, start) + insertion + value.substring(end);
+                textarea.selectionStart = textarea.selectionEnd = start + insertion.length;
+                
+                onEditorInput();
             }
         }
 
-        // REAL-TIME SYNTAX CHECKER (AST PARSER + FAST JS HEURISTICS)
         function performRealtimeSyntaxCheck(code) {
-            lineStatuses = {}; // Reset error statuses
+            lineStatuses = {}; 
 
             if (!code || code.trim() === '') {
                 renderGutterStatus();
@@ -770,7 +940,6 @@
 
             let pyodideErrorCaught = false;
 
-            // 1. AST CHECKER VIA PYODIDE ENGINE (IF READY)
             if (pyodide) {
                 try {
                     pyodide.globals.set('_code_to_check', code);
@@ -782,7 +951,7 @@ def _check_syntax():
         return ""
     except SyntaxError as e:
         line = e.lineno if e.lineno is not None else 1
-        msg = e.msg if e.msg else "Lỗi cú pháp Python (SyntaxError)"
+        msg = e.msg if e.msg else "Lỗi cú pháp Python"
         return json.dumps({"line": line, "msg": msg})
     except Exception as e:
         return json.dumps({"line": 1, "msg": str(e)})
@@ -798,94 +967,65 @@ _check_syntax()
                 }
             }
 
-            // 2. FAST INSTANT JS HEURISTICS (EVERY KEYSTROKE REGARDLESS OF PYODIDE LOADING STATE)
-            if (!pyodideErrorCaught) {
-                const lines = code.split('\n');
-                let inTripleDouble = false;
-                let inTripleSingle = false;
-                let bracketStack = [];
+            const lines = code.split('\n');
+            // Mở rộng danh sách từ khóa, hàm built-in, method phổ biến để tránh báo lỗi vàng nhầm lẫn
+            let definedVariables = new Set([
+                'print', 'input', 'int', 'float', 'str', 'len', 'range', 'list', 'dict', 'set', 
+                'abs', 'round', 'sum', 'min', 'max', 'math', 'sys', 'os', 'open', 'type', 
+                'dir', 'help', 'chr', 'ord', 'hex', 'bin', 'oct', 'pow', 'all', 'any', 
+                'zip', 'map', 'filter', 'sorted', 'reversed', 'enumerate', 'bool', 'bytes', 'complex',
+                'pi', 'e', 'tau', 'inf', 'nan', 'True', 'False', 'None', 'self', 'cls', 'args', 'kwargs'
+            ]);
+            let assignedVariables = new Set();
 
-                for (let i = 0; i < lines.length; i++) {
-                    const lineNum = i + 1;
-                    const line = lines[i];
-                    const trimmed = line.trim();
+            for (let i = 0; i < lines.length; i++) {
+                const line = lines[i].trim();
+                if (!line || line.startsWith('#')) continue;
 
-                    if (!trimmed) continue;
+                // Match assignments like x = ... or x, y = ...
+                const assignMatch = line.match(/^([a-zA-Z_][a-zA-Z0-9_,\s]*)\s*=/);
+                if (assignMatch) {
+                    const vars = assignMatch[1].split(',');
+                    vars.forEach(v => assignedVariables.add(v.trim()));
+                }
 
-                    let inSingleLineStr = false;
-                    let activeQuoteChar = '';
+                // Match for loop targets
+                const forMatch = line.match(/^for\s+([a-zA-Z_][a-zA-Z0-9_,\s]*)\s+in\b/);
+                if (forMatch) {
+                    const vars = forMatch[1].split(',');
+                    vars.forEach(v => assignedVariables.add(v.trim()));
+                }
 
-                    for (let j = 0; j < line.length; j++) {
-                        const char = line[j];
-                        const next3 = line.substring(j, j + 3);
-
-                        // Multi-line quotes check
-                        if (next3 === '"""' && !inTripleSingle && !inSingleLineStr) {
-                            inTripleDouble = !inTripleDouble;
-                            j += 2;
-                            continue;
-                        }
-                        if (next3 === "'''" && !inTripleDouble && !inSingleLineStr) {
-                            inTripleSingle = !inTripleSingle;
-                            j += 2;
-                            continue;
-                        }
-
-                        if (inTripleDouble || inTripleSingle) continue;
-
-                        // Ignore comments
-                        if (char === '#' && !inSingleLineStr) {
-                            break;
-                        }
-
-                        // String quote match
-                        if ((char === '"' || char === "'") && (j === 0 || line[j - 1] !== '\\')) {
-                            if (!inSingleLineStr) {
-                                inSingleLineStr = true;
-                                activeQuoteChar = char;
-                            } else if (char === activeQuoteChar) {
-                                inSingleLineStr = false;
-                                activeQuoteChar = '';
-                            }
-                        }
-
-                        if (inSingleLineStr) continue;
-
-                        // Bracket tracking
-                        if (char === '(' || char === '[' || char === '{') {
-                            bracketStack.push({ char, line: lineNum });
-                        } else if (char === ')' || char === ']' || char === '}') {
-                            const expectedPair = char === ')' ? '(' : (char === ']' ? '[' : '{');
-                            if (bracketStack.length > 0 && bracketStack[bracketStack.length - 1].char === expectedPair) {
-                                bracketStack.pop();
-                            } else {
-                                setLineStatus(lineNum, 'error', currentLang === 'vi' ? `Thừa ngoặc đóng '${char}'` : `Unmatched closing bracket '${char}'`);
-                            }
-                        }
-                    }
-
-                    // Line ended while single line quote is open
-                    if (inSingleLineStr && !inTripleDouble && !inTripleSingle) {
-                        setLineStatus(lineNum, 'error', currentLang === 'vi' ? 'Thiếu hoặc chưa đóng dấu ngoặc báo chuỗi (" hoặc \')' : 'Unclosed string quotation (" or \')');
-                    }
-
-                    // Check missing colon on control flow headers
-                    if (!inTripleDouble && !inTripleSingle && !inSingleLineStr && bracketStack.length === 0) {
-                        if (trimmed.match(/^(def|if|elif|else|for|while|try|except|finally|class|with)\b/) && !trimmed.endsWith(':') && !trimmed.endsWith('\\')) {
-                            setLineStatus(lineNum, 'error', currentLang === 'vi' ? 'Thiếu dấu hai chấm ":" ở cuối câu lệnh' : 'Missing colon ":" at end of statement');
-                        }
+                const defMatch = line.match(/^def\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*\((.*?)\):/);
+                if (defMatch) {
+                    assignedVariables.add(defMatch[1]);
+                    if (defMatch[2]) {
+                        defMatch[2].split(',').forEach(p => assignedVariables.add(p.trim().split('=')[0].trim()));
                     }
                 }
 
-                // Check unclosed multi-line quotes
-                if (inTripleDouble || inTripleSingle) {
-                    setLineStatus(lines.length, 'error', currentLang === 'vi' ? 'Chưa đóng chuỗi nhiều dòng (""" hoặc \'\'\')' : 'Unclosed multi-line string (""" or \'\'\')');
+                const classMatch = line.match(/^class\s+([a-zA-Z_][a-zA-Z0-9_]*)/);
+                if (classMatch) {
+                    assignedVariables.add(classMatch[1]);
                 }
 
-                // Check unclosed brackets
-                if (bracketStack.length > 0) {
-                    const unclosed = bracketStack[bracketStack.length - 1];
-                    setLineStatus(unclosed.line, 'error', currentLang === 'vi' ? `Chưa đóng ngoặc '${unclosed.char}'` : `Unclosed bracket '${unclosed.char}'`);
+                const importMatch = line.match(/^(?:import|from)\s+([a-zA-Z_][a-zA-Z0-9_]*)/);
+                if (importMatch) {
+                    assignedVariables.add(importMatch[1]);
+                }
+            }
+
+            for (let i = 0; i < lines.length; i++) {
+                const lineNum = i + 1;
+                const line = lines[i];
+                const trimmed = line.trim();
+
+                if (!trimmed || trimmed.startsWith('#')) continue;
+
+                if (trimmed.match(/^(def|if|elif|else|for|while|try|except|finally|class|with)\b/) && !trimmed.endsWith(':') && !trimmed.endsWith('\\')) {
+                    if (!lineStatuses[lineNum]) {
+                        setLineStatus(lineNum, 'error', currentLang === 'vi' ? 'Thiếu dấu hai chấm ":" ở cuối câu lệnh' : 'Missing colon ":"');
+                    }
                 }
             }
 
@@ -896,12 +1036,14 @@ _check_syntax()
             lineStatuses[lineNum] = { type, msg };
         }
 
-        // RENDER GUTTER LINE NUMBERS WITH ERROR ICONS
         function renderGutterStatus() {
             const code = document.getElementById('code-editor').value;
             const lines = code.split('\n');
             const gutter = document.getElementById('editor-gutter');
             gutter.innerHTML = '';
+
+            let errorCount = 0;
+            let warningCount = 0;
 
             for (let i = 0; i < lines.length; i++) {
                 const lineNum = i + 1;
@@ -910,11 +1052,19 @@ _check_syntax()
 
                 const status = lineStatuses[lineNum];
 
-                if (status && status.type === 'error') {
-                    lineEl.classList.add('line-has-error');
+                if (status) {
                     const icon = document.createElement('i');
-                    icon.className = 'bi bi-exclamation-triangle-fill line-status-icon line-error-icon';
-                    icon.title = `Dòng ${lineNum}: ${status.msg}`;
+                    if (status.type === 'error') {
+                        lineEl.classList.add('line-has-error');
+                        icon.className = 'bi bi-exclamation-triangle-fill line-status-icon line-error-icon';
+                        icon.title = `⚠️ Lỗi cú pháp (Dòng ${lineNum}): ${status.msg}`;
+                        errorCount++;
+                    } else if (status.type === 'warning') {
+                        lineEl.classList.add('line-has-warning');
+                        icon.className = 'bi bi-exclamation-circle-fill line-status-icon line-warning-icon';
+                        icon.title = `🟡 Cảnh báo biến (Dòng ${lineNum}): ${status.msg}`;
+                        warningCount++;
+                    }
                     lineEl.appendChild(icon);
                 }
 
@@ -922,20 +1072,23 @@ _check_syntax()
                 lineEl.appendChild(numText);
                 gutter.appendChild(lineEl);
             }
+
+            const badgeContainer = document.getElementById('error-badge-container');
+            const totalIssues = errorCount + warningCount;
+            if (totalIssues > 0) {
+                badgeContainer.innerHTML = `<span class="error-counter-badge" title="${errorCount} lỗi, ${warningCount} cảnh báo">${totalIssues} ⚠️/🟡</span>`;
+            } else {
+                badgeContainer.innerHTML = '';
+            }
         }
 
-        // EDITOR INPUT EVENT HANDLER (RUNS ON EVERY SINGLE KEYSTROKE)
         function onEditorInput() {
             const code = document.getElementById('code-editor').value;
-            
-            // 1. Save state to Local Storage immediately
             filesData[currentFileName] = code;
             saveStorage();
             
-            // 2. Update Syntax Highlighting Colors
-            updateSyntaxHighlighting(code);
+            updateSyntaxHighlighting(code, selectedToken);
 
-            // 3. Perform Live Real-time Syntax Checking
             if (autoCheckDebounce) clearTimeout(autoCheckDebounce);
             autoCheckDebounce = setTimeout(() => {
                 performRealtimeSyntaxCheck(code);
@@ -944,7 +1097,55 @@ _check_syntax()
             syncScroll();
         }
 
-        // LANGUAGE TOGGLE
+        const virtualNavBar = document.getElementById('virtual-nav-bar');
+        let initialWindowHeight = window.innerHeight;
+
+        window.addEventListener('resize', () => {
+            if (window.innerHeight < initialWindowHeight - 150) {
+                virtualNavBar.classList.add('active');
+            } else {
+                virtualNavBar.classList.remove('active');
+            }
+        });
+
+        function moveCursorLine(direction) {
+            const textarea = document.getElementById('code-editor');
+            const lines = textarea.value.split('\n');
+            let pos = textarea.selectionStart;
+            
+            let currentLineIdx = 0;
+            let charCount = 0;
+            for (let i = 0; i < lines.length; i++) {
+                charCount += lines[i].length + 1;
+                if (pos <= charCount) {
+                    currentLineIdx = i;
+                    break;
+                }
+            }
+
+            let targetLineIdx = currentLineIdx + direction;
+            if (targetLineIdx >= 0 && targetLineIdx < lines.length) {
+                let newPos = 0;
+                for (let i = 0; i < targetLineIdx; i++) {
+                    newPos += lines[i].length + 1;
+                }
+                textarea.focus();
+                textarea.setSelectionRange(newPos, newPos);
+            }
+        }
+
+        function insertTabIndent() {
+            const textarea = document.getElementById('code-editor');
+            const start = textarea.selectionStart;
+            const end = textarea.selectionEnd;
+            const val = textarea.value;
+            
+            textarea.value = val.substring(0, start) + "    " + val.substring(end);
+            textarea.selectionStart = textarea.selectionEnd = start + 4;
+            onEditorInput();
+            textarea.focus();
+        }
+
         function toggleLanguage() {
             currentLang = currentLang === 'en' ? 'vi' : 'en';
             localStorage.setItem('pyaltide_lang', currentLang);
@@ -959,12 +1160,12 @@ _check_syntax()
             document.getElementById('lbl-console-header').innerText = t.consoleHeader;
             document.getElementById('code-editor').placeholder = t.editorPlaceholder;
             
-            // Tooltips
             setToolData('btn-guide-toggle', t.guideBtn);
             setToolData('tool-run', t.run);
             setToolData('tool-new', t.newFile);
             setToolData('tool-rename', t.renameFile);
             setToolData('tool-delete', t.deleteFile);
+            setToolData('tool-clear-code', t.clearCode);
             setToolData('tool-download', t.download);
             setToolData('tool-copy', t.copy);
             setToolData('tool-paste', t.paste);
@@ -990,7 +1191,6 @@ _check_syntax()
             }
         }
 
-        // THEME TOGGLE
         function toggleTheme() {
             const htmlTag = document.documentElement;
             const prismTheme = document.getElementById('prism-theme');
@@ -1019,12 +1219,22 @@ _check_syntax()
                 await pyodide.loadPackage("micropip");
                 micropip = pyodide.pyimport("micropip");
                 
+                pyodide.globals.set("js_input", (promptText) => {
+                    const res = window.prompt(promptText || "");
+                    return res !== null ? res : "";
+                });
+                pyodide.runPython(`
+import builtins
+def _custom_input(prompt=""):
+    return js_input(str(prompt))
+builtins.input = _custom_input
+`);
+
                 const status = document.getElementById('py-status');
                 status.className = 'badge bg-success ms-2';
                 status.innerText = i18n[currentLang].ready;
                 document.getElementById('console-output').innerText = i18n[currentLang].initSuccess;
 
-                // Re-run AST check once pyodide is initialized
                 performRealtimeSyntaxCheck(document.getElementById('code-editor').value);
             } catch (err) {
                 document.getElementById('py-status').innerText = i18n[currentLang].error;
@@ -1045,7 +1255,6 @@ _check_syntax()
         }
 
         function switchFile(name) {
-            // Save active code before switching
             filesData[currentFileName] = document.getElementById('code-editor').value;
             currentFileName = name;
             saveStorage();
@@ -1089,6 +1298,13 @@ _check_syntax()
             }
         }
 
+        function clearEditorCode() {
+            if (confirm(i18n[currentLang].confirmClearCode)) {
+                document.getElementById('code-editor').value = '';
+                onEditorInput();
+            }
+        }
+
         function downloadFile() {
             const blob = new Blob([filesData[currentFileName]], { type: 'text/plain' });
             const a = document.createElement('a');
@@ -1110,7 +1326,6 @@ _check_syntax()
             } catch (err) { alert(i18n[currentLang].pastePermission); }
         }
 
-        // CONSOLE CONTROLS
         function toggleConsole() {
             const panel = document.getElementById('console-panel');
             const icon = document.getElementById('console-toggle-icon');
@@ -1207,7 +1422,6 @@ _check_syntax()
             let code = filesData[currentFileName];
             consoleBox.innerText += `\n\n--- Thực thi ${currentFileName} ---`;
 
-            // Auto install # pip install <package>
             const pipMatches = code.match(/#\s*pip\s+install\s+([a-zA-Z0-9_\-]+)/g);
             if (pipMatches) {
                 for (let match of pipMatches) {
@@ -1222,7 +1436,6 @@ _check_syntax()
                 }
             }
 
-            // Auto fetch external code # fetch <url>
             const fetchMatches = code.match(/#\s*fetch\s+(https?:\/\/[^\s]+)/g);
             if (fetchMatches) {
                 for (let match of fetchMatches) {
@@ -1243,7 +1456,6 @@ _check_syntax()
                 }
             }
 
-            // Execute Python Code
             try {
                 pyodide.setStdout({
                     batched: (str) => {
@@ -1362,7 +1574,6 @@ _check_syntax()
         applyLanguage();
         renderTabs();
         
-        // Load stored code & initiate real-time syntax checking immediately
         document.getElementById('code-editor').value = filesData[currentFileName] || '';
         onEditorInput();
         initPyodideEngine();

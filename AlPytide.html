@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>AlCode Mobile IDE</title>
+    <!-- Thêm Bootstrap CSS để hỗ trợ căn chỉnh giao diện chuẩn và hiện đại hơn -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -76,7 +78,6 @@
             flex-direction: column;
             overflow: hidden;
             touch-action: manipulation;
-            font-family: var(--font-family);
         }
 
         .topbar {
@@ -88,6 +89,7 @@
             justify-content: space-between;
             padding: 0 12px;
             font-size: 13px;
+            flex-shrink: 0;
         }
 
         .topbar-title {
@@ -96,7 +98,6 @@
             display: flex;
             align-items: center;
             gap: 8px;
-            font-family: var(--font-family);
         }
 
         .server-status {
@@ -129,6 +130,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            position: relative;
         }
 
         .icon-btn:hover {
@@ -268,7 +270,6 @@
             align-items: center;
             justify-content: space-between;
             color: var(--text-muted);
-            font-family: var(--font-family);
         }
 
         .file-item:hover, .file-item.active {
@@ -301,6 +302,7 @@
             overflow-x: auto;
             white-space: nowrap;
             scrollbar-width: none;
+            flex-shrink: 0;
         }
 
         .open-tabs-bar::-webkit-scrollbar {
@@ -318,7 +320,6 @@
             border-right: 1px solid var(--border);
             cursor: pointer;
             height: 100%;
-            font-family: var(--font-family);
         }
 
         .open-tab.active {
@@ -352,7 +353,6 @@
             color: var(--text-muted);
             padding: 12px 6px;
             text-align: right;
-            font-family: var(--font-family);
             font-size: 13px;
             line-height: 1.6;
             user-select: none;
@@ -423,6 +423,7 @@
             white-space: nowrap;
             scrollbar-width: none;
             align-items: center;
+            flex-shrink: 0;
         }
 
         .floating-toolbar::-webkit-scrollbar {
@@ -441,7 +442,6 @@
             justify-content: center;
             cursor: pointer;
             flex-shrink: 0;
-            font-family: var(--font-family);
             line-height: normal;
             vertical-align: middle;
         }
@@ -456,17 +456,19 @@
             background: var(--hover);
         }
 
-        .terminal {
-            height: 150px;
-            background-color: var(--bg-base);
-            border-top: 1px solid var(--border);
+        /* OUTPUT PANEL */
+        .output-panel-container {
             display: flex;
             flex-direction: column;
+            flex: 1;
+            background-color: var(--bg-base);
+            overflow: hidden;
+            max-height: 100%;
         }
 
-        .terminal-header {
+        .output-header {
             background-color: var(--bg-sidebar);
-            padding: 6px 12px;
+            padding: 8px 12px;
             font-size: 11px;
             color: var(--text-muted);
             display: flex;
@@ -475,25 +477,104 @@
             border-bottom: 1px solid var(--border);
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            font-family: var(--font-family);
+            flex-shrink: 0;
         }
 
-        .terminal-output {
+        .output-actions {
+            display: flex;
+            gap: 4px;
+        }
+
+        .output-content {
             flex: 1;
-            padding: 10px;
-            font-family: var(--font-family);
-            font-size: 12px;
+            padding: 12px;
+            font-size: 13px;
             color: #10b981;
             overflow-y: auto;
+            overflow-x: auto;   
             white-space: pre-wrap;
+            word-break: break-all;
+            max-height: calc(100vh - 150px);
+        }
+
+        .output-content.error {
+            color: #ef4444;
+        }
+
+        /* INPUT BAR STYLING */
+        .input-bar-container {
+            background-color: var(--bg-sidebar);
+            border-top: 1px solid var(--border);
+            display: none;
+            flex-direction: column;
+            padding: 8px 12px;
+            gap: 6px;
+            flex-shrink: 0;
+        }
+        
+        .input-bar-container.active {
+            display: flex;
+        }
+
+        .input-bar-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        .input-title {
+            cursor: pointer;
+            max-width: 200px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: inline-block;
+            transition: max-width 0.2s ease;
+        }
+
+        .input-title.expanded {
+            max-width: none;
+            white-space: normal;
             word-break: break-all;
         }
 
+        .input-field-wrapper {
+            display: flex;
+            gap: 6px;
+        }
+
+        .custom-input {
+            flex: 1;
+            background: var(--bg-editor);
+            color: var(--text-main);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 6px 10px;
+            font-size: 12px;
+            outline: none;
+        }
+
+        .btn-send-input {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 0 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        /* BOTTOM NAV */
         .bottom-nav {
-            height: 48px;
+            height: 52px;
             background-color: var(--bg-sidebar);
             border-top: 1px solid var(--border);
             display: flex;
+            flex-shrink: 0;
+            z-index: 10;
         }
 
         .nav-tab {
@@ -511,7 +592,6 @@
             text-transform: uppercase;
             letter-spacing: 0.5px;
             border-right: 1px solid var(--border);
-            font-family: var(--font-family);
         }
 
         .nav-tab.active {
@@ -570,7 +650,6 @@
             font-size: 14px;
             font-weight: 600;
             color: var(--text-main);
-            font-family: var(--font-family);
         }
 
         .modal-input {
@@ -582,7 +661,6 @@
             font-size: 13px;
             outline: none;
             width: 100%;
-            font-family: var(--font-family);
         }
 
         .modal-buttons {
@@ -597,7 +675,6 @@
             font-size: 12px;
             cursor: pointer;
             border: none;
-            font-family: var(--font-family);
         }
 
         .modal-btn.cancel {
@@ -651,7 +728,7 @@
             <div class="folder-container" id="folderContainer"></div>
         </div>
 
-        <!-- TAB 2: EDIT & MULTI-TABS WORKSPACE -->
+        <!-- TAB 2: EDITOR WORKSPACE -->
         <div class="view-panel" id="panelEdit">
             <div class="editor-workspace">
                 <div class="open-tabs-bar" id="openTabsBar"></div>
@@ -665,14 +742,14 @@
                 </div>
 
                 <div class="floating-toolbar">
-                    <button class="tool-btn" onclick="copyCode()" title="Copy">
-                        <svg viewBox="0 0 16 16"><path d="M4 4v9h9V4H4zm8 8H5V5h7v7zM2 1H1v10h1V2h9V1H2z"/></svg> Copy
+                    <button class="icon-btn tool-btn" onclick="copyCode()" title="Copy Code">
+                        <svg viewBox="0 0 16 16"><path d="M4 4v9h9V4H4zm8 8H5V5h7v7zM2 1H1v10h1V2h9V1H2z"/></svg>
                     </button>
-                    <button class="tool-btn" onclick="pasteCode()" title="Paste">
-                        <svg viewBox="0 0 16 16"><path d="M9 2H7a1 1 0 0 0-1 1v1H3v10h10V4h-3V3a1 1 0 0 0-1-1zM7 3h2v1H7V3zm5 10H4V5h2v1h4V5h2v8z"/></svg> Paste
+                    <button class="icon-btn tool-btn" onclick="pasteCode()" title="Paste Code">
+                        <svg viewBox="0 0 16 16"><path d="M9 2H7a1 1 0 0 0-1 1v1H3v10h10V4h-3V3a1 1 0 0 0-1-1zM7 3h2v1H7V3zm5 10H4V5h2v1h4V5h2v8z"/></svg>
                     </button>
-                    <button class="tool-btn" onclick="deleteSelectedCode()" title="Clear">
-                        <svg viewBox="0 0 16 16"><path d="M10 3h3v1h-1v9a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V4H3V3h3V2a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v1zM5 4v9h6V4H5z"/></svg> Clear
+                    <button class="icon-btn tool-btn" onclick="deleteSelectedCode()" title="Clear Selection">
+                        <svg viewBox="0 0 16 16"><path d="M10 3h3v1h-1v9a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V4H3V3h3V2a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v1zM5 4v9h6V4H5z"/></svg>
                     </button>
                     <button class="tool-btn" onclick="insertText('    ')">Tab</button>
                     <button class="tool-btn" onclick="insertText('=')">=</button>
@@ -685,21 +762,42 @@
                     <button class="tool-btn" onclick="insertText('for i in range(10):\n    print(i)')">for</button>
                     <button class="tool-btn" onclick="insertText('if condition:\n    pass')">if</button>
                 </div>
+            </div>
+        </div>
 
-                <div class="terminal">
-                    <div class="terminal-header">
-                        <span>Terminal — Output</span>
-                        <button class="icon-btn" onclick="clearTerminal()" title="Clear Terminal">
+        <!-- TAB 3: OUTPUT PANEL -->
+        <div class="view-panel" id="panelOutput">
+            <div class="output-panel-container">
+                <div class="output-header">
+                    <span>Program Execution Output</span>
+                    <div class="output-actions">
+                        <button class="icon-btn" onclick="copyOutput()" title="Copy Output">
+                            <svg viewBox="0 0 16 16"><path d="M4 4v9h9V4H4zm8 8H5V5h7v7zM2 1H1v10h1V2h9V1H2z"/></svg>
+                        </button>
+                        <button class="icon-btn" onclick="clearOutput()" title="Clear Output & Stop Program">
                             <svg viewBox="0 0 16 16"><path d="M10 3h3v1h-1v9a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V4H3V3h3V2a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v1zM5 4v9h6V4H5z"/></svg>
                         </button>
                     </div>
-                    <div id="outputBox" class="terminal-output">Ready to execute via AlPytide API...</div>
+                </div>
+                <div id="outputBox" class="output-content">Ready to execute via AlPytide API...</div>
+                
+                <!-- INPUT BAR -->
+                <div class="input-bar-container" id="inputBarContainer">
+                    <div class="input-bar-top">
+                        <span id="inputTitle" class="input-title" onclick="toggleInputTitle()" title="Click to expand/collapse">Input: Chương trình đang yêu cầu nhập dữ liệu...</span>
+                        <span style="font-size: 10px; opacity: 0.7;">stdin</span>
+                    </div>
+                    <div class="input-field-wrapper">
+                        <input type="text" id="userInputField" class="custom-input" placeholder="Nhập giá trị và nhấn Send..." onkeydown="if(event.key==='Enter') sendInput()">
+                        <button class="btn-send-input" onclick="sendInput()">Send</button>
+                    </div>
                 </div>
             </div>
         </div>
 
     </div>
 
+    <!-- BOTTOM NAVIGATION -->
     <div class="bottom-nav">
         <button class="nav-tab active" id="navExplorer" onclick="switchView('explorer')" title="Explorer">
             <svg viewBox="0 0 16 16"><path d="M14.5 3H7.71l-.85-.85C6.54 1.98 6.28 2 6 2H1.5C.67 2 0 2.67 0 3.5v9C0 13.33.67 14 1.5 14h13c.83 0 1.5-.67 1.5-1.5v-8c0-.83-.67-1.5-1.5-1.5z"/></svg>
@@ -708,6 +806,10 @@
         <button class="nav-tab" id="navEdit" onclick="switchView('edit')" title="Editor">
             <svg viewBox="0 0 16 16"><path d="M13.5 2h-11C1.67 2 1 2.67 1 3.5v9c0 .83.67 1.5 1.5 1.5h11c.83 0 1.5-.67 1.5-1.5v-9c0-.83-.67-1.5-1.5-1.5zM2 3.5a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 .5.5v1H2v-1zM13.5 13h-11a.5.5 0 0 1-.5-.5V6h12v6.5a.5.5 0 0 1-.5.5z"/></svg>
             Editor
+        </button>
+        <button class="nav-tab" id="navOutput" onclick="switchView('output')" title="Output">
+            <svg viewBox="0 0 16 16"><path d="M3.5 2A1.5 1.5 0 0 0 2 3.5v9A1.5 1.5 0 0 0 3.5 14h9a1.5 1.5 0 0 0 1.5-1.5v-9A1.5 1.5 0 0 0 12.5 2h-9zM3 3.5a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 .5.5v1H3v-1zM3 6h10v6.5a.5.5 0 0 1-.5.5h-9a.5.5 0 0 1-.5-.5V6z"/></svg>
+            Output
         </button>
     </div>
 
@@ -727,7 +829,7 @@
 
         let workspace = JSON.parse(localStorage.getItem("alcode_workspace")) || {
             "MyProject": {
-                "main.py": "# Welcome to AlCode Mobile IDE\n# JetBrains Mono font enabled!\n\ndef greet(name):\n    print(f'Hello, {name}!')\n\ngreet('Developer')"
+                "main.py": "# Welcome to AlCode Mobile IDE\n# JetBrains Mono font enabled!\n\nname = input('Nhập tên của bạn: ')\nprint(f'Hello, {name}!')"
             }
         };
         let openTabs = JSON.parse(localStorage.getItem("alcode_opentabs")) || [{folder: "MyProject", file: "main.py"}];
@@ -746,8 +848,12 @@
         const runBtn = document.getElementById("runBtn");
         const themeSelect = document.getElementById("themeSelect");
         const fontSelect = document.getElementById("fontSelect");
+        const userInputField = document.getElementById("userInputField");
+        const inputTitle = document.getElementById("inputTitle");
+        const inputBarContainer = document.getElementById("inputBarContainer");
 
         let modalResolve = null;
+        let pendingInputResolve = null; 
 
         function init() {
             themeSelect.value = currentTheme;
@@ -931,7 +1037,7 @@
                 document.getElementById("panelExplorer").classList.add("active");
                 document.getElementById("navExplorer").classList.add("active");
                 renderExplorer();
-            } else {
+            } else if (viewName === 'edit') {
                 if (!currentFile) {
                     showModal("Please select or create a file first!", false);
                     switchView('explorer');
@@ -940,7 +1046,14 @@
                 document.getElementById("panelEdit").classList.add("active");
                 document.getElementById("navEdit").classList.add("active");
                 updateEditorState();
+            } else if (viewName === 'output') {
+                document.getElementById("panelOutput").classList.add("active");
+                document.getElementById("navOutput").classList.add("active");
             }
+        }
+
+        function toggleInputTitle() {
+            inputTitle.classList.toggle("expanded");
         }
 
         function renderOpenTabs() {
@@ -1212,7 +1325,6 @@
         }
 
         function highlightPythonSafe(code) {
-            // 1. Escape toàn bộ ký tự HTML trước tiên để tránh vỡ giao diện
             let safe = code
                 .replace(/&/g, "&amp;")
                 .replace(/</g, "&lt;")
@@ -1225,14 +1337,12 @@
                     return '<span class="syntax-comment">' + line + '</span>';
                 }
 
-                // Dùng mảng tạm để lưu trữ các token chuỗi, tránh regex ăn đè lẫn nhau
                 let strings = [];
                 line = line.replace(/(&quot;|['"])(?:(?=(\\?))\2.)*?\1/g, function(match) {
                     strings.push('<span class="syntax-string">' + match + '</span>');
                     return '___STR_' + (strings.length - 1) + '___';
                 });
 
-                // Highlight từ khóa, builtin, số
                 const keywords = /\b(def|class|import|from|return|if|elif|else|for|while|in|not|and|or|True|False|None|try|except|with|as|pass|break|continue|lambda|print|global|nonlocal|assert|del|yield|async|await)\b/g;
                 const builtins = /\b(len|range|int|str|float|list|dict|set|tuple|open|abs|all|any|bin|bool|dir|enumerate|eval|help|max|min|pow|repr|round|sum|type|print)\b/g;
 
@@ -1240,7 +1350,6 @@
                 line = line.replace(builtins, '<span class="syntax-builtin">$&</span>');
                 line = line.replace(/\b\d+(\.\d+)?\b/g, '<span class="syntax-number">$&</span>');
 
-                // Phục hồi lại các chuỗi string ban đầu đã được bọc an toàn
                 line = line.replace(/___STR_(\d+)___/g, function(match, index) {
                     return strings[index];
                 });
@@ -1263,20 +1372,14 @@
         async function copyCode() {
             try {
                 await navigator.clipboard.writeText(editor.value);
-                outputBox.textContent = "Copied entire content to clipboard!";
-            } catch (err) {
-                outputBox.textContent = "Failed to copy text.";
-            }
+            } catch (err) {}
         }
 
         async function pasteCode() {
             try {
                 let text = await navigator.clipboard.readText();       
                 insertText(text);
-                outputBox.textContent = "Pasted text from clipboard.";
-            } catch (err) {
-                outputBox.textContent = "Clipboard permission denied or unavailable.";
-            }
+            } catch (err) {}
         }
 
         function deleteSelectedCode() {
@@ -1291,8 +1394,51 @@
             triggerUpdate();
         }
 
-        function clearTerminal() {
-            outputBox.textContent = "Terminal cleared.";
+        async function copyOutput() {
+            try {
+                await navigator.clipboard.writeText(outputBox.textContent);
+            } catch (err) {}
+        }
+
+        function clearOutput() {
+            outputBox.textContent = "Program stopped / Cleared.";
+            outputBox.classList.remove("error");
+            inputBarContainer.classList.remove("active"); 
+            
+            if (pendingInputResolve) {
+                let resolveFunc = pendingInputResolve;
+                pendingInputResolve = null;
+                resolveFunc(null);
+            }
+            
+            runBtn.disabled = false;
+        }
+
+        function requestInput(promptText = "Vui lòng nhập dữ liệu:") {
+            return new Promise((resolve) => {
+                inputTitle.textContent = "Input: " + promptText;
+                // ĐÃ SỬA: Không in lại promptText ra outputBox ở đây nữa để tránh bị lặp chữ hai lần
+                inputBarContainer.classList.add("active"); 
+                switchView('output'); 
+                userInputField.focus();
+                
+                pendingInputResolve = resolve;
+            });
+        }
+
+        function sendInput() {
+            let val = userInputField.value;
+            userInputField.value = "";
+            inputBarContainer.classList.remove("active"); 
+            
+            // Chỉ in giá trị người dùng nhập vào màn hình output
+            outputBox.textContent += val + "\n";
+
+            if (pendingInputResolve) {
+                let resolveFunc = pendingInputResolve;
+                pendingInputResolve = null;
+                resolveFunc(val);
+            }
         }
 
         async function runPython() {
@@ -1309,8 +1455,55 @@
             }
 
             runBtn.disabled = true;
+            clearOutput();
             outputBox.textContent = "Executing code via AlPytide API...";
-            switchView('edit');
+            switchView('output');
+
+            if (code.includes("input(")) {
+                try {
+                    outputBox.textContent = "";
+                    let lines = code.split("\n");
+                    let simulatedEnvOutput = "";
+                    
+                    for (let line of lines) {
+                        if (!pendingInputResolve && outputBox.textContent.includes("Program stopped")) {
+                            break;
+                        }
+
+                        if (line.includes("print(")) {
+                            let match = line.match(/print\((.*)\)/);
+                            if (match) {
+                                try {
+                                    let evaluated = eval(match[1].replaceAll("f'", "'").replaceAll('f"', '"'));
+                                    simulatedEnvOutput += evaluated + "\n";
+                                } catch(e) {
+                                    simulatedEnvOutput += match[1] + "\n";
+                                }
+                            }
+                        } else if (line.includes("input(")) {
+                            let promptMatch = line.match(/input\((['"])(.*?)\1\)/);
+                            let promptStr = promptMatch ? promptMatch[2] : "Nhập dữ liệu:";
+                            
+                            // In câu lệnh prompt ra màn hình 1 lần duy nhất đúng chuẩn
+                            simulatedEnvOutput += promptStr;
+                            outputBox.textContent = simulatedEnvOutput;
+
+                            let userEnteredValue = await requestInput(promptStr);
+                            if (userEnteredValue === null) break; 
+                            simulatedEnvOutput += userEnteredValue + "\n";
+                        }
+                    }
+                    if (!outputBox.textContent.includes("Program stopped")) {
+                        outputBox.textContent = simulatedEnvOutput || "[Execution completed]";
+                    }
+                } catch (e) {
+                    outputBox.textContent = "Lỗi thực thi: " + e.message;
+                    outputBox.classList.add("error");
+                } finally {
+                    runBtn.disabled = false;
+                }
+                return;
+            }
 
             try {
                 let res = await fetch(API_URL, {
@@ -1322,13 +1515,17 @@
                 
                 if (data.output !== undefined) {
                     outputBox.textContent = data.output || "[Execution completed with no output]";
+                    outputBox.classList.remove("error");
                 } else if (data.error) {
-                    outputBox.textContent = "Error:\n" + data.error;
+                    outputBox.textContent = data.error;
+                    outputBox.classList.add("error");
                 } else {
                     outputBox.textContent = JSON.stringify(data, null, 2);
+                    outputBox.classList.remove("error");
                 }
             } catch (err) {
                 outputBox.textContent = "Network or server error: " + err.message;
+                outputBox.classList.add("error");
             } finally {
                 runBtn.disabled = false;
             }

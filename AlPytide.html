@@ -73,7 +73,7 @@
         body {
             background-color: var(--bg-base);
             color: var(--text-main);
-            height: 100vh;
+            height: 100dvh;
             display: flex;
             flex-direction: column;
             overflow: hidden;
@@ -225,6 +225,7 @@
             flex: 1;
             overflow-y: auto;
             padding: 5px 0;
+            padding-bottom: env(safe-area-inset-bottom);
         }
 
         .folder-item {
@@ -494,7 +495,7 @@
             overflow-x: auto;   
             white-space: pre-wrap;
             word-break: break-all;
-            max-height: calc(100vh - 150px);
+            max-height: calc(100dvh - 150px);
         }
 
         .output-content.error {
@@ -569,7 +570,6 @@
 
         /* BOTTOM NAV - ĐÃ FIX VƯỚNG THANH ĐIỀU HƯỚNG IPHONE */
         .bottom-nav {
-            min-height: 52px;
             height: calc(52px + env(safe-area-inset-bottom));
             background-color: var(--bg-sidebar);
             border-top: 1px solid var(--border);

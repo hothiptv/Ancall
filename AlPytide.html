@@ -568,7 +568,7 @@
             font-weight: 600;
         }
 
-        /* BOTTOM NAV - ĐÃ FIX VƯỚNG THANH ĐIỀU HƯỚNG IPHONE */
+        /* BOTTOM NAV */
         .bottom-nav {
             height: calc(52px + env(safe-area-inset-bottom));
             background-color: var(--bg-sidebar);
@@ -979,7 +979,7 @@
             let inp = document.getElementById("modalInputVal");
             if (inp) val = inp.value;
             if (modalResolve) {
-                modalResolve(isConfirm ? (inp ? val : true) : null);
+                modalResolve(isConfirm ? (inp !== null ? val : true) : null);
                 modalResolve = null;
             }
         }
@@ -1441,6 +1441,7 @@
             }
         }
 
+        // HÀM RUNPYTHON NÂNG CẤP CHUẨN TERMINAL
         async function runPython() {
             if (!currentFile || !currentFile.endsWith(".py")) {
                 showModal("Please select a Python (.py) file to run!", false);
@@ -1456,59 +1457,34 @@
 
             runBtn.disabled = true;
             clearOutput();
-            outputBox.textContent = "Executing code via AlPytide API...";
             switchView('output');
 
-            if (code.includes("input(")) {
-                try {
-                    outputBox.textContent = "";
-                    let lines = code.split("\n");
-                    let simulatedEnvOutput = "";
-                    
-                    for (let line of lines) {
-                        if (!pendingInputResolve && outputBox.textContent.includes("Program stopped")) {
-                            break;
-                        }
+            // 1. Quét tìm tất cả các câu lệnh input() trong mã nguồn
+            let inputRegex = /input\s*\((.*?)\)/g;
+            let match;
+            let userInputs = [];
 
-                        if (line.includes("print(")) {
-                            let match = line.match(/print\((.*)\)/);
-                            if (match) {
-                                try {
-                                    let evaluated = eval(match[1].replaceAll("f'", "'").replaceAll('f"', '"'));
-                                    simulatedEnvOutput += evaluated + "\n";
-                                } catch(e) {
-                                    simulatedEnvOutput += match[1] + "\n";
-                                }
-                            }
-                        } else if (line.includes("input(")) {
-                            let promptMatch = line.match(/input\((['"])(.*?)\1\)/);
-                            let promptStr = promptMatch ? promptMatch[2] : "Nhập dữ liệu:";
-                            
-                            simulatedEnvOutput += promptStr;
-                            outputBox.textContent = simulatedEnvOutput;
-
-                            let userEnteredValue = await requestInput(promptStr);
-                            if (userEnteredValue === null) break; 
-                            simulatedEnvOutput += userEnteredValue + "\n";
-                        }
-                    }
-                    if (!outputBox.textContent.includes("Program stopped")) {
-                        outputBox.textContent = simulatedEnvOutput || "[Execution completed]";
-                    }
-                } catch (e) {
-                    outputBox.textContent = "Lỗi thực thi: " + e.message;
-                    outputBox.classList.add("error");
-                } finally {
+            while ((match = inputRegex.exec(code)) !== null) {
+                let rawPrompt = match[1].trim();
+                let promptText = rawPrompt.replace(/^['"]|['"]$/g, "").trim();
+                
+                let val = await showModal(promptText || `Nhập dữ liệu #${userInputs.length + 1}:`, true, "");
+                if (val === null) {
+                    outputBox.textContent = "Chương trình bị hủy.";
                     runBtn.disabled = false;
+                    return;
                 }
-                return;
+                userInputs.push(val);
             }
 
+            outputBox.textContent = "Executing code via AlPytide API...";
+
+            // 2. Gửi mã nguồn + mảng inputs lên Server Backend thực thi
             try {
                 let res = await fetch(API_URL, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ code: code })
+                    body: JSON.stringify({ code: code, inputs: userInputs })
                 });
                 let data = await res.json();
                 

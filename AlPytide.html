@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>AlCode Mobile IDE</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>AlPytide Mobile IDE</title>
     <!-- Thêm Bootstrap CSS để hỗ trợ căn chỉnh giao diện chuẩn và hiện đại hơn -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
@@ -567,14 +567,16 @@
             font-weight: 600;
         }
 
-        /* BOTTOM NAV */
+        /* BOTTOM NAV - ĐÃ FIX VƯỚNG THANH ĐIỀU HƯỚNG IPHONE */
         .bottom-nav {
-            height: 52px;
+            min-height: 52px;
+            height: calc(52px + env(safe-area-inset-bottom));
             background-color: var(--bg-sidebar);
             border-top: 1px solid var(--border);
             display: flex;
             flex-shrink: 0;
             z-index: 10;
+            padding-bottom: env(safe-area-inset-bottom);
         }
 
         .nav-tab {
@@ -692,7 +694,7 @@
 
     <div class="topbar">
         <div class="topbar-title">
-            <span>AlCode</span>
+            <span>AlPytide</span>
             <span id="serverStatus" class="server-status">Connecting</span>
         </div>
         <div class="topbar-actions">
@@ -829,7 +831,7 @@
 
         let workspace = JSON.parse(localStorage.getItem("alcode_workspace")) || {
             "MyProject": {
-                "main.py": "# Welcome to AlCode Mobile IDE\n# JetBrains Mono font enabled!\n\nname = input('Nhập tên của bạn: ')\nprint(f'Hello, {name}!')"
+                "main.py": "# Welcome to AlPytide Mobile IDE\n# JetBrains Mono font enabled!\n\nname = input('Nhập tên của bạn: ')\nprint(f'Hello, {name}!')"
             }
         };
         let openTabs = JSON.parse(localStorage.getItem("alcode_opentabs")) || [{folder: "MyProject", file: "main.py"}];
@@ -1417,7 +1419,6 @@
         function requestInput(promptText = "Vui lòng nhập dữ liệu:") {
             return new Promise((resolve) => {
                 inputTitle.textContent = "Input: " + promptText;
-                // ĐÃ SỬA: Không in lại promptText ra outputBox ở đây nữa để tránh bị lặp chữ hai lần
                 inputBarContainer.classList.add("active"); 
                 switchView('output'); 
                 userInputField.focus();
@@ -1431,7 +1432,6 @@
             userInputField.value = "";
             inputBarContainer.classList.remove("active"); 
             
-            // Chỉ in giá trị người dùng nhập vào màn hình output
             outputBox.textContent += val + "\n";
 
             if (pendingInputResolve) {
@@ -1484,7 +1484,6 @@
                             let promptMatch = line.match(/input\((['"])(.*?)\1\)/);
                             let promptStr = promptMatch ? promptMatch[2] : "Nhập dữ liệu:";
                             
-                            // In câu lệnh prompt ra màn hình 1 lần duy nhất đúng chuẩn
                             simulatedEnvOutput += promptStr;
                             outputBox.textContent = simulatedEnvOutput;
 

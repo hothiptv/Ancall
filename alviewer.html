@@ -134,7 +134,7 @@
 
     <div class="viewer-card">
         <div id="loadingBox" class="text-center py-5 text-secondary my-auto">
-            <div class="spinner-border spinner-border-sm me-2" role="status"></div> Đang tải nội dung file...
+            <div class="spinner-border spinner-border-sm me-2" role="status"></div> Đang đọc nội dung file...
         </div>
         <div id="errorBox" class="alert alert-danger m-3 d-none"></div>
         <pre id="contentBox" class="viewer-body d-none"></pre>
@@ -175,49 +175,44 @@
     const contentBox = document.getElementById('contentBox');
     const sourceUrlDisplay = document.getElementById('sourceUrlDisplay');
 
-    // Hàm giải mã base64 hỗ trợ tiếng Việt chuẩn
-    function decodeBase64Unicode(base64Str) {
-        const binString = atob(base64Str.replace(/\s/g, ''));
-        const bytes = Uint8Array.from(binString, (m) => m.codePointAt(0));
-        return new TextDecoder().decode(bytes);
+    // Hàm tự động chuẩn hóa URL GitHub sang đường dẫn Raw
+    function normalizeGitHubUrl(url) {
+        let cleanUrl = url.trim();
+        if (cleanUrl.includes("github.com")) {
+            // Chuyển link dạng github.com/user/repo/blob/main/file -> raw.githubusercontent.com/user/repo/main/file
+            cleanUrl = cleanUrl
+                .replace("github.com", "raw.githubusercontent.com")
+                .replace("/blob/", "/");
+        }
+        return cleanUrl;
     }
 
-    // Hàm lấy nội dung tối ưu cho môi trường Localhost và điện thoại
-    async function fetchGitHubContent(targetUrl) {
-        let fetchUrl = targetUrl;
+    // Hàm lấy nội dung file tối ưu, bất chấp file có đuôi mở rộng hay không
+    async function fetchFileContent(targetUrl) {
+        const rawUrl = normalizeGitHubUrl(targetUrl);
 
-        // Chuyển link raw.githubusercontent.com sang GitHub API chính thức (vượt qua mọi giới hạn localhost và CORS)
-        if (targetUrl.includes("raw.githubusercontent.com")) {
-            const parts = targetUrl.replace("https://raw.githubusercontent.com/", "").split("/");
-            if (parts.length >= 4) {
-                const owner = parts[0];
-                const repo = parts[1];
-                const branch = parts[2];
-                const filePath = parts.slice(3).join("/");
-                fetchUrl = `https://api.github.com/repos/${owner}/${repo}/contents/${filePath}?ref=${branch}`;
-            }
-        }
+        // Các proxy hỗ trợ đọc dữ liệu thô vượt qua rào cản CORS trên GitHub Pages
+        const proxies = [
+            `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(rawUrl)}`,
+            `https://corsproxy.io/?${encodeURIComponent(rawUrl)}`,
+            `https://api.allorigins.win/raw?url=${encodeURIComponent(rawUrl)}`
+        ];
 
-        try {
-            // Thử gọi trực tiếp GitHub API trước
-            const res = await fetch(fetchUrl, { headers: { "Accept": "application/vnd.github+json" } });
-            if (res.ok) {
-                const data = await res.json();
-                if (data && data.content && data.encoding === "base64") {
-                    return decodeBase64Unicode(data.content);
+        for (let i = 0; i < proxies.length; i++) {
+            try {
+                const response = await fetch(proxies[i]);
+                if (response.ok) {
+                    const text = await response.text();
+                    // Loại bỏ trường hợp trả về trang lỗi 404 HTML của GitHub
+                    if (text && !text.includes("404: Not Found") && !text.startsWith("<!DOCTYPE html>")) {
+                        return text;
+                    }
                 }
+            } catch (e) {
+                console.warn(`Proxy ${i+1} lỗi, đang chuyển proxy...`);
             }
-        } catch (e) {
-            console.warn("Gọi API trực tiếp lỗi, chuyển sang cơ chế dự phòng...");
         }
-
-        // Dự phòng qua dịch vụ CDN/CORS công khai nếu API trực tiếp gặp vấn đề mạng
-        const fallbackRes = await fetch(`https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(targetUrl)}`);
-        if (fallbackRes.ok) {
-            return await fallbackRes.text();
-        }
-
-        throw new Error("Không thể tải file. Hãy chắc chắn Repository chứa file đang ở chế độ Public.");
+        throw new Error("Không thể tải được file. Hãy đảm bảo Repository ở chế độ Public và đường dẫn file chính xác.");
     }
 
     async function initViewer() {
@@ -234,7 +229,7 @@
         try {
             if (varName) {
                 sourceUrlDisplay.innerText = `Đang tra cứu biến: v.${varName}`;
-                const docRef = doc(db, "alchat_settings", "config");
+                const docRef = doc(doc(db, "alchat_settings", "config"));
                 const docSnap = await getDoc(docRef);
 
                 if (docSnap.exists()) {
@@ -243,16 +238,17 @@
                     if (linksMap[varName]) {
                         targetUrl = linksMap[varName];
                     } else {
-                        throw new Error(`Không tìm thấy biến cấu hình có tên là "${varName}" trong cơ sở dữ liệu!`);
+                        throw new Error(`Không tìm thấy biến cấu hình "v.${varName}" trong Firestore!`);
                     }
                 } else {
-                    throw new Error("Không tìm thấy cấu hình trên Firestore!");
+                    throw new Error("Không tìm thấy dữ liệu cấu hình trên Firestore!");
                 }
             }
 
             sourceUrlDisplay.innerText = targetUrl;
 
-            const textData = await fetchGitHubContent(targetUrl);
+            // Thực thi đọc dữ liệu file
+            const textData = await fetchFileContent(targetUrl);
 
             loadingBox.classList.add('d-none');
             contentBox.innerText = textData;

@@ -175,11 +175,9 @@
     const contentBox = document.getElementById('contentBox');
     const sourceUrlDisplay = document.getElementById('sourceUrlDisplay');
 
-    // Hàm tự động chuẩn hóa URL GitHub sang đường dẫn Raw
     function normalizeGitHubUrl(url) {
         let cleanUrl = url.trim();
         if (cleanUrl.includes("github.com")) {
-            // Chuyển link dạng github.com/user/repo/blob/main/file -> raw.githubusercontent.com/user/repo/main/file
             cleanUrl = cleanUrl
                 .replace("github.com", "raw.githubusercontent.com")
                 .replace("/blob/", "/");
@@ -187,11 +185,9 @@
         return cleanUrl;
     }
 
-    // Hàm lấy nội dung file tối ưu, bất chấp file có đuôi mở rộng hay không
     async function fetchFileContent(targetUrl) {
         const rawUrl = normalizeGitHubUrl(targetUrl);
 
-        // Các proxy hỗ trợ đọc dữ liệu thô vượt qua rào cản CORS trên GitHub Pages
         const proxies = [
             `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(rawUrl)}`,
             `https://corsproxy.io/?${encodeURIComponent(rawUrl)}`,
@@ -203,13 +199,12 @@
                 const response = await fetch(proxies[i]);
                 if (response.ok) {
                     const text = await response.text();
-                    // Loại bỏ trường hợp trả về trang lỗi 404 HTML của GitHub
                     if (text && !text.includes("404: Not Found") && !text.startsWith("<!DOCTYPE html>")) {
                         return text;
                     }
                 }
             } catch (e) {
-                console.warn(`Proxy ${i+1} lỗi, đang chuyển proxy...`);
+                console.warn(`Proxy ${i+1} lỗi, đang thử proxy tiếp theo...`);
             }
         }
         throw new Error("Không thể tải được file. Hãy đảm bảo Repository ở chế độ Public và đường dẫn file chính xác.");
@@ -229,7 +224,8 @@
         try {
             if (varName) {
                 sourceUrlDisplay.innerText = `Đang tra cứu biến: v.${varName}`;
-                const docRef = doc(doc(db, "alchat_settings", "config"));
+                // Đã sửa lại đường dẫn doc() chuẩn 2 segments: collection 'alchat_settings', document 'config'
+                const docRef = doc(db, "alchat_settings", "config");
                 const docSnap = await getDoc(docRef);
 
                 if (docSnap.exists()) {
@@ -247,7 +243,6 @@
 
             sourceUrlDisplay.innerText = targetUrl;
 
-            // Thực thi đọc dữ liệu file
             const textData = await fetchFileContent(targetUrl);
 
             loadingBox.classList.add('d-none');

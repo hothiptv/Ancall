@@ -2,64 +2,142 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Hệ Thống Thành Viên VIP</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>AsiMe - Quản Lý Thành Viên VIP</title>
     <style>
         :root {
-            --primary: #007bff;
-            --success: #2cbb42;
-            --danger: #ea4335;
-            --dark: #202124;
-            --glass: rgba(255, 255, 255, 0.88);
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --success: #16a34a;
+            --danger: #dc2626;
+            --dark: #0f172a;
+            --bg-color: #0b1120;
+            --card-bg: rgba(255, 255, 255, 0.96);
         }
 
-        /* Khóa kéo và zoom màn hình tạo cảm giác như App Mobile */
+        *, *::before, *::after {
+            box-sizing: border-box;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            -webkit-touch-callout: none;
+            touch-action: manipulation;
+        }
+
+        input, textarea, [contenteditable="true"] {
+            -webkit-user-select: text;
+            -moz-user-select: text;
+            -ms-user-select: text;
+            user-select: text;
+        }
+
+        input[type="number"]::-webkit-inner-spin-button,
+        input[type="number"]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        input[type="number"] {
+            -moz-appearance: textfield;
+        }
+
         html, body {
             margin: 0;
             padding: 0;
             width: 100%;
             height: 100%;
+            height: 100dvh;
             overflow: hidden;
-            touch-action: none;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            background: linear-gradient(135deg, #0b1120 0%, #1e1b4b 100%);
+            color: #f8fafc;
         }
 
         .app-container {
-            width: 92%;
-            max-width: 420px;
-            height: 80vh;
-            background: var(--glass);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border-radius: 24px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
-            border: 1px solid rgba(255, 255, 255, 0.4);
+            width: 100%;
+            max-width: 500px;
+            height: 100%;
+            height: 100dvh;
+            margin: 0 auto;
+            position: relative;
+            overflow: hidden;
             display: flex;
             flex-direction: column;
-            overflow: hidden;
-            position: relative;
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            box-shadow: 0 0 40px rgba(0, 0, 0, 0.5);
         }
 
-        /* Hiệu ứng trượt UI cực mượt */
+        /* OVERLAY LOADING DATA */
+        #loading-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(11, 17, 32, 0.7);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        #loading-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .spinner {
+            width: 46px;
+            height: 46px;
+            border: 4px solid rgba(56, 189, 248, 0.2);
+            border-top: 4px solid #38bdf8;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin-bottom: 12px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            font-size: 16px;
+            font-weight: 900;
+            letter-spacing: 2px;
+            color: #38bdf8;
+            text-shadow: 0 0 12px rgba(56, 189, 248, 0.8);
+            animation: pulse 1s ease-in-out infinite alternate;
+        }
+        @keyframes pulse {
+            0% { opacity: 0.6; transform: scale(0.98); }
+            100% { opacity: 1; transform: scale(1.02); }
+        }
+
+        /* PANEL VIEWS */
         .view-panel {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            box-sizing: border-box;
-            padding: 24px;
+            padding: 16px;
+            padding-top: 50px;
             display: flex;
             flex-direction: column;
             visibility: hidden;
             transform: translateX(100%);
-            transition: transform 0.4s cubic-bezier(0.1, 0.76, 0.55, 0.94), visibility 0.4s;
+            transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.35s;
             background: #ffffff;
+            color: #0f172a;
             z-index: 1;
+            overflow: hidden;
         }
 
         .view-panel.active {
@@ -67,54 +145,141 @@
             transform: translateX(0);
         }
 
-        /* Riêng màn hình Tìm Kiếm mặc định nằm nền trong suốt */
-        #search-view {
+        #main-list-view {
             visibility: visible;
             transform: translateX(0);
             background: transparent;
+            color: #f8fafc;
+            padding-top: 14px;
             z-index: 2;
         }
-        #search-view.inactive {
+        #main-list-view.inactive {
             visibility: hidden;
             transform: translateX(-100%);
         }
 
-        h2 {
-            margin-top: 0;
-            color: var(--dark);
-            text-align: center;
-            font-size: 22px;
-            font-weight: 700;
+        .btn-circle-close {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: rgba(15, 23, 42, 0.08);
+            color: #0f172a;
+            border: 1px solid rgba(0,0,0,0.1);
+            font-size: 16px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 100;
+            transition: all 0.2s ease;
+        }
+        .btn-circle-close:hover {
+            transform: rotate(90deg);
+            background: rgba(239, 68, 68, 0.15);
+            color: var(--danger);
+        }
+        .btn-circle-close:active {
+            transform: scale(0.9) rotate(90deg);
         }
 
-        /* --- THANH TÌM KIẾM --- */
-        .search-box {
-            display: flex;
-            background: white;
-            border-radius: 16px;
-            padding: 4px 8px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-            border: 2px solid transparent;
+        .app-title-container {
+            text-align: center;
+            margin: 6px 0 10px 0;
+            position: relative;
+        }
+
+        h2.main-title {
+            margin: 0;
+            font-size: 26px;
+            font-weight: 900;
+            letter-spacing: 1px;
+            display: inline-block;
+            cursor: pointer;
+            position: relative;
+            background: linear-gradient(90deg, #38bdf8, #818cf8, #c084fc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 20px rgba(56, 189, 248, 0.2);
             transition: all 0.3s ease;
+            user-select: none;
+        }
+
+        h2.main-title.shimmer-ready {
+            background: linear-gradient(110deg, #38bdf8 10%, #ffffff 50%, #c084fc 90%);
+            background-size: 200% 100%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: shine 1.2s ease-in-out infinite;
+            filter: drop-shadow(0 0 10px rgba(56, 189, 248, 0.8));
+        }
+
+        @keyframes shine {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        .member-count-badge {
+            font-size: 11px;
+            color: #94a3b8;
+            font-weight: 700;
+            margin-top: 3px;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+        }
+
+        /* SEARCH BAR WITH OPTION SELECTOR */
+        .search-wrapper {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 8px;
+        }
+
+        .search-mode-select {
+            background: rgba(255, 255, 255, 0.95);
+            border: 2px solid transparent;
+            border-radius: 16px;
+            padding: 0 8px;
+            font-size: 13px;
+            font-weight: 700;
+            color: #0f172a;
+            outline: none;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .search-mode-select:focus {
+            border-color: #38bdf8;
+        }
+
+        .search-box {
+            flex: 1;
+            display: flex;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 18px;
+            padding: 4px 6px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            border: 2px solid transparent;
             align-items: center;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
         }
         .search-box:focus-within {
-            border-color: var(--primary);
-            box-shadow: 0 4px 16px rgba(0,123,255,0.2);
+            border-color: #38bdf8;
+            box-shadow: 0 10px 25px rgba(56, 189, 248, 0.25);
         }
-        .search-box.cheat-on {
-            border-color: var(--success) !important;
-            box-shadow: 0 4px 16px rgba(44,187,66,0.2);
-        }
-
         .search-box input {
             flex: 1;
             border: none;
             outline: none;
-            padding: 12px;
-            font-size: 16px;
+            padding: 10px 10px;
+            font-size: 14px;
             background: transparent;
-            color: var(--dark);
+            color: #0f172a;
+            font-weight: 600;
+            min-width: 0;
         }
 
         .search-btn {
@@ -123,280 +288,732 @@
             border: none;
             width: 42px;
             height: 42px;
-            border-radius: 12px;
+            border-radius: 14px;
             cursor: pointer;
             display: flex;
             justify-content: center;
             align-items: center;
+            transition: all 0.2s ease;
+            flex-shrink: 0;
+            position: relative;
+            overflow: hidden;
+        }
+        .search-btn:active { transform: scale(0.92); }
+
+        .search-btn.active-hold {
+            background: linear-gradient(135deg, #eab308, #ec4899);
+            box-shadow: 0 0 15px rgba(234, 179, 8, 0.8);
+            animation: pulseGlow 1s infinite alternate;
+        }
+
+        @keyframes pulseGlow {
+            0% { box-shadow: 0 0 8px rgba(234, 179, 8, 0.5); }
+            100% { box-shadow: 0 0 20px rgba(236, 72, 153, 0.9); }
+        }
+
+        /* LIST & CARDS */
+        .member-list {
+            flex: 1;
+            overflow-y: auto;
+            padding-right: 2px;
+            margin-top: 4px;
+            scroll-behavior: smooth;
+        }
+
+        .member-card {
+            background: var(--card-bg);
+            color: #0f172a;
+            padding: 12px 14px;
+            margin-bottom: 10px;
+            border-radius: 18px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease, border-color 0.25s ease;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border: 2px solid transparent;
+            position: relative;
+            overflow: hidden;
+            animation: cardSlideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) both;
+        }
+        @keyframes cardSlideIn {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .member-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+        }
+        .member-card:active { transform: scale(0.98); }
+
+        .member-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex: 1;
+            min-width: 0;
+        }
+
+        .card-avatar-thumb {
+            width: 46px;
+            height: 46px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #e2e8f0;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            flex-shrink: 0;
+            transition: transform 0.3s ease;
+        }
+        .member-card:hover .card-avatar-thumb {
+            transform: scale(1.08);
+        }
+
+        .member-info {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+            overflow: hidden;
+        }
+
+        .member-name {
+            font-size: 16px;
+            font-weight: 800;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .member-sub-row {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .member-sub {
+            font-size: 12px;
+            color: #64748b;
+            font-weight: 600;
+        }
+
+        .tag-chip {
+            font-size: 10px;
+            font-weight: 800;
+            padding: 2px 7px;
+            border-radius: 8px;
+            display: inline-block;
+            letter-spacing: 0.3px;
+            text-transform: uppercase;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .age-container {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 3px;
+            margin-left: 8px;
+            flex-shrink: 0;
+        }
+
+        .age-box {
+            font-weight: 900;
+            font-size: 13px;
+            padding: 4px 10px;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            text-align: right;
+        }
+
+        .days-left-ghost {
+            font-size: 10px;
+            font-weight: 700;
+            color: rgba(100, 116, 139, 0.85);
+            letter-spacing: 0.2px;
+            margin-top: 1px;
+        }
+
+        .tag-normal-style {
+            background: #e2e8f0;
+            color: #64748b;
+        }
+
+        /* VIP Preset */
+        .vip-shimmer-text {
+            background: linear-gradient(110deg, #b45309 20%, #fef08a 50%, #b45309 80%);
+            background-size: 200% 100%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: shine 1.8s linear infinite;
+            font-weight: 900;
+        }
+        .vip-shimmer-bg {
+            background: linear-gradient(110deg, #eab308 20%, #fef9c3 50%, #ca8a04 80%);
+            background-size: 200% 100%;
+            color: #713f12;
+            animation: shine 1.8s linear infinite;
+        }
+        .vip-card-glow {
+            border: 2px solid #eab308 !important;
+            box-shadow: 0 0 16px rgba(234, 179, 8, 0.5) !important;
+            animation: cardVipPulse 2s ease-in-out infinite alternate;
+        }
+        @keyframes cardVipPulse {
+            0% { box-shadow: 0 0 8px rgba(234, 179, 8, 0.3); }
+            100% { box-shadow: 0 0 22px rgba(234, 179, 8, 0.85); }
+        }
+
+        /* ADMIN Preset */
+        .admin-rainbow-text {
+            background: linear-gradient(90deg, #ef4444, #f97316, #eab308, #22c55e, #06b6d4, #3b82f6, #a855f7, #ef4444);
+            background-size: 300% 100%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: rainbowFlow 2.5s linear infinite;
+            font-weight: 900;
+        }
+        .admin-rainbow-bg {
+            background: linear-gradient(90deg, #ef4444, #f97316, #eab308, #22c55e, #06b6d4, #3b82f6, #a855f7, #ef4444);
+            background-size: 300% 100%;
+            color: white;
+            animation: rainbowFlow 2.5s linear infinite;
+        }
+        .admin-card-glow {
+            border: 2px solid #3b82f6 !important;
+            animation: adminGlowPulse 1.8s ease-in-out infinite alternate;
+        }
+        @keyframes adminGlowPulse {
+            0% { box-shadow: 0 0 10px rgba(239, 68, 68, 0.6); border-color: #ef4444 !important; }
+            50% { box-shadow: 0 0 18px rgba(34, 197, 94, 0.6); border-color: #22c55e !important; }
+            100% { box-shadow: 0 0 22px rgba(168, 85, 247, 0.7); border-color: #a855f7 !important; }
+        }
+
+        @keyframes rainbowFlow {
+            0% { background-position: 0% 0%; }
+            100% { background-position: 300% 0%; }
+        }
+
+        .shimmer-effect {
+            background-size: 200% 100% !important;
+            animation: shine 1.8s linear infinite !important;
+        }
+
+        .highlight {
+            background: #fef08a;
+            color: #854d0e;
+            padding: 0 2px;
+            border-radius: 3px;
+        }
+
+        .details-card {
+            flex: 1;
+            padding: 10px 0;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            position: relative;
+            border-radius: 18px;
             transition: all 0.3s ease;
         }
-        .search-btn:active { transform: scale(0.9); }
-        .search-btn.active-green {
-            background: var(--success) !important;
-        }
 
-        /* Gợi ý kết quả tìm kiếm */
-        .suggestion-list {
-            margin-top: 16px;
-            flex: 1;
-            overflow-y: auto;
-            touch-action: pan-y;
-        }
-        .suggestion-item {
-            background: white;
-            padding: 14px 18px;
-            margin-bottom: 10px;
-            border-radius: 14px;
-            cursor: pointer;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.03);
-            transition: all 0.2s ease;
-            font-size: 16px;
-            animation: fadeIn 0.3s ease forwards;
-        }
-        .suggestion-item:hover {
-            background: #f1f3f4;
-            transform: translateY(-1px);
-        }
-        /* Bôi xanh ký tự trùng chuẩn thuật toán */
-        .highlight {
-            color: var(--success);
-            font-weight: 700;
-            background: rgba(44,187,66,0.1);
-            padding: 0 2px;
-            border-radius: 4px;
-        }
-
-        /* --- UI CHI TIẾT THÔNG TIN --- */
-        .info-card {
-            flex: 1;
-            border-radius: 18px;
-            padding: 20px;
-            overflow-y: auto;
-            touch-action: pan-y;
-            box-shadow: inset 0 0 20px rgba(0,0,0,0.02);
-            transition: background 0.3s ease;
-        }
-        .avatar-container {
+        .avatar-box {
             text-align: center;
-            margin-bottom: 18px;
+            margin-bottom: 8px;
+            position: relative;
         }
         .avatar-img {
-            max-width: 100%;
-            height: auto;
-            border-radius: 14px;
-            box-shadow: 0 6px 15px rgba(0,0,0,0.15);
+            width: 96px;
+            height: 96px;
+            object-fit: cover;
+            border-radius: 50%;
+            border: 4px solid white;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.25);
+            position: relative;
+            z-index: 1;
+            transition: transform 0.4s ease;
         }
-        .info-row {
-            background: rgba(255, 255, 255, 0.75);
-            padding: 12px 16px;
-            border-radius: 12px;
-            margin-bottom: 10px;
-            font-size: 15px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+        .avatar-img:hover {
+            transform: scale(1.06) rotate(2deg);
         }
-        .info-label {
-            font-weight: bold;
-            color: #5f6368;
-            display: inline-block;
-            width: 100px;
+        .blur-bg-img {
+            position: absolute;
+            top: -20px;
+            left: -20px;
+            right: -20px;
+            bottom: -20px;
+            background-size: cover;
+            background-position: center;
+            filter: blur(20px) brightness(0.7);
+            z-index: 0;
+            border-radius: 22px;
+            opacity: 0.35;
         }
 
-        /* --- UI ADMIN QUẢN LÝ --- */
+        .info-item {
+            background: rgba(248, 250, 252, 0.92);
+            backdrop-filter: blur(8px);
+            padding: 12px 16px;
+            border-radius: 14px;
+            font-size: 14px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1;
+            transition: transform 0.2s ease, background-color 0.2s ease;
+        }
+        .info-item:hover {
+            transform: translateX(3px);
+            background: rgba(255, 255, 255, 0.98);
+        }
+        .info-label { font-weight: 600; color: #64748b; font-size: 13px; }
+        .info-val { font-weight: 700; color: #0f172a; text-align: right; }
+
         .admin-nav {
             display: flex;
-            gap: 10px;
-            margin-bottom: 16px;
+            gap: 6px;
+            margin-bottom: 12px;
         }
         .admin-nav button {
             flex: 1;
-            padding: 12px;
+            padding: 10px 6px;
             border: none;
             border-radius: 12px;
-            font-weight: bold;
-            font-size: 14px;
+            font-weight: 700;
+            font-size: 12px;
             cursor: pointer;
-            background: #f1f3f4;
+            background: #f1f5f9;
+            color: #64748b;
             transition: all 0.2s ease;
         }
-        .admin-nav button.active {
-            background: var(--primary);
-            color: white;
+        .admin-nav button.active { 
+            background: var(--primary); 
+            color: white; 
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
         }
 
         .admin-content {
             flex: 1;
             overflow-y: auto;
-            touch-action: pan-y;
+            padding-right: 4px;
         }
 
-        /* Form Nhập Data */
-        .form-group {
-            margin-bottom: 14px;
-        }
+        .form-group { margin-bottom: 12px; }
         .form-group label {
             display: block;
-            font-size: 14px;
-            font-weight: 600;
-            margin-bottom: 6px;
-            color: #3c4043;
+            font-size: 12px;
+            font-weight: 700;
+            margin-bottom: 5px;
+            color: #334155;
         }
-        .form-group input {
+        .form-group input, .form-group select {
             width: 100%;
-            padding: 10px 14px;
-            border: 1px solid #dadce0;
+            padding: 10px 12px;
+            border: 1px solid #cbd5e1;
             border-radius: 10px;
-            box-sizing: border-box;
-            font-size: 15px;
+            font-size: 14px;
             outline: none;
+            background: #f8fafc;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
         }
-        .form-group input:focus { border-color: var(--primary); }
-        .date-inputs {
-            display: flex;
-            gap: 8px;
+        .form-group input:focus, .form-group select:focus {
+            border-color: var(--primary);
+            background: #fff;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
         }
-        .date-inputs input { text-align: center; }
+
+        .date-inputs { display: flex; gap: 6px; }
+        .date-inputs input { text-align: center; font-weight: 700; }
+
         .color-pickers {
             display: flex;
-            gap: 12px;
+            gap: 10px;
             align-items: center;
+            margin-top: 6px;
         }
-        .color-pickers input {
-            width: 45px;
-            height: 35px;
+        .color-pickers input[type="color"] {
+            width: 40px;
+            height: 34px;
             padding: 0;
             border: none;
             cursor: pointer;
-            border-radius: 6px;
+            border-radius: 8px;
         }
 
-        /* Khung quản lý danh sách */
-        .data-item {
-            background: #f8f9fa;
-            padding: 14px;
+        .toggle-switch {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+        }
+        .toggle-switch input { display: none; }
+        .slider {
+            width: 42px;
+            height: 22px;
+            background-color: #cbd5e1;
+            border-radius: 22px;
+            position: relative;
+            transition: .3s;
+        }
+        .slider:before {
+            content: "";
+            position: absolute;
+            height: 16px;
+            width: 16px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            border-radius: 50%;
+            transition: .3s;
+        }
+        input:checked + .slider { background-color: var(--primary); }
+        input:checked + .slider:before { transform: translateX(20px); }
+
+        .job-options-menu {
+            display: none;
+            position: absolute;
+            background: white;
+            border: 1px solid #cbd5e1;
             border-radius: 12px;
-            margin-bottom: 10px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+            z-index: 100;
+            width: 100%;
+            max-height: 180px;
+            overflow-y: auto;
+        }
+        .job-option-item {
+            padding: 10px 14px;
+            font-size: 13px;
+            cursor: pointer;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        .job-option-item:hover { background: #f8fafc; color: var(--primary); }
+
+        .admin-item-card {
+            background: #f8fafc;
+            padding: 12px 14px;
+            border-radius: 12px;
+            margin-bottom: 8px;
             display: flex;
             justify-content: space-between;
             align-items: center;
             border-left: 4px solid var(--primary);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.03);
+            transition: transform 0.2s ease;
         }
-        .data-info { font-weight: 600; color: var(--dark); }
-        .data-actions button {
-            padding: 6px 12px;
-            margin-left: 6px;
+        .admin-item-card:hover {
+            transform: translateX(2px);
+        }
+        .admin-item-actions button {
+            padding: 6px 10px;
+            margin-left: 4px;
             border: none;
             border-radius: 8px;
             cursor: pointer;
-            font-weight: bold;
+            font-weight: 700;
+            font-size: 12px;
             color: white;
+            transition: opacity 0.2s, transform 0.15s ease;
         }
-        .btn-edit { background: #f4b400; color: #fff !important; }
+        .admin-item-actions button:active { opacity: 0.8; transform: scale(0.95); }
+        .btn-edit { background: #f59e0b; }
         .btn-delete { background: var(--danger); }
 
-        /* Nút hệ thống */
         .btn-block {
             width: 100%;
-            padding: 14px;
+            padding: 12px;
             border: none;
-            border-radius: 12px;
-            font-weight: bold;
-            font-size: 16px;
+            border-radius: 14px;
+            font-weight: 700;
+            font-size: 15px;
             cursor: pointer;
-            margin-top: 10px;
-            transition: background 0.2s ease;
+            margin-top: 8px;
+            transition: transform 0.15s ease, background-color 0.2s ease, box-shadow 0.2s ease;
         }
-        .btn-close { background: #5f6368; color: white; }
-        .btn-save { background: var(--success); color: white; }
+        .btn-block:active { transform: scale(0.98); }
+        .btn-save { background: var(--success); color: white; box-shadow: 0 4px 12px rgba(22, 163, 74, 0.25); }
+        .btn-save:hover { background: #15803d; }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(6px); }
-            to { opacity: 1; transform: translateY(0); }
+        .tag-box-item {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            padding: 10px 12px;
+            border-radius: 12px;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
     </style>
 </head>
 <body>
 
 <div class="app-container">
-    
-    <div id="search-view" class="view-panel active" style="transform: none;">
-        <h2>Tìm Kiếm Thành Viên</h2>
-        <div class="search-box" id="search-box-wrapper">
-            <input type="text" id="search-input" placeholder="Nhập tên tìm kiếm...">
-            <button class="search-btn" id="btn-search-trigger">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-            </button>
+
+    <!-- OVERLAY LOADING DATA -->
+    <div id="loading-overlay">
+        <div class="spinner"></div>
+        <div class="loading-text">LOADING DATA</div>
+    </div>
+
+    <!-- PANEL 1: DANH SÁCH & TÌM KIẾM -->
+    <div id="main-list-view" class="view-panel active">
+        <div class="search-wrapper">
+            <select id="search-mode-select" class="search-mode-select">
+                <option value="all">Tất cả</option>
+                <option value="name">Tên</option>
+                <option value="age">Số tuổi</option>
+                <option value="tag">Tag</option>
+            </select>
+            <div class="search-box" id="search-box-wrapper">
+                <input type="text" id="search-input" placeholder="Tìm kiếm..." autocomplete="off">
+                <button class="search-btn" id="btn-search-trigger" title="Bấm 5 lần nút này và 5 lần tiêu đề AsiMe">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                </button>
+            </div>
         </div>
-        <div class="suggestion-list" id="suggestion-output"></div>
+
+        <div class="app-title-container">
+            <h2 class="main-title" id="vip-title-btn">AsiMe</h2>
+            <div class="member-count-badge" id="member-count-display">Tổng cộng: 0 thành viên</div>
+        </div>
+
+        <div class="member-list" id="member-list-output"></div>
     </div>
 
+    <!-- PANEL 2: CHI TIẾT THÀNH VIÊN -->
     <div id="details-view" class="view-panel">
-        <h2>Thông Tin Chi Tiết</h2>
-        <div class="info-card" id="info-card-body"></div>
-        <button class="btn-block btn-close" id="btn-close-details">Đóng</button>
+        <button class="btn-circle-close" id="btn-close-details">✕</button>
+        <h2 style="text-align:center; margin: 0 0 12px 0; font-size: 20px;">Thông Tin Chi Tiết</h2>
+        <div class="details-card" id="details-card-body"></div>
     </div>
 
+    <!-- PANEL 3: QUẢN TRỊ VIÊN -->
     <div id="admin-view" class="view-panel">
-        <h2>Hệ Thống Quản Lý</h2>
+        <button class="btn-circle-close" id="btn-close-admin">✕</button>
+        <h2 style="text-align:center; margin: 0 0 10px 0; font-size: 20px;">Quản Lý Hệ Thống</h2>
         <div class="admin-nav">
-            <button id="nav-list-btn" class="active">Danh sách</button>
-            <button id="nav-create-btn">Tạo mới</button>
+            <button id="nav-list-btn" class="active">Thành viên</button>
+            <button id="nav-create-btn">Thêm/Sửa TV</button>
+            <button id="nav-tag-btn">Quản Lý Tag</button>
         </div>
 
         <div class="admin-content">
+            <!-- TAB 1: DANH SÁCH THÀNH VIÊN ADMIN -->
             <div id="tab-list">
-                <div id="admin-data-list">Đang tải dữ liệu...</div>
+                <div id="admin-data-list">Đang tải...</div>
             </div>
 
-            <div id="tab-form" style="display: none;">
-                <input type="hidden" id="form-mode" value="create"> <div class="form-group">
-                    <label>Họ tên đầy đủ *</label>
-                    <input type="text" id="form-name" placeholder="Nguyễn Văn A">
-                </div>
+            <!-- TAB 2: FORM THÊM / SỬA THÀNH VIÊN -->
+            <div id="tab-form" style="display: none; position: relative;">
+                <input type="hidden" id="form-mode" value="create">
+                <input type="hidden" id="form-original-name" value="">
+                
                 <div class="form-group">
-                    <label>Ngày sinh (dd/mm/yyyy) *</label>
-                    <div class="date-inputs">
-                        <input type="text" id="date-dd" placeholder="dd" maxlength="2">
-                        <input type="text" id="date-mm" placeholder="mm" maxlength="2">
-                        <input type="text" id="date-yyyy" placeholder="yyyy" maxlength="4">
+                    <label>Họ và tên (BB - Tự viết hoa đầu từ) *</label>
+                    <input type="text" id="form-name" placeholder="Ví dụ: Nguyễn Văn A">
+                </div>
+
+                <div class="form-group">
+                    <label>Tag Thành Viên (Tối đa 1 tag)</label>
+                    <select id="form-member-tag">
+                        <option value="Normal">Normal</option>
+                        <option value="VIP">VIP</option>
+                        <option value="ADMIN">ADMIN</option>
+                    </select>
+                </div>
+
+                <div class="form-group" id="group-custom-name-color">
+                    <label>Màu tên ngoài danh sách (Chỉ dùng khi Tag thường)</label>
+                    <select id="form-name-color-type">
+                        <option value="default">Mặc định (Tối)</option>
+                        <option value="single">Màu đơn</option>
+                        <option value="gradient">Gradient 2 màu</option>
+                        <option value="rainbow">Bảy màu (Rainbow chạy chữ)</option>
+                    </select>
+                    <div class="color-pickers" id="name-color-pickers" style="display:none;">
+                        <input type="color" id="form-name-color1" value="#2563eb">
+                        <input type="color" id="form-name-color2" value="#9333ea" style="display:none;">
                     </div>
                 </div>
+
                 <div class="form-group">
-                    <label>Biệt danh</label>
-                    <input type="text" id="form-nick" placeholder="Biệt danh">
+                    <label>Ngày sinh (BB - DD/MM/YYYY) *</label>
+                    <div class="date-inputs">
+                        <input type="number" inputmode="numeric" pattern="[0-9]*" id="date-dd" placeholder="DD" maxlength="2" oninput="if(this.value.length > 2) this.value = this.value.slice(0, 2)">
+                        <input type="number" inputmode="numeric" pattern="[0-9]*" id="date-mm" placeholder="MM" maxlength="2" oninput="if(this.value.length > 2) this.value = this.value.slice(0, 2)">
+                        <input type="number" inputmode="numeric" pattern="[0-9]*" id="date-yyyy" placeholder="YYYY" maxlength="4" oninput="if(this.value.length > 4) this.value = this.value.slice(0, 4)">
+                    </div>
                 </div>
+
                 <div class="form-group">
-                    <label>Sở thích</label>
-                    <input type="text" id="form-hobby" placeholder="Sở thích">
+                    <label>Biệt danh (KBB)</label>
+                    <input type="text" id="form-nick" placeholder="Nhập biệt danh...">
                 </div>
+
                 <div class="form-group">
-                    <label>Nghề nghiệp</label>
-                    <input type="text" id="form-job" placeholder="Sinh viên / Công việc">
+                    <label>Địa chỉ (KBB)</label>
+                    <input type="text" id="form-address" placeholder="Nhập địa chỉ...">
                 </div>
-                <div class="form-group">
-                    <label>Link hình ảnh (Để trống nếu ẩn)</label>
-                    <input type="text" id="form-image" placeholder="https://">
+
+                <div class="form-group" style="position: relative;">
+                    <label>Nghề nghiệp (BB - Nhấn giữ để chọn nhanh)</label>
+                    <input type="text" id="form-job" placeholder="Sinh viên / Công việc / None">
+                    <div class="job-options-menu" id="job-menu">
+                        <div class="job-option-item">Sinh viên đại học</div>
+                        <div class="job-option-item">Học sinh tiểu học</div>
+                        <div class="job-option-item">Học sinh trung học</div>
+                        <div class="job-option-item">Học sinh phổ thông</div>
+                        <div class="job-option-item">Công việc khác</div>
+                        <div class="job-option-item">None</div>
+                    </div>
                 </div>
+
                 <div class="form-group">
-                    <label>Màu nền giao diện</label>
+                    <label>Giỏi (Điểm mạnh)</label>
+                    <input type="text" id="form-strength" placeholder="Điểm mạnh...">
+                </div>
+
+                <div class="form-group">
+                    <label>Điểm yếu (KBB)</label>
+                    <input type="text" id="form-weakness" placeholder="Điểm yếu...">
+                </div>
+
+                <div class="form-group">
+                    <label>Sở thích (KBB)</label>
+                    <input type="text" id="form-hobby" placeholder="Sở thích...">
+                </div>
+
+                <div class="form-group">
+                    <label>Link Hình ảnh (KBB)</label>
+                    <input type="text" id="form-image" placeholder="https://...">
+                </div>
+
+                <div class="form-group" id="group-custom-card-glow">
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="form-opt-card-glow">
+                        <span class="slider"></span>
+                        <span style="font-weight:700; font-size:13px; color:#334155;">Phát sáng thẻ ngoài danh sách</span>
+                    </label>
+                    <div id="card-glow-colors" class="color-pickers" style="display:none; margin-top:8px;">
+                        <select id="form-card-glow-type" style="padding:4px 8px; font-size:12px; width:auto;">
+                            <option value="single">Màu đơn</option>
+                            <option value="gradient">Gradient 2 màu</option>
+                        </select>
+                        <input type="color" id="form-glow-color1" value="#3b82f6">
+                        <input type="color" id="form-glow-color2" value="#8b5cf6" style="display:none;">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Tùy chọn hiển thị ảnh chi tiết</label>
+                    <div style="display:flex; gap: 15px; font-size:13px; margin-top: 4px;">
+                        <label style="font-weight:normal;"><input type="checkbox" id="form-opt-blur"> Ảnh mờ nền</label>
+                        <label style="font-weight:normal;"><input type="checkbox" id="form-opt-bg"> Dùng làm ảnh nền</label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Màu giao diện chi tiết</label>
+                    <div>
+                        <select id="form-color-type" style="padding:6px; font-size:12px;">
+                            <option value="single">Màu đơn</option>
+                            <option value="gradient">Gradient 2 màu</option>
+                        </select>
+                    </div>
                     <div class="color-pickers">
                         <input type="color" id="form-color1" value="#ffffff">
-                        <input type="color" id="form-color2" value="#ffffff">
-                        <span style="font-size: 12px; color: #666;">Trộn 2 màu tùy thích</span>
+                        <input type="color" id="form-color2" value="#667eea" style="display:none;">
                     </div>
                 </div>
+
                 <button class="btn-block btn-save" id="btn-save-data">Lưu Dữ Liệu</button>
             </div>
+
+            <!-- TAB 3: QUẢN LÝ TAG -->
+            <div id="tab-tags" style="display: none;">
+                <div style="margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;">
+                    <span style="font-weight: 800; font-size: 14px;">Danh Sách Tag Tùy Chỉnh</span>
+                    <button id="btn-open-create-tag" style="padding: 6px 12px; background: var(--primary); color: white; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 12px;">+ Tạo Tag Mới</button>
+                </div>
+
+                <div id="custom-tags-list-container">Đang tải tag...</div>
+
+                <div id="custom-tag-editor-form" style="display: none; background: #f8fafc; padding: 12px; border-radius: 14px; border: 1px solid #e2e8f0; margin-top: 10px;">
+                    <h4 id="tag-editor-title" style="margin: 0 0 10px 0; font-size: 14px; color: var(--primary);">Tạo Tag Mới (Tối đa 20 từ)</h4>
+                    
+                    <input type="hidden" id="tag-edit-original-id" value="">
+
+                    <div class="form-group">
+                        <label>Tên Tag *</label>
+                        <input type="text" id="tag-input-name" maxlength="20" placeholder="Ví dụ: VIP-Pro, Moderator...">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Màu Tag (Hiển thị nhãn Tag)</label>
+                        <select id="tag-color-mode">
+                            <option value="single">Màu đơn</option>
+                            <option value="gradient">Gradient 2 màu</option>
+                        </select>
+                        <div class="color-pickers">
+                            <input type="color" id="tag-color-1" value="#3b82f6">
+                            <input type="color" id="tag-color-2" value="#8b5cf6" style="display:none;">
+                        </div>
+                        <div style="margin-top: 6px; display: flex; gap: 10px;">
+                            <label style="font-size:12px;"><input type="checkbox" id="tag-opt-shimmer"> Liếc sáng</label>
+                            <label style="font-size:12px;"><input type="checkbox" id="tag-opt-glow"> Phát sáng xung quanh</label>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Màu Tên ngoài thẻ người</label>
+                        <select id="tag-name-color-mode">
+                            <option value="single">Màu đơn</option>
+                            <option value="gradient">Gradient 2 màu</option>
+                        </select>
+                        <div class="color-pickers">
+                            <input type="color" id="tag-name-color-1" value="#0f172a">
+                            <input type="color" id="tag-name-color-2" value="#2563eb" style="display:none;">
+                        </div>
+                        <div style="margin-top: 6px; display: flex; gap: 10px;">
+                            <label style="font-size:12px;"><input type="checkbox" id="tag-name-opt-shimmer"> Tích liếc sáng tên</label>
+                            <label style="font-size:12px;"><input type="checkbox" id="tag-name-opt-glow"> Tích phát sáng tên</label>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Màu Thẻ người ngoài danh sách</label>
+                        <select id="tag-card-color-mode">
+                            <option value="single">Màu đơn</option>
+                            <option value="gradient">Gradient 2 màu</option>
+                        </select>
+                        <div class="color-pickers">
+                            <input type="color" id="tag-card-color-1" value="#ffffff">
+                            <input type="color" id="tag-card-color-2" value="#f1f5f9" style="display:none;">
+                        </div>
+                        <div style="margin-top: 6px; display: flex; gap: 10px;">
+                            <label style="font-size:12px;"><input type="checkbox" id="tag-card-opt-shimmer"> Liếc sáng thẻ</label>
+                            <label style="font-size:12px;"><input type="checkbox" id="tag-card-opt-glow"> Phát sáng thẻ</label>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; gap: 8px;">
+                        <button class="btn-block btn-save" id="btn-save-custom-tag" style="flex:1;">Lưu Tag</button>
+                        <button class="btn-block" id="btn-cancel-custom-tag" style="flex:1; background:#94a3b8; color:white;">Hủy</button>
+                    </div>
+                </div>
+            </div>
         </div>
-        <button class="btn-block btn-close" id="btn-close-admin" style="background:#202124;">Thoát Admin</button>
     </div>
 
 </div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
-    import { getFirestore, collection, doc, setDoc, getDocs, deleteDoc, query } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore.js";
+    import { getFirestore, collection, doc, setDoc, getDocs, deleteDoc } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore.js";
 
-    // Cấu hình Firebase gốc của ông
     const firebaseConfig = {
       apiKey: "AIzaSyAnsLAxCi_1RiYZ7kwwzNi7subRrvTI04I",
       authDomain: "dataan-d19b7.firebaseapp.com",
@@ -411,171 +1028,602 @@
     const db = getFirestore(app);
 
     let localData = [];
-    let cheatStep = 0; 
-    let clickCount = 0;
-    let lastClickTime = 0;
+    let customTagsData = [];
 
-    // Tải dữ liệu từ Firebase về
+    const loadingOverlay = document.getElementById('loading-overlay');
+
+    function showLoading() {
+        if(loadingOverlay) loadingOverlay.classList.add('active');
+    }
+
+    function hideLoading() {
+        if(loadingOverlay) loadingOverlay.classList.remove('active');
+    }
+
+    // Tải dữ liệu từ Firestore
     async function fetchDatabase() {
+        showLoading();
         try {
             const querySnapshot = await getDocs(collection(db, "thanhvien"));
             localData = [];
             querySnapshot.forEach((doc) => {
-                localData.push({ name: doc.id, ...doc.data() }); // Document ID chính là Họ Tên đầy đủ
+                localData.push({ name: doc.id, ...doc.data() });
             });
+
+            const tagSnapshot = await getDocs(collection(db, "custom_tags"));
+            customTagsData = [];
+            tagSnapshot.forEach((doc) => {
+                customTagsData.push({ id: doc.id, ...doc.data() });
+            });
+
+            updateTagSelectOptions();
+            renderMainList();
             renderAdminList();
+            renderCustomTagsList();
         } catch (error) {
-            console.error("Lỗi đồng bộ Firebase:", error);
+            console.error("Lỗi đồng bộ dữ liệu:", error);
+        } finally {
+            hideLoading();
         }
     }
     fetchDatabase();
 
-    // Tự nhảy focus ô Ngày Sinh
-    const autoJump = (curr, next) => {
-        document.getElementById(curr).addEventListener('input', function() {
-            if (this.value.length >= this.maxLength) document.getElementById(next).focus();
-        });
-    };
-    autoJump('date-dd', 'date-mm');
-    autoJump('date-mm', 'date-yyyy');
+    function calculateAgeInfo(birthStr) {
+        if (!birthStr) return { age: 0, tag: "N/A", daysLeft: 999, isBirthdayToday: false, colorHex: "#000000" };
+        
+        const parts = birthStr.split('/');
+        if (parts.length !== 3) return { age: 0, tag: "N/A", daysLeft: 999, isBirthdayToday: false, colorHex: "#000000" };
 
-    // --- ALGORITHM HIGHLIGHT BÔI XANH CHỮ KHÔNG LỖI TIẾNG VIỆT ---
-    const searchInput = document.getElementById('search-input');
-    const suggestionOutput = document.getElementById('suggestion-output');
+        const day = parseInt(parts[0], 10);
+        const month = parseInt(parts[1], 10) - 1;
+        const year = parseInt(parts[2], 10);
 
-    searchInput.addEventListener('input', () => {
-        const keyword = searchInput.value.trim();
-        suggestionOutput.innerHTML = "";
+        const today = new Date();
+        let age = today.getFullYear() - year;
+        
+        const currentBday = new Date(today.getFullYear(), month, day);
+        if (today < currentBday && (today.getMonth() !== month || today.getDate() !== day)) {
+            age--;
+        }
 
-        if (!keyword) return;
+        let tag = "Khác";
+        if (age >= 0 && age <= 11) tag = "Thiếu nhi";
+        else if (age >= 12 && age <= 17) tag = "Thanh thiếu niên";
+        else if (age >= 18 && age <= 35) tag = "Thanh niên";
+        else if (age >= 36 && age <= 59) tag = "Trung niên";
+        else if (age >= 60) tag = "Cao tuổi";
 
-        const matches = localData.filter(p => p.name.toLowerCase().includes(keyword.toLowerCase()));
+        let nextBday = new Date(today.getFullYear(), month, day);
+        if (today > nextBday && !(today.getDate() === day && today.getMonth() === month)) {
+            nextBday.setFullYear(today.getFullYear() + 1);
+        }
 
-        matches.forEach(person => {
-            const item = document.createElement('div');
-            item.className = 'suggestion-item';
+        const diffTime = nextBday - new Date(today.getFullYear(), today.getMonth(), today.getDate());
+        const daysLeft = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        const isBirthdayToday = (today.getDate() === day && today.getMonth() === month);
 
-            // Dùng Regex bọc thẻ highlight bao quanh ký tự trùng (Kể cả chữ có dấu)
-            const escapedKeyword = keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-            const regex = new RegExp(`(${escapedKeyword})`, 'gi');
-            const highlightedName = person.name.replace(regex, `<span class="highlight">$1</span>`);
+        let ratio = 1 - Math.min(daysLeft, 365) / 365;
+        if (isBirthdayToday) ratio = 1;
+        
+        const r = Math.round(15 + (34 - 15) * ratio);
+        const g = Math.round(23 + (197 - 23) * ratio);
+        const b = Math.round(42 + (94 - 42) * ratio);
+        const colorHex = `rgb(${r}, ${g}, ${b})`;
 
-            item.innerHTML = highlightedName;
-            item.addEventListener('click', () => openDetailsView(person));
-            suggestionOutput.appendChild(item);
-        });
+        return { age, tag, daysLeft, isBirthdayToday, colorHex, ratio };
+    }
+
+    /* KÍCH HOẠT BAN QUẢN TRỊ */
+    const btnSearchTrigger = document.getElementById('btn-search-trigger');
+    const vipTitleBtn = document.getElementById('vip-title-btn');
+
+    let titleClicks = 0;
+    let searchClicks = 0;
+    let clickResetTimer = null;
+
+    function checkAdminUnlock() {
+        if (titleClicks >= 5 && searchClicks >= 5) {
+            titleClicks = 0;
+            searchClicks = 0;
+            if (clickResetTimer) clearTimeout(clickResetTimer);
+            vipTitleBtn.classList.add('shimmer-ready');
+            btnSearchTrigger.classList.add('active-hold');
+            setTimeout(() => {
+                switchView('admin-view');
+            }, 300);
+        } else {
+            if (clickResetTimer) clearTimeout(clickResetTimer);
+            clickResetTimer = setTimeout(() => {
+                titleClicks = 0;
+                searchClicks = 0;
+            }, 4000);
+        }
+    }
+
+    vipTitleBtn.addEventListener('click', () => {
+        titleClicks++;
+        checkAdminUnlock();
     });
 
-    // --- BẢO MẬT CHEAT CODE 2 LỚP ---
-    const btnSearchTrigger = document.getElementById('btn-search-trigger');
-    const searchBoxWrapper = document.getElementById('search-box-wrapper');
-
     btnSearchTrigger.addEventListener('click', () => {
-        const now = Date.now();
-        if (now - lastClickTime < 2000 || lastClickTime === 0) clickCount++;
-        else clickCount = 1;
-        lastClickTime = now;
+        searchClicks++;
+        checkAdminUnlock();
+    });
 
-        // Lớp 1: Bấm nút kính lúp 10 lần liên tục
-        if (cheatStep === 0 && clickCount >= 10) {
-            cheatStep = 1; clickCount = 0;
-            btnSearchTrigger.classList.add('active-green');
-            searchBoxWrapper.classList.add('cheat-on');
-            searchInput.value = "";
-            searchInput.placeholder = "Nhập mã PIN...";
+    const searchInput = document.getElementById('search-input');
+    const searchModeSelect = document.getElementById('search-mode-select');
+    const memberListOutput = document.getElementById('member-list-output');
+    const memberCountDisplay = document.getElementById('member-count-display');
+
+    searchInput.addEventListener('input', renderMainList);
+    searchModeSelect.addEventListener('change', renderMainList);
+
+    function removeVietnameseTones(str) {
+        if (!str) return '';
+        return str
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '')
+            .replace(/đ/g, 'd').replace(/Đ/g, 'D')
+            .toLowerCase();
+    }
+
+    function renderMainList() {
+        const rawKeyword = searchInput.value.trim();
+        const normalizedKeyword = removeVietnameseTones(rawKeyword);
+        const searchMode = searchModeSelect.value;
+        memberListOutput.innerHTML = "";
+
+        const matches = localData.filter(p => {
+            if (!normalizedKeyword) return true;
+
+            const nameNorm = removeVietnameseTones(p.name);
+            const nickNorm = removeVietnameseTones(p.nickname || '');
+            const tagNorm = removeVietnameseTones(p.memberTag || 'normal');
+            const ageInfo = calculateAgeInfo(p.birth);
+            const ageStr = ageInfo.age.toString();
+
+            if (searchMode === 'name') {
+                return nameNorm.includes(normalizedKeyword) || nickNorm.includes(normalizedKeyword);
+            } else if (searchMode === 'age') {
+                return ageStr === normalizedKeyword || ageStr.includes(normalizedKeyword);
+            } else if (searchMode === 'tag') {
+                return tagNorm.includes(normalizedKeyword);
+            } else {
+                return nameNorm.includes(normalizedKeyword) || 
+                       nickNorm.includes(normalizedKeyword) || 
+                       tagNorm.includes(normalizedKeyword) || 
+                       ageStr.includes(normalizedKeyword);
+            }
+        });
+
+        memberCountDisplay.innerText = `Tổng cộng: ${matches.length} thành viên`;
+
+        if (matches.length === 0) {
+            memberListOutput.innerHTML = `<div style="text-align:center; padding: 25px; color: #94a3b8; font-size:14px;">Không tìm thấy thành viên phù hợp</div>`;
             return;
         }
 
-        // Lớp 2: Điền 0904 rồi ấn kính lúp tiếp 10 lần
-        if (cheatStep === 1 && searchInput.value.trim() === "0904" && clickCount >= 10) {
-            cheatStep = 2;
-            btnSearchTrigger.classList.remove('active-green');
-            searchBoxWrapper.classList.remove('cheat-on');
-            searchInput.value = "";
-            searchInput.placeholder = "Nhập tên tìm kiếm...";
-            suggestionOutput.innerHTML = "";
-            switchView('admin-view');
-        }
-    });
+        matches.forEach((person, index) => {
+            const ageInfo = calculateAgeInfo(person.birth);
+            const card = document.createElement('div');
+            card.className = `member-card`;
+            card.style.animationDelay = `${Math.min(index * 0.04, 0.4)}s`;
 
-    // --- HIỆU ỨNG CHUYỂN UI MƯỢT MÀ ---
+            const memberTag = person.memberTag || 'Normal';
+            const customTagObj = customTagsData.find(t => t.id === memberTag);
+
+            let nameClass = "member-name";
+            let nameStyle = "";
+            let tagChipStyle = "";
+            let tagChipClass = "tag-chip";
+
+            if (memberTag.toUpperCase() === 'NORMAL') {
+                tagChipClass += " tag-normal-style";
+            } else if (memberTag.toUpperCase() === 'VIP') {
+                card.classList.add('vip-card-glow');
+                nameClass += " vip-shimmer-text";
+                tagChipClass += " vip-shimmer-bg";
+            } else if (memberTag.toUpperCase() === 'ADMIN') {
+                card.classList.add('admin-card-glow');
+                nameClass += " admin-rainbow-text";
+                tagChipClass += " admin-rainbow-bg";
+            } else if (customTagObj) {
+                // Background thẻ người
+                if (customTagObj.cardColorMode === 'gradient') {
+                    card.style.background = `linear-gradient(135deg, ${customTagObj.cardColor1}, ${customTagObj.cardColor2})`;
+                } else {
+                    card.style.background = customTagObj.cardColor1 || '#ffffff';
+                }
+                if (customTagObj.cardOptGlow) {
+                    card.style.boxShadow = `0 0 16px ${customTagObj.cardColor1}aa`;
+                    card.style.borderColor = customTagObj.cardColor1;
+                }
+                if (customTagObj.cardOptShimmer) {
+                    card.classList.add('shimmer-effect');
+                }
+
+                // Tên người
+                if (customTagObj.nameColorMode === 'gradient') {
+                    nameStyle = `background: linear-gradient(135deg, ${customTagObj.nameColor1}, ${customTagObj.nameColor2}); -webkit-background-clip: text; -webkit-text-fill-color: transparent;`;
+                } else {
+                    nameStyle = `color: ${customTagObj.nameColor1};`;
+                }
+                if (customTagObj.nameOptGlow) {
+                    nameStyle += ` text-shadow: 0 0 8px ${customTagObj.nameColor1};`;
+                }
+                if (customTagObj.nameOptShimmer) {
+                    nameClass += " vip-shimmer-text";
+                }
+
+                // Nhãn Tag
+                if (customTagObj.tagColorMode === 'gradient') {
+                    tagChipStyle = `background: linear-gradient(135deg, ${customTagObj.tagColor1}, ${customTagObj.tagColor2}); color: #fff;`;
+                } else {
+                    tagChipStyle = `background: ${customTagObj.tagColor1}; color: #fff;`;
+                }
+                if (customTagObj.tagOptGlow) {
+                    tagChipStyle += ` box-shadow: 0 0 8px ${customTagObj.tagColor1};`;
+                }
+                if (customTagObj.tagOptShimmer) {
+                    tagChipClass += " vip-shimmer-bg";
+                }
+            } else {
+                if (person.optCardGlow) {
+                    if (person.cardGlowType === 'gradient') {
+                        card.style.backgroundImage = `linear-gradient(#fff, #fff), linear-gradient(135deg, ${person.glowColor1}, ${person.glowColor2})`;
+                        card.style.backgroundOrigin = 'border-box';
+                        card.style.backgroundClip = 'padding-box, border-box';
+                        card.style.boxShadow = `0 0 15px ${person.glowColor1}aa`;
+                    } else {
+                        card.style.borderColor = person.glowColor1 || '#3b82f6';
+                        card.style.boxShadow = `0 0 15px ${person.glowColor1 || '#3b82f6'}88`;
+                    }
+                }
+
+                if (person.nameColorType === 'single') {
+                    nameStyle = `color: ${person.nameColor1};`;
+                } else if (person.nameColorType === 'gradient') {
+                    nameStyle = `background: linear-gradient(135deg, ${person.nameColor1}, ${person.nameColor2}); -webkit-background-clip: text; -webkit-text-fill-color: transparent;`;
+                } else if (person.nameColorType === 'rainbow') {
+                    nameClass += " admin-rainbow-text";
+                }
+            }
+
+            let nameHtml = person.name;
+            if (rawKeyword && (searchMode === 'all' || searchMode === 'name') && !['VIP', 'ADMIN'].includes(memberTag.toUpperCase()) && person.nameColorType !== 'rainbow' && person.nameColorType !== 'gradient') {
+                const regex = new RegExp(`(${rawKeyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+                nameHtml = person.name.replace(regex, `<span class="highlight">$1</span>`);
+            }
+
+            const daysLeftText = ageInfo.isBirthdayToday ? '🎉 Sinh nhật hôm nay!' : `còn ${ageInfo.daysLeft} ngày`;
+            const ageBoxBg = ageInfo.ratio > 0.5 ? `rgba(34, 197, 94, ${0.12 + ageInfo.ratio * 0.18})` : '#f1f5f9';
+            const ageBoxColor = ageInfo.ratio > 0.5 ? '#15803d' : '#0f172a';
+
+            const thumbHtml = person.image ? `<img src="${person.image}" class="card-avatar-thumb" onerror="this.style.display='none'">` : '';
+
+            card.innerHTML = `
+                <div class="member-left">
+                    ${thumbHtml}
+                    <div class="member-info">
+                        <div class="${nameClass}" style="${nameStyle}">${nameHtml}</div>
+                        <div class="member-sub-row">
+                            <span class="${tagChipClass}" style="${tagChipStyle}">${memberTag}</span>
+                            <span class="member-sub">${person.job || 'Chưa cập nhật'}</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="age-container">
+                    <div class="age-box" style="background: ${ageBoxBg}; color: ${ageBoxColor};">
+                        ${ageInfo.age} tuổi
+                        <div class="days-left-ghost">${daysLeftText}</div>
+                    </div>
+                </div>
+            `;
+
+            card.addEventListener('click', () => openDetailsView(person));
+            memberListOutput.appendChild(card);
+        });
+    }
+
+    function openDetailsView(person) {
+        const body = document.getElementById('details-card-body');
+        const ageInfo = calculateAgeInfo(person.birth);
+        const memberTag = person.memberTag || 'Normal';
+        const customTagObj = customTagsData.find(t => t.id === memberTag);
+
+        // Áp dụng màu nền khung theo thiết lập Tag hoặc thiết lập cá nhân (ngoại trừ các trường hợp tùy chọn)
+        body.style.border = "none";
+        body.style.boxShadow = "none";
+
+        if (customTagObj) {
+            if (customTagObj.cardColorMode === 'gradient') {
+                body.style.background = `linear-gradient(135deg, ${customTagObj.cardColor1}, ${customTagObj.cardColor2})`;
+            } else {
+                body.style.background = customTagObj.cardColor1 || '#ffffff';
+            }
+            if (customTagObj.cardOptGlow) {
+                body.style.border = `2px solid ${customTagObj.cardColor1}`;
+                body.style.boxShadow = `0 0 20px ${customTagObj.cardColor1}88`;
+            }
+        } else if (memberTag.toUpperCase() === 'VIP') {
+            body.style.background = `linear-gradient(135deg, #fef08a, #fef9c3, #fef08a)`;
+            body.style.border = `2px solid #eab308`;
+            body.style.boxShadow = `0 0 20px rgba(234, 179, 8, 0.5)`;
+        } else if (memberTag.toUpperCase() === 'ADMIN') {
+            body.style.background = `linear-gradient(135deg, #fee2e2, #fef3c7, #e0e7ff)`;
+            body.style.border = `2px solid #3b82f6`;
+            body.style.boxShadow = `0 0 20px rgba(59, 130, 246, 0.5)`;
+        } else {
+            if (person.colorType === 'gradient') {
+                body.style.background = `linear-gradient(135deg, ${person.color1}, ${person.color2})`;
+            } else {
+                body.style.background = person.color1 || '#ffffff';
+            }
+        }
+
+        if (person.optBg && person.image) {
+            body.style.backgroundImage = `url('${person.image}')`;
+            body.style.backgroundSize = 'cover';
+            body.style.backgroundPosition = 'center';
+        } else if (!customTagObj && memberTag.toUpperCase() !== 'VIP' && memberTag.toUpperCase() !== 'ADMIN') {
+            body.style.backgroundImage = 'none';
+        }
+
+        let avatarHtml = "";
+        if (person.image) {
+            avatarHtml = `
+                <div class="avatar-box">
+                    ${person.optBlur ? `<div class="blur-bg-img" style="background-image: url('${person.image}')"></div>` : ''}
+                    <img src="${person.image}" class="avatar-img" onerror="this.style.display='none'">
+                </div>
+            `;
+        }
+
+        const daysLeftText = ageInfo.isBirthdayToday ? '🎉 Hôm nay là sinh nhật!' : `Còn ${ageInfo.daysLeft} ngày nữa`;
+
+        body.innerHTML = `
+            ${avatarHtml}
+            <div class="info-item">
+                <span class="info-label">Họ và tên:</span>
+                <span class="info-val">${person.name}</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Tag hệ thống:</span>
+                <span class="info-val" style="font-weight:900;">${person.memberTag || 'Normal'}</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Biệt danh:</span>
+                <span class="info-val">${person.nickname || 'Không có'}</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Ngày sinh:</span>
+                <span class="info-val" style="color: ${ageInfo.colorHex}; font-weight:800;">
+                    ${person.birth} (${ageInfo.age} tuổi)
+                    <div style="font-size:11px; opacity:0.7; text-align:right;">${daysLeftText}</div>
+                </span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Địa chỉ:</span>
+                <span class="info-val">${person.address || 'Không có'}</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Nghề nghiệp:</span>
+                <span class="info-val">${person.job || 'Không có'}</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Điểm mạnh:</span>
+                <span class="info-val">${person.strength || 'Không có'}</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Điểm yếu:</span>
+                <span class="info-val">${person.weakness || 'Không có'}</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Sở thích:</span>
+                <span class="info-val">${person.hobby || 'Không có'}</span>
+            </div>
+        `;
+
+        switchView('details-view');
+    }
+
     function switchView(targetId) {
         document.querySelectorAll('.view-panel').forEach(p => p.classList.remove('active'));
-        if(targetId === 'search-view') {
-            document.getElementById('search-view').classList.add('active');
-            document.getElementById('search-view').classList.remove('inactive');
+        if(targetId === 'main-list-view') {
+            document.getElementById('main-list-view').classList.add('active');
+            document.getElementById('main-list-view').classList.remove('inactive');
         } else {
-            document.getElementById('search-view').classList.add('inactive');
+            document.getElementById('main-list-view').classList.add('inactive');
             document.getElementById(targetId).classList.add('active');
         }
     }
 
-    function openDetailsView(person) {
-        const body = document.getElementById('info-card-body');
-        body.style.background = person.color1 === person.color2 ? person.color1 : `linear-gradient(135deg, ${person.color1}, ${person.color2})`;
+    document.getElementById('btn-close-details').addEventListener('click', () => switchView('main-list-view'));
+    document.getElementById('btn-close-admin').addEventListener('click', () => switchView('main-list-view'));
 
-        let infoHtml = "";
-        if (person.image && person.image.trim() !== "") {
-            infoHtml += `<div class="avatar-container"><img src="${person.image}" class="avatar-img"></div>`;
-        }
-        infoHtml += `
-            <div class="info-row"><span class="info-label">Họ tên:</span><b>${person.name}</b></div>
-            <div class="info-row"><span class="info-label">Ngày sinh:</span>${person.birth}</div>
-            <div class="info-row"><span class="info-label">Biệt danh:</span>${person.nickname || 'Không có'}</div>
-            <div class="info-row"><span class="info-label">Sở thích:</span>${person.hobby || 'Không có'}</div>
-            <div class="info-row"><span class="info-label">Nghề nghiệp:</span>${person.job || 'Không có'}</div>
+    const autoJumpDate = (currId, nextId, maxLen) => {
+        const el = document.getElementById(currId);
+        el.addEventListener('input', function() {
+            this.value = this.value.replace(/[^0-9]/g, '');
+            if (this.value.length >= maxLen && nextId) {
+                document.getElementById(nextId).focus();
+            }
+        });
+    };
+    autoJumpDate('date-dd', 'date-mm', 2);
+    autoJumpDate('date-mm', 'date-yyyy', 2);
+    autoJumpDate('date-yyyy', null, 4);
+
+    document.getElementById('form-name').addEventListener('input', function() {
+        this.value = this.value.replace(/\b\w/g, l => l.toUpperCase());
+    });
+
+    const jobInput = document.getElementById('form-job');
+    const jobMenu = document.getElementById('job-menu');
+    let jobHoldTimer = null;
+
+    jobInput.addEventListener('touchstart', () => { jobHoldTimer = setTimeout(() => { jobMenu.style.display = 'block'; }, 500); });
+    jobInput.addEventListener('touchend', () => clearTimeout(jobHoldTimer));
+    jobInput.addEventListener('mousedown', () => { jobHoldTimer = setTimeout(() => { jobMenu.style.display = 'block'; }, 500); });
+    jobInput.addEventListener('mouseup', () => clearTimeout(jobHoldTimer));
+
+    document.querySelectorAll('.job-option-item').forEach(item => {
+        item.addEventListener('click', function() {
+            jobInput.value = this.innerText;
+            jobMenu.style.display = 'none';
+        });
+    });
+
+    const memberTagSelect = document.getElementById('form-member-tag');
+    const groupCustomNameColor = document.getElementById('group-custom-name-color');
+    const groupCustomCardGlow = document.getElementById('group-custom-card-glow');
+
+    function updateTagSelectOptions() {
+        memberTagSelect.innerHTML = `
+            <option value="Normal">Normal</option>
+            <option value="VIP">VIP</option>
+            <option value="ADMIN">ADMIN</option>
         `;
-        body.innerHTML = infoHtml;
-        switchView('details-view');
+        customTagsData.forEach(t => {
+            const opt = document.createElement('option');
+            opt.value = t.id;
+            opt.innerText = t.id;
+            memberTagSelect.appendChild(opt);
+        });
     }
 
-    document.getElementById('btn-close-details').addEventListener('click', () => switchView('search-view'));
-    document.getElementById('btn-close-admin').addEventListener('click', () => {
-        cheatStep = 0; clickCount = 0; switchView('search-view');
+    memberTagSelect.addEventListener('change', () => {
+        const val = memberTagSelect.value;
+        if (['VIP', 'ADMIN'].includes(val.toUpperCase()) || customTagsData.some(t => t.id === val)) {
+            groupCustomNameColor.style.display = 'none';
+            groupCustomCardGlow.style.display = 'none';
+        } else {
+            groupCustomNameColor.style.display = 'block';
+            groupCustomCardGlow.style.display = 'block';
+        }
     });
 
-    // --- LOGIC DIỄN BIẾN TRONG ADMIN ---
+    const nameColorTypeSelect = document.getElementById('form-name-color-type');
+    const nameColorPickers = document.getElementById('name-color-pickers');
+    const nameColor2Input = document.getElementById('form-name-color2');
+
+    nameColorTypeSelect.addEventListener('change', () => {
+        const val = nameColorTypeSelect.value;
+        if (val === 'single') {
+            nameColorPickers.style.display = 'flex';
+            nameColor2Input.style.display = 'none';
+        } else if (val === 'gradient') {
+            nameColorPickers.style.display = 'flex';
+            nameColor2Input.style.display = 'inline-block';
+        } else {
+            nameColorPickers.style.display = 'none';
+        }
+    });
+
+    const optCardGlowCheckbox = document.getElementById('form-opt-card-glow');
+    const cardGlowColors = document.getElementById('card-glow-colors');
+    const cardGlowTypeSelect = document.getElementById('form-card-glow-type');
+    const glowColor2Input = document.getElementById('form-glow-color2');
+
+    optCardGlowCheckbox.addEventListener('change', () => {
+        cardGlowColors.style.display = optCardGlowCheckbox.checked ? 'flex' : 'none';
+    });
+
+    cardGlowTypeSelect.addEventListener('change', () => {
+        glowColor2Input.style.display = cardGlowTypeSelect.value === 'gradient' ? 'inline-block' : 'none';
+    });
+
+    const colorTypeSelect = document.getElementById('form-color-type');
+    const color2Input = document.getElementById('form-color2');
+    colorTypeSelect.addEventListener('change', () => {
+        color2Input.style.display = colorTypeSelect.value === 'gradient' ? 'inline-block' : 'none';
+    });
+
     const navListBtn = document.getElementById('nav-list-btn');
     const navCreateBtn = document.getElementById('nav-create-btn');
+    const navTagBtn = document.getElementById('nav-tag-btn');
+
     const tabList = document.getElementById('tab-list');
     const tabForm = document.getElementById('tab-form');
+    const tabTags = document.getElementById('tab-tags');
 
     navListBtn.addEventListener('click', () => {
-        navListBtn.classList.add('active'); navCreateBtn.classList.remove('active');
-        tabList.style.display = "block"; tabForm.style.display = "none";
+        navListBtn.classList.add('active'); navCreateBtn.classList.remove('active'); navTagBtn.classList.remove('active');
+        tabList.style.display = "block"; tabForm.style.display = "none"; tabTags.style.display = "none";
     });
     navCreateBtn.addEventListener('click', () => {
-        navCreateBtn.classList.add('active'); navListBtn.classList.remove('active');
-        tabList.style.display = "none"; tabForm.style.display = "block";
-        document.getElementById('form-mode').value = "create";
-        document.getElementById('form-name').disabled = false;
-        resetForm();
+        navCreateBtn.classList.add('active'); navListBtn.classList.remove('active'); navTagBtn.classList.remove('active');
+        tabList.style.display = "none"; tabForm.style.display = "block"; tabTags.style.display = "none";
+        
+        // Reset form nếu đang ở chế độ tạo mới
+        if (document.getElementById('form-mode').value !== "edit") {
+            document.getElementById('form-mode').value = "create";
+            resetForm();
+        }
+    });
+    navTagBtn.addEventListener('click', () => {
+        navTagBtn.classList.add('active'); navListBtn.classList.remove('active'); navCreateBtn.classList.remove('active');
+        tabList.style.display = "none"; tabForm.style.display = "none"; tabTags.style.display = "block";
     });
 
     function resetForm() {
+        document.getElementById('form-mode').value = "create";
+        document.getElementById('form-original-name').value = "";
         document.getElementById('form-name').value = "";
+        document.getElementById('form-name').disabled = false;
+        
+        memberTagSelect.value = "Normal";
+        groupCustomNameColor.style.display = "block";
+        groupCustomCardGlow.style.display = "block";
+
+        nameColorTypeSelect.value = "default";
+        nameColorPickers.style.display = "none";
+        document.getElementById('form-name-color1').value = "#2563eb";
+        document.getElementById('form-name-color2').value = "#9333ea";
+
         document.getElementById('date-dd').value = "";
         document.getElementById('date-mm').value = "";
         document.getElementById('date-yyyy').value = "";
         document.getElementById('form-nick').value = "";
-        document.getElementById('form-hobby').value = "";
+        document.getElementById('form-address').value = "";
         document.getElementById('form-job').value = "";
+        document.getElementById('form-strength').value = "";
+        document.getElementById('form-weakness').value = "";
+        document.getElementById('form-hobby').value = "";
         document.getElementById('form-image').value = "";
+
+        optCardGlowCheckbox.checked = false;
+        cardGlowColors.style.display = "none";
+        cardGlowTypeSelect.value = "single";
+        document.getElementById('form-glow-color1').value = "#3b82f6";
+        document.getElementById('form-glow-color2').value = "#8b5cf6";
+        glowColor2Input.style.display = "none";
+
+        document.getElementById('form-opt-blur').checked = false;
+        document.getElementById('form-opt-bg').checked = false;
         document.getElementById('form-color1').value = "#ffffff";
-        document.getElementById('form-color2').value = "#ffffff";
+        document.getElementById('form-color2').value = "#667eea";
+        colorTypeSelect.value = "single";
+        color2Input.style.display = "none";
     }
 
     function renderAdminList() {
         const listDiv = document.getElementById('admin-data-list');
         listDiv.innerHTML = "";
-        if(localData.length === 0) { listDiv.innerHTML = "Trống dữ liệu."; return; }
+        if(localData.length === 0) { 
+            listDiv.innerHTML = "<div style='font-size:13px; color:#64748b; padding:10px;'>Chưa có dữ liệu thành viên.</div>"; 
+            return; 
+        }
 
         localData.forEach(p => {
             const row = document.createElement('div');
-            row.className = 'data-item';
+            row.className = 'admin-item-card';
             row.innerHTML = `
-                <span class="data-info">${p.name}</span>
-                <div class="data-actions">
+                <div>
+                    <span style="font-weight:700; color:#1e293b;">${p.name}</span>
+                    <span class="tag-chip tag-normal-style" style="margin-left:6px; font-size:9px;">${p.memberTag || 'Normal'}</span>
+                </div>
+                <div class="admin-item-actions">
                     <button class="btn-edit" data-id="${p.name}">Sửa</button>
                     <button class="btn-delete" data-id="${p.name}">Xóa</button>
                 </div>
@@ -583,74 +1631,307 @@
             listDiv.appendChild(row);
         });
 
-        // Xử lý Xóa tài liệu trực tiếp
+        // NÚT XÓA VÀ SỬA THÀNH VIÊN
         document.querySelectorAll('.btn-delete').forEach(btn => {
             btn.addEventListener('click', async (e) => {
-                const nameId = e.target.getAttribute('data-id');
-                if(confirm(`Xóa thành viên: ${nameId}?`)) {
-                    await deleteDoc(doc(db, "thanhvien", nameId));
-                    await fetchDatabase();
+                e.stopPropagation();
+                const nameId = btn.getAttribute('data-id');
+                if(confirm(`Bạn có chắc muốn xóa thành viên: ${nameId}?`)) {
+                    showLoading();
+                    try {
+                        await deleteDoc(doc(db, "thanhvien", nameId));
+                        await fetchDatabase();
+                    } catch(err) {
+                        alert("Lỗi khi xóa dữ liệu!");
+                    } finally {
+                        hideLoading();
+                    }
                 }
             });
         });
 
-        // Xử lý Chỉnh sửa tài liệu
         document.querySelectorAll('.btn-edit').forEach(btn => {
             btn.addEventListener('click', (e) => {
-                const nameId = e.target.getAttribute('data-id');
+                e.stopPropagation();
+                const nameId = btn.getAttribute('data-id');
                 const p = localData.find(item => item.name === nameId);
                 if(p) {
+                    // Cài đặt chế độ Sửa
                     document.getElementById('form-mode').value = "edit";
+                    document.getElementById('form-original-name').value = p.name;
                     document.getElementById('form-name').value = p.name;
-                    document.getElementById('form-name').disabled = true; // Khóa trường tên khi sửa vì nó là ID dữ liệu
+                    document.getElementById('form-name').disabled = false;
 
-                    const bParts = p.birth.split('/');
+                    // Gán Tag thành viên
+                    memberTagSelect.value = p.memberTag || "Normal";
+                    memberTagSelect.dispatchEvent(new Event('change'));
+
+                    // Gán màu tên
+                    nameColorTypeSelect.value = p.nameColorType || "default";
+                    nameColorTypeSelect.dispatchEvent(new Event('change'));
+                    document.getElementById('form-name-color1').value = p.nameColor1 || "#2563eb";
+                    document.getElementById('form-name-color2').value = p.nameColor2 || "#9333ea";
+
+                    // Gán ngày tháng năm sinh
+                    const bParts = (p.birth || '').split('/');
                     document.getElementById('date-dd').value = bParts[0] || "";
                     document.getElementById('date-mm').value = bParts[1] || "";
                     document.getElementById('date-yyyy').value = bParts[2] || "";
 
+                    // Gán thông tin phụ
                     document.getElementById('form-nick').value = p.nickname || "";
-                    document.getElementById('form-hobby').value = p.hobby || "";
+                    document.getElementById('form-address').value = p.address || "";
                     document.getElementById('form-job').value = p.job || "";
+                    document.getElementById('form-strength').value = p.strength || "";
+                    document.getElementById('form-weakness').value = p.weakness || "";
+                    document.getElementById('form-hobby').value = p.hobby || "";
                     document.getElementById('form-image').value = p.image || "";
-                    document.getElementById('form-color1').value = p.color1 || "#ffffff";
-                    document.getElementById('form-color2').value = p.color2 || "#ffffff";
 
-                    navCreateBtn.classList.add('active'); navListBtn.classList.remove('active');
-                    tabList.style.display = "none"; tabForm.style.display = "block";
+                    // Gán cấu hình phát sáng thẻ
+                    optCardGlowCheckbox.checked = !!p.optCardGlow;
+                    optCardGlowCheckbox.dispatchEvent(new Event('change'));
+                    cardGlowTypeSelect.value = p.cardGlowType || 'single';
+                    cardGlowTypeSelect.dispatchEvent(new Event('change'));
+                    document.getElementById('form-glow-color1').value = p.glowColor1 || '#3b82f6';
+                    document.getElementById('form-glow-color2').value = p.glowColor2 || '#8b5cf6';
+
+                    // Gán tùy chọn ảnh và màu giao diện
+                    document.getElementById('form-opt-blur').checked = !!p.optBlur;
+                    document.getElementById('form-opt-bg').checked = !!p.optBg;
+
+                    colorTypeSelect.value = p.colorType || "single";
+                    colorTypeSelect.dispatchEvent(new Event('change'));
+                    document.getElementById('form-color1').value = p.color1 || "#ffffff";
+                    document.getElementById('form-color2').value = p.color2 || "#667eea";
+
+                    // Chuyển Tab sang Form chỉnh sửa
+                    navCreateBtn.classList.add('active'); 
+                    navListBtn.classList.remove('active'); 
+                    navTagBtn.classList.remove('active');
+                    tabList.style.display = "none"; 
+                    tabForm.style.display = "block"; 
+                    tabTags.style.display = "none";
                 }
             });
         });
     }
 
-    // Lưu dữ liệu (SetDoc tạo cấu trúc: thanhvien -> Họ tên làm ID)
+    // SỬA LỖI: Sửa tên làm trùng lặp thẻ cũ trong database
     document.getElementById('btn-save-data').addEventListener('click', async () => {
+        const mode = document.getElementById('form-mode').value;
+        const originalName = document.getElementById('form-original-name').value;
         const name = document.getElementById('form-name').value.trim();
         const dd = document.getElementById('date-dd').value.trim();
         const mm = document.getElementById('date-mm').value.trim();
         const yyyy = document.getElementById('date-yyyy').value.trim();
+        
+        const memberTag = memberTagSelect.value;
+        const nameColorType = nameColorTypeSelect.value;
+        const nameColor1 = document.getElementById('form-name-color1').value;
+        const nameColor2 = document.getElementById('form-name-color2').value;
+
         const nickname = document.getElementById('form-nick').value.trim();
-        const hobby = document.getElementById('form-hobby').value.trim();
+        const address = document.getElementById('form-address').value.trim();
         const job = document.getElementById('form-job').value.trim();
+        const strength = document.getElementById('form-strength').value.trim();
+        const weakness = document.getElementById('form-weakness').value.trim();
+        const hobby = document.getElementById('form-hobby').value.trim();
         const image = document.getElementById('form-image').value.trim();
+
+        const optCardGlow = optCardGlowCheckbox.checked;
+        const cardGlowType = cardGlowTypeSelect.value;
+        const glowColor1 = document.getElementById('form-glow-color1').value;
+        const glowColor2 = document.getElementById('form-glow-color2').value;
+
+        const optBlur = document.getElementById('form-opt-blur').checked;
+        const optBg = document.getElementById('form-opt-bg').checked;
+        const colorType = colorTypeSelect.value;
         const color1 = document.getElementById('form-color1').value;
         const color2 = document.getElementById('form-color2').value;
 
-        if(!name || !dd || !mm || !yyyy) { alert("Thiếu thông tin bắt buộc!"); return; }
+        if(!name || !dd || !mm || !yyyy || !job) { 
+            alert("Thiếu thông tin bắt buộc! (Họ tên, ngày sinh, nghề nghiệp)"); 
+            return; 
+        }
 
         const birth = `${dd.padStart(2,'0')}/${mm.padStart(2,'0')}/${yyyy}`;
-        const dataPayload = { birth, nickname, hobby, job, image, color1, color2 };
+        const payload = { 
+            birth, memberTag, nameColorType, nameColor1, nameColor2, nickname, address, 
+            job, strength, weakness, hobby, image, optCardGlow, cardGlowType, 
+            glowColor1, glowColor2, optBlur, optBg, colorType, color1, color2 
+        };
 
+        showLoading();
         try {
-            // Sử dụng setDoc để chỉ định đích danh Document ID = Tên Thành Viên
-            await setDoc(doc(db, "thanhvien", name), dataPayload, { merge: true });
+            // Xóa document cũ nếu đã đổi tên ở chế độ Sửa
+            if (mode === 'edit' && originalName && originalName !== name) {
+                await deleteDoc(doc(db, "thanhvien", originalName));
+            }
+            await setDoc(doc(db, "thanhvien", name), payload, { merge: true });
             alert("Lưu thông tin thành công!");
             resetForm();
             await fetchDatabase();
             navListBtn.click();
         } catch (error) {
-            alert("Lỗi đẩy dữ liệu lên Firebase!");
+            alert("Lỗi khi lưu dữ liệu!");
             console.error(error);
+        } finally {
+            hideLoading();
+        }
+    });
+
+    const btnOpenCreateTag = document.getElementById('btn-open-create-tag');
+    const customTagEditorForm = document.getElementById('custom-tag-editor-form');
+    const customTagsListContainer = document.getElementById('custom-tags-list-container');
+    const btnCancelCustomTag = document.getElementById('btn-cancel-custom-tag');
+    const btnSaveCustomTag = document.getElementById('btn-save-custom-tag');
+
+    btnOpenCreateTag.addEventListener('click', () => {
+        document.getElementById('tag-editor-title').innerText = "Tạo Tag Mới (Tối đa 20 từ)";
+        document.getElementById('tag-edit-original-id').value = "";
+        document.getElementById('tag-input-name').value = "";
+        document.getElementById('tag-input-name').disabled = false;
+        customTagEditorForm.style.display = 'block';
+    });
+
+    btnCancelCustomTag.addEventListener('click', () => {
+        customTagEditorForm.style.display = 'none';
+    });
+
+    document.getElementById('tag-color-mode').addEventListener('change', (e) => {
+        document.getElementById('tag-color-2').style.display = e.target.value === 'gradient' ? 'inline-block' : 'none';
+    });
+    document.getElementById('tag-name-color-mode').addEventListener('change', (e) => {
+        document.getElementById('tag-name-color-2').style.display = e.target.value === 'gradient' ? 'inline-block' : 'none';
+    });
+    document.getElementById('tag-card-color-mode').addEventListener('change', (e) => {
+        document.getElementById('tag-card-color-2').style.display = e.target.value === 'gradient' ? 'inline-block' : 'none';
+    });
+
+    function renderCustomTagsList() {
+        customTagsListContainer.innerHTML = "";
+        if (customTagsData.length === 0) {
+            customTagsListContainer.innerHTML = `<div style="font-size:12px; color:#94a3b8;">Chưa có tag tùy chỉnh nào.</div>`;
+            return;
+        }
+
+        customTagsData.forEach(tag => {
+            const row = document.createElement('div');
+            row.className = 'tag-box-item';
+            row.innerHTML = `
+                <div>
+                    <span style="font-weight:800; font-size:13px;">${tag.id}</span>
+                </div>
+                <div>
+                    <button class="btn-edit-tag" data-id="${tag.id}" style="padding:4px 8px; background:#f59e0b; color:white; border:none; border-radius:6px; cursor:pointer; font-size:11px;">Sửa</button>
+                    <button class="btn-delete-tag" data-id="${tag.id}" style="padding:4px 8px; background:var(--danger); color:white; border:none; border-radius:6px; cursor:pointer; font-size:11px; margin-left:4px;">Xóa</button>
+                </div>
+            `;
+            customTagsListContainer.appendChild(row);
+        });
+
+        document.querySelectorAll('.btn-edit-tag').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const tagId = btn.getAttribute('data-id');
+                const tagObj = customTagsData.find(t => t.id === tagId);
+                if (tagObj) {
+                    document.getElementById('tag-editor-title').innerText = "Chỉnh Sửa Tag";
+                    document.getElementById('tag-edit-original-id').value = tagObj.id;
+                    document.getElementById('tag-input-name').value = tagObj.id;
+                    document.getElementById('tag-input-name').disabled = true;
+
+                    const tagColorMode = document.getElementById('tag-color-mode');
+                    tagColorMode.value = tagObj.tagColorMode || 'single';
+                    tagColorMode.dispatchEvent(new Event('change'));
+                    document.getElementById('tag-color-1').value = tagObj.tagColor1 || '#3b82f6';
+                    document.getElementById('tag-color-2').value = tagObj.tagColor2 || '#8b5cf6';
+                    document.getElementById('tag-opt-shimmer').checked = !!tagObj.tagOptShimmer;
+                    document.getElementById('tag-opt-glow').checked = !!tagObj.tagOptGlow;
+
+                    const tagNameColorMode = document.getElementById('tag-name-color-mode');
+                    tagNameColorMode.value = tagObj.nameColorMode || 'single';
+                    tagNameColorMode.dispatchEvent(new Event('change'));
+                    document.getElementById('tag-name-color-1').value = tagObj.nameColor1 || '#0f172a';
+                    document.getElementById('tag-name-color-2').value = tagObj.nameColor2 || '#2563eb';
+                    document.getElementById('tag-name-opt-shimmer').checked = !!tagObj.nameOptShimmer;
+                    document.getElementById('tag-name-opt-glow').checked = !!tagObj.nameOptGlow;
+
+                    const tagCardColorMode = document.getElementById('tag-card-color-mode');
+                    tagCardColorMode.value = tagObj.cardColorMode || 'single';
+                    tagCardColorMode.dispatchEvent(new Event('change'));
+                    document.getElementById('tag-card-color-1').value = tagObj.cardColor1 || '#ffffff';
+                    document.getElementById('tag-card-color-2').value = tagObj.cardColor2 || '#f1f5f9';
+                    document.getElementById('tag-card-opt-shimmer').checked = !!tagObj.cardOptShimmer;
+                    document.getElementById('tag-card-opt-glow').checked = !!tagObj.cardOptGlow;
+
+                    customTagEditorForm.style.display = 'block';
+                }
+            });
+        });
+
+        document.querySelectorAll('.btn-delete-tag').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+                e.stopPropagation();
+                const tagId = btn.getAttribute('data-id');
+                if (confirm(`Bạn có chắc muốn xóa Tag: ${tagId}?`)) {
+                    showLoading();
+                    try {
+                        await deleteDoc(doc(db, "custom_tags", tagId));
+                        await fetchDatabase();
+                    } catch(err) {
+                        alert("Lỗi khi xóa Tag!");
+                    } finally {
+                        hideLoading();
+                    }
+                }
+            });
+        });
+    }
+
+    btnSaveCustomTag.addEventListener('click', async () => {
+        const tagName = document.getElementById('tag-input-name').value.trim();
+        if (!tagName) {
+            alert("Vui lòng nhập tên Tag!");
+            return;
+        }
+
+        if (tagName.length > 20) {
+            alert("Tên Tag không được vượt quá 20 ký tự!");
+            return;
+        }
+
+        const tagPayload = {
+            tagColorMode: document.getElementById('tag-color-mode').value,
+            tagColor1: document.getElementById('tag-color-1').value,
+            tagColor2: document.getElementById('tag-color-2').value,
+            tagOptShimmer: document.getElementById('tag-opt-shimmer').checked,
+            tagOptGlow: document.getElementById('tag-opt-glow').checked,
+
+            nameColorMode: document.getElementById('tag-name-color-mode').value,
+            nameColor1: document.getElementById('tag-name-color-1').value,
+            nameColor2: document.getElementById('tag-name-color-2').value,
+            nameOptShimmer: document.getElementById('tag-name-opt-shimmer').checked,
+            nameOptGlow: document.getElementById('tag-name-opt-glow').checked,
+
+            cardColorMode: document.getElementById('tag-card-color-mode').value,
+            cardColor1: document.getElementById('tag-card-color-1').value,
+            cardColor2: document.getElementById('tag-card-color-2').value,
+            cardOptShimmer: document.getElementById('tag-card-opt-shimmer').checked,
+            cardOptGlow: document.getElementById('tag-card-opt-glow').checked
+        };
+
+        showLoading();
+        try {
+            await setDoc(doc(db, "custom_tags", tagName), tagPayload, { merge: true });
+            alert("Lưu Tag thành công!");
+            customTagEditorForm.style.display = 'none';
+            await fetchDatabase();
+        } catch (error) {
+            alert("Lỗi khi lưu Tag!");
+            console.error(error);
+        } finally {
+            hideLoading();
         }
     });
 </script>

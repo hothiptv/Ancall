@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="vi" class="h-full select-none">
+<head>
+    <meta charset="UTF-8">
+    <!-- Cấm zoom hoàn toàn trên mobile -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Private Portal</title>
+
+    <!-- PWA Meta Tags -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Portal App">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#0f172a">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        /* Chặn bôi xanh / chọn văn bản toàn trang */
+        *, *::before, *::after {
+            -webkit-user-select: none !important;
+            -moz-user-select: none !important;
+            -ms-user-select: none !important;
+            user-select: none !important;
+            -webkit-touch-callout: none !important;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+        }
+
+        /* Ngoại lệ: Cho phép bôi xanh & chọn văn bản DUY NHẤT bên trong khung xem Iframe */
+        #iframe-container, #iframe-container *, #app-iframe {
+            -webkit-user-select: text !important;
+            -moz-user-select: text !important;
+            -ms-user-select: text !important;
+            user-select: text !important;
+            -webkit-touch-callout: default !important;
+            touch-action: auto !important;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: rgba(15, 23, 42, 0.6); }
+        ::-webkit-scrollbar-thumb { background: rgba(6, 182, 212, 0.5); border-radius: 4px; }
+
+        .neon-glow-cyan { box-shadow: 0 0 20px rgba(6, 182, 212, 0.3), inset 0 0 15px rgba(6, 182, 212, 0.15); }
+        .neon-glow-red { box-shadow: 0 0 25px rgba(239, 68, 68, 0.4); }
+        .neon-text-cyan { text-shadow: 0 0 10px rgba(6, 182, 212, 0.8); }
+
+        @keyframes pulseGlow {
+            0%, 100% { opacity: 0.3; transform: scale(1); }
+            50% { opacity: 0.7; transform: scale(1.08); }
+        }
+        .animate-pulse-glow { animation: pulseGlow 5s infinite ease-in-out; }
+    </style>
+</head>
+<body class="h-full bg-slate-950 text-slate-100 font-sans overflow-hidden flex flex-col justify-center items-center relative">
+
+    <!-- Ambient Cyber Background -->
+    <div class="fixed inset-0 pointer-events-none z-0">
+        <div class="absolute -top-32 -left-32 w-80 h-80 bg-cyan-500/20 rounded-full blur-3xl animate-pulse-glow"></div>
+        <div class="absolute -bottom-32 -right-32 w-80 h-80 bg-purple-600/20 rounded-full blur-3xl animate-pulse-glow" style="animation-delay: 2.5s;"></div>
+        <div class="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(15,23,42,0)_0%,rgba(2,6,23,0.98)_100%)]"></div>
+    </div>
+
+    <!-- MAIN APP CONTAINER -->
+    <div id="app-wrapper" class="relative z-10 w-full h-full flex flex-col items-center justify-center p-4">
+
+        <!-- 1. LOADING SCREEN -->
+        <div id="loading-screen" class="flex flex-col items-center justify-center space-y-4 text-center">
+            <div class="relative w-20 h-20 flex items-center justify-center">
+                <div class="absolute inset-0 border-4 border-cyan-500/20 rounded-full"></div>
+                <div class="absolute inset-0 border-4 border-cyan-400 border-t-transparent rounded-full animate-spin"></div>
+                <i class="fa-solid fa-arrows-rotate text-2xl text-cyan-400"></i>
+            </div>
+            <div class="space-y-1">
+                <h2 class="text-base font-bold tracking-wider text-cyan-400 neon-text-cyan uppercase">Đang tải...</h2>
+                <p id="loading-status" class="text-xs text-slate-400 font-mono">Đang kiểm tra dữ liệu hệ thống</p>
+            </div>
+        </div>
+
+        <!-- 2. CONNECTION ERROR SCREEN -->
+        <div id="connection-error-screen" class="hidden max-w-sm w-full bg-slate-900/90 backdrop-blur-2xl border border-red-500/40 rounded-3xl p-6 text-center space-y-5 shadow-2xl neon-glow-red">
+            <div class="w-16 h-16 mx-auto bg-red-500/10 rounded-2xl flex items-center justify-center border border-red-500/40 text-red-400 text-2xl">
+                <i class="fa-solid fa-wifi"></i>
+            </div>
+            <div class="space-y-2">
+                <h2 class="text-lg font-bold text-red-400 tracking-wide uppercase">Lỗi Kết Nối</h2>
+                <p class="text-xs text-slate-300 leading-relaxed">
+                    Khởi tạo dữ liệu không thành công. Máy chủ không phản hồi hoặc mạng không ổn định.
+                </p>
+            </div>
+            <button onclick="reloadApplication()" class="w-full py-3 bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-bold uppercase tracking-wider rounded-xl shadow-lg shadow-cyan-500/20 transition active:scale-95 flex items-center justify-center gap-2">
+                <i class="fa-solid fa-rotate-right"></i> Tải Lại Trang
+            </button>
+        </div>
+
+        <!-- 3. LOCK SCREEN -->
+        <div id="lock-screen" class="hidden max-w-sm w-full bg-slate-900/90 backdrop-blur-2xl border border-cyan-500/30 rounded-3xl p-6 shadow-2xl space-y-6 neon-glow-cyan">
+            <div class="text-center space-y-2">
+                <div class="w-14 h-14 mx-auto bg-cyan-500/10 border border-cyan-500/40 rounded-2xl flex items-center justify-center text-cyan-400 text-2xl">
+                    <i class="fa-solid fa-lock"></i>
+                </div>
+                <h2 id="lock-title" class="text-lg font-bold text-slate-100 tracking-wide uppercase">Xác Thực Mật Khẩu</h2>
+                <p id="lock-subtext" class="text-xs text-slate-400">Vui lòng nhập mật khẩu để tiếp tục.</p>
+            </div>
+
+            <form id="password-form" onsubmit="handlePasswordSubmit(event)" class="space-y-4">
+                <div>
+                    <input type="password" id="password-input" placeholder="Nhập mật khẩu..." required autocomplete="off"
+                        class="w-full bg-slate-950/90 border border-slate-700 focus:border-cyan-400 text-slate-100 placeholder-slate-600 text-center text-lg tracking-widest rounded-xl py-3 px-4 outline-none transition duration-200">
+                </div>
+                <p id="password-error" class="hidden text-xs text-red-400 text-center font-medium animate-pulse">
+                    <i class="fa-solid fa-circle-xmark mr-1"></i> Mật khẩu không chính xác!
+                </p>
+                <button type="submit" 
+                    class="w-full py-3 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white text-xs font-bold uppercase tracking-wider rounded-xl shadow-lg shadow-cyan-500/20 transition active:scale-95 flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-key text-xs"></i> Truy Cập
+                </button>
+            </form>
+        </div>
+
+        <!-- 4. DASHBOARD SCREEN -->
+        <div id="dashboard-screen" class="hidden max-w-md w-full bg-slate-900/80 backdrop-blur-2xl border border-slate-800 rounded-3xl p-6 shadow-2xl space-y-6 max-h-[90vh] flex flex-col">
+            <!-- Header section với H1 Title đọc từ GitHub API -->
+            <div class="flex items-center justify-between border-b border-slate-800/80 pb-4 shrink-0">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 rounded-2xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400 text-lg">
+                        <i class="fa-solid fa-cube"></i>
+                    </div>
+                    <div>
+                        <h1 id="portal-title" class="text-lg font-bold text-white tracking-wide neon-text-cyan truncate max-w-[180px]">Trang Chủ</h1>
+                        <span class="inline-flex items-center text-[10px] text-cyan-400 bg-cyan-500/10 px-2 py-0.5 rounded-full border border-cyan-500/20">
+                            <span class="w-1.5 h-1.5 rounded-full bg-cyan-400 mr-1.5 animate-ping"></span> Trực tuyến
+                        </span>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <button onclick="reloadApplication()" title="Tải lại hệ thống" class="p-2.5 bg-slate-800 hover:bg-slate-700 text-cyan-400 hover:text-cyan-300 rounded-xl border border-slate-700 transition active:scale-90 flex items-center gap-1.5 text-xs font-medium">
+                        <i class="fa-solid fa-rotate"></i>
+                        <span>Tải lại</span>
+                    </button>
+                    <button onclick="lockMainApp()" title="Khóa ứng dụng" class="p-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-xl border border-slate-700 transition active:scale-90">
+                        <i class="fa-solid fa-lock text-xs"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Danh sách Link đọc từ TXT -->
+            <div class="space-y-3 overflow-y-auto pr-1 grow">
+                <div class="flex items-center justify-between text-xs text-slate-400">
+                    <span class="font-semibold uppercase tracking-wider text-[10px]">Danh sách liên kết</span>
+                    <i class="fa-solid fa-link text-cyan-400"></i>
+                </div>
+                
+                <div id="links-container" class="space-y-2.5">
+                    <!-- Links sẽ render tự động ở đây -->
+                </div>
+            </div>
+
+            <!-- Footer Toolbar -->
+            <div class="grid grid-cols-2 gap-3 pt-2 border-t border-slate-800/80 shrink-0">
+                <button onclick="lockMainApp()" class="py-2.5 px-4 bg-slate-800/60 hover:bg-slate-800 border border-slate-700 rounded-xl text-xs font-semibold text-slate-300 flex items-center justify-center gap-2 transition active:scale-95">
+                    <i class="fa-solid fa-lock text-amber-400"></i> Khóa Mật Khẩu
+                </button>
+                <button onclick="redirectToGoogle()" class="py-2.5 px-4 bg-slate-800/60 hover:bg-slate-800 border border-slate-700 rounded-xl text-xs font-semibold text-slate-300 flex items-center justify-center gap-2 transition active:scale-95">
+                    <i class="fa-brands fa-google text-red-400"></i> Google.com
+                </button>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- 5. IFRAME VIEW SCREEN -->
+    <div id="iframe-view" class="hidden fixed inset-0 z-50 bg-slate-950 flex flex-col h-full w-full">
+        <div class="h-14 bg-slate-900/95 backdrop-blur-md border-b border-slate-800 px-3 flex items-center justify-between shrink-0 select-none">
+            <button onclick="closeIframeView()" class="flex items-center gap-1.5 px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold rounded-xl border border-slate-700 transition active:scale-95">
+                <i class="fa-solid fa-house text-cyan-400"></i> Trang chủ
+            </button>
+
+            <button onclick="reloadIframe()" class="flex items-center gap-1.5 px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-cyan-400 text-xs font-semibold rounded-xl border border-slate-700 transition active:scale-95">
+                <i class="fa-solid fa-rotate"></i> Tải lại
+            </button>
+
+            <button onclick="lockFromIframe()" class="flex items-center gap-1.5 px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-amber-400 text-xs font-semibold rounded-xl border border-slate-700 transition active:scale-95">
+                <i class="fa-solid fa-lock"></i> Khóa
+            </button>
+
+            <button onclick="redirectToGoogle()" class="flex items-center gap-1.5 px-3 py-1.5 bg-red-600/20 hover:bg-red-600/30 text-red-300 text-xs font-semibold rounded-xl border border-red-500/30 transition active:scale-95">
+                <i class="fa-brands fa-google"></i> Google
+            </button>
+        </div>
+
+        <div id="iframe-container" class="grow w-full h-full relative bg-white">
+            <iframe id="app-iframe" class="w-full h-full border-none" src="about:blank" sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-modals"></iframe>
+        </div>
+    </div>
+
+    <!-- LOGIC SYSTEM SCRIPT -->
+    <script>
+        const GITHUB_API_URL = 'https://api.github.com/repos/hothiptv/Ancall/contents/script/script.txt';
+
+        let config = {
+            web: 'on',
+            pass: '',
+            passlink: '', // Mật khẩu chung áp dụng cho tất cả liên kết
+            name: 'Trang Chủ Portal',
+            links: [] // { url, pass, title, image, preloaded }
+        };
+
+        let currentLockState = 'main'; // 'main' hoặc 'link'
+        let selectedLinkObj = null;
+        let isMainAuthenticated = false;
+        let redirectTimer = null;
+        let imageToggleStates = {}; // Trạng thái bật/tắt hiển thị ảnh preview của mỗi card
+
+        window.addEventListener('load', async () => {
+            await initApp();
+        });
+
+        async function initApp() {
+            showScreen('loading-screen');
+            if (redirectTimer) clearTimeout(redirectTimer);
+
+            const isVpnActive = await checkCloudflareWARP();
+            if (!isVpnActive) {
+                showConnectionError();
+                return;
+            }
+
+            const apiSuccess = await fetchConfigFromGitHubAPI();
+            if (!apiSuccess) {
+                showConnectionError();
+                return;
+            }
+
+            if (config.web.toLowerCase() === 'off') {
+                redirectToGoogle();
+                return;
+            }
+
+            // Tự động tải trước các link trong nền (Preload links)
+            preloadLinksInBackground();
+
+            if (config.pass && config.pass.trim() !== '' && !isMainAuthenticated) {
+                promptLockScreen('main');
+            } else {
+                showDashboard();
+            }
+        }
+
+        async function checkCloudflareWARP() {
+            const endpoints = [
+                'https://1.1.1.1/cdn-cgi/trace',
+                'https://www.cloudflare.com/cdn-cgi/trace'
+            ];
+
+            for (const ep of endpoints) {
+                try {
+                    const controller = new AbortController();
+                    const timer = setTimeout(() => controller.abort(), 3500);
+
+                    const res = await fetch(ep + '?t=' + Date.now(), {
+                        signal: controller.signal,
+                        cache: 'no-store'
+                    });
+                    clearTimeout(timer);
+
+                    if (res.ok) {
+                        const text = await res.text();
+                        if (text.includes('warp=on') || text.includes('warp=plus')) {
+                            return true;
+                        }
+                    }
+                } catch (e) {
+                    console.log("Check fail:", ep);
+                }
+            }
+            return false;
+        }
+
+        async function fetchConfigFromGitHubAPI() {
+            try {
+                const res = await fetch(GITHUB_API_URL + '?t=' + Date.now(), {
+                    cache: 'no-store',
+                    headers: { 'Accept': 'application/vnd.github.v3+json' }
+                });
+
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data && data.content) {
+                        const decodedTxt = decodeURIComponent(escape(atob(data.content.replace(/\s/g, ''))));
+                        parseTxtConfig(decodedTxt);
+                        return true;
+                    }
+                }
+            } catch (e) {
+                console.error("GitHub API Error:", e);
+            }
+            return false;
+        }
+
+        // TỰ ĐỘNG LẤY TIÊU ĐỀ SẠCH TỪ URL KHI KHÔNG CÓ TIÊU ĐỀ CỤ THỂ
+        function extractTitleFromUrl(url) {
+            try {
+                let cleanUrl = url.replace(/^(https?:\/\/)?(www\.)?/, '');
+                const domain = cleanUrl.split('/')[0];
+                const pathParts = cleanUrl.split('/').filter(p => p.length > 0);
+                
+                if (pathParts.length > 1) {
+                    let lastPath = pathParts[pathParts.length - 1].split('?')[0].replace(/[-_]/g, ' ');
+                    if (lastPath.length > 3) {
+                        return lastPath.charAt(0).toUpperCase() + lastPath.slice(1);
+                    }
+                }
+                return domain.charAt(0).toUpperCase() + domain.slice(1);
+            } catch (e) {
+                return 'Liên kết web';
+            }
+        }
+
+        // PHÂN TÍCH FILE TXT (HỖ TRỢ passlink:, img:, pass:, image:)
+        function parseTxtConfig(txt) {
+            config.links = [];
+            config.passlink = '';
+            const lines = txt.split(/\r?\n/);
+
+            lines.forEach(line => {
+                const trimmed = line.trim();
+                if (!trimmed || trimmed.startsWith('#')) return;
+
+                const colonIndex = trimmed.indexOf(':');
+                if (colonIndex !== -1) {
+                    const key = trimmed.substring(0, colonIndex).trim().toLowerCase();
+                    const val = trimmed.substring(colonIndex + 1).trim();
+
+                    if (key === 'web') config.web = val;
+                    else if (key === 'pass') config.pass = val;
+                    else if (key === 'passlink') config.passlink = val; // Mật khẩu chung cho tất cả link
+                    else if (key === 'name') config.name = val;
+                    else if (key === 'link') {
+                        let linkUrl = val;
+                        let linkPass = null;
+                        let customTitle = null;
+                        let imageUrl = null;
+
+                        // Tách thông tin mở rộng: link | tiêu đề | hình ảnh
+                        if (linkUrl.includes('|')) {
+                            const parts = linkUrl.split('|');
+                            linkUrl = parts[0].trim();
+                            if (parts[1]) customTitle = parts[1].trim();
+                            if (parts[2]) imageUrl = parts[2].trim();
+                        }
+
+                        // Kiểm tra nếu có `- pass:` trong link
+                        if (linkUrl.includes('- pass:')) {
+                            const parts = linkUrl.split('- pass:');
+                            linkUrl = parts[0].trim();
+                            linkPass = parts[1].trim();
+                        } else if (linkUrl.includes('pass:')) {
+                            const parts = linkUrl.split('pass:');
+                            linkUrl = parts[0].trim();
+                            linkPass = parts[1].trim();
+                        }
+
+                        // Kiểm tra nếu có hình ảnh kèm theo dạng `- img:` hoặc `- image:`
+                        if (linkUrl.includes('- img:')) {
+                            const parts = linkUrl.split('- img:');
+                            linkUrl = parts[0].trim();
+                            imageUrl = parts[1].trim();
+                        } else if (linkUrl.includes('- image:')) {
+                            const parts = linkUrl.split('- image:');
+                            linkUrl = parts[0].trim();
+                            imageUrl = parts[1].trim();
+                        }
+
+                        if (linkUrl) {
+                            const finalTitle = customTitle || extractTitleFromUrl(linkUrl);
+                            
+                            // Thứ tự ưu tiên mật khẩu link: 1. passlink (mật khẩu chung tất cả link) -> 2. pass riêng link -> 3. pass web
+                            const effectivePass = config.passlink ? config.passlink : (linkPass || config.pass || null);
+
+                            config.links.push({
+                                url: linkUrl,
+                                pass: effectivePass,
+                                title: finalTitle,
+                                image: imageUrl || null,
+                                preloaded: false
+                            });
+                        }
+                    }
+                }
+            });
+        }
+
+        // TỰ ĐỘNG TẢI TRƯỚC TẤT CẢ CÁC LINK TRƯỚC KHI VÀO ĐỂ TỐI ƯU TỐC ĐỘ
+        function preloadLinksInBackground() {
+            if (!config.links || config.links.length === 0) return;
+
+            config.links.forEach((item) => {
+                let targetUrl = item.url;
+                if (!targetUrl.startsWith('http://') && !targetUrl.startsWith('https://')) {
+                    targetUrl = 'https://' + targetUrl;
+                }
+
+                try {
+                    // Dùng Link Prefetch trong DOM ngầm
+                    const prefetchLink = document.createElement('link');
+                    prefetchLink.rel = 'prefetch';
+                    prefetchLink.href = targetUrl;
+                    prefetchLink.onload = () => { item.preloaded = true; updatePreloadBadge(item.url); };
+                    prefetchLink.onerror = () => { item.preloaded = true; updatePreloadBadge(item.url); };
+                    document.head.appendChild(prefetchLink);
+
+                    // Đồng thời gửi ngầm Fetch không chặn
+                    fetch(targetUrl, { mode: 'no-cors', cache: 'force-cache' })
+                        .then(() => { item.preloaded = true; updatePreloadBadge(item.url); })
+                        .catch(() => { item.preloaded = true; updatePreloadBadge(item.url); });
+                } catch (e) {
+                    item.preloaded = true;
+                }
+            });
+        }
+
+        function updatePreloadBadge(url) {
+            const badges = document.querySelectorAll(`[data-url-badge="${CSS.escape(url)}"]`);
+            badges.forEach(b => {
+                b.innerHTML = `<i class="fa-solid fa-bolt text-yellow-400 mr-1"></i>Đã tải trước`;
+                b.className = "text-[10px] font-mono text-emerald-400 bg-emerald-950/60 px-2 py-0.5 rounded-full border border-emerald-800/50 flex items-center";
+            });
+        }
+
+        function showConnectionError() {
+            showScreen('connection-error-screen');
+            redirectTimer = setTimeout(() => {
+                redirectToGoogle();
+            }, 60000);
+        }
+
+        function reloadApplication() {
+            if (redirectTimer) clearTimeout(redirectTimer);
+            initApp();
+        }
+
+        function promptLockScreen(type, linkObj = null) {
+            currentLockState = type;
+            selectedLinkObj = linkObj;
+
+            document.getElementById('password-input').value = '';
+            document.getElementById('password-error').classList.add('hidden');
+
+            const titleEl = document.getElementById('lock-title');
+            const subtextEl = document.getElementById('lock-subtext');
+
+            if (type === 'main') {
+                titleEl.innerText = "Bảo Mật Trang Chủ";
+                subtextEl.innerText = "Nhập mật khẩu để truy cập trang chủ.";
+            } else {
+                titleEl.innerText = "Khóa Liên Kết";
+                subtextEl.innerText = `Truy cập: ${selectedLinkObj ? selectedLinkObj.title : 'Liên kết'}`;
+            }
+
+            showScreen('lock-screen');
+        }
+
+        function handlePasswordSubmit(e) {
+            e.preventDefault();
+            const inputPass = document.getElementById('password-input').value.trim();
+
+            if (currentLockState === 'main') {
+                if (inputPass === config.pass) {
+                    isMainAuthenticated = true;
+                    showDashboard();
+                } else {
+                    showPasswordError();
+                }
+            } else if (currentLockState === 'link') {
+                const requiredPass = (selectedLinkObj && selectedLinkObj.pass) ? selectedLinkObj.pass : (config.passlink || config.pass);
+                if (inputPass === requiredPass) {
+                    openIframe(selectedLinkObj.url);
+                } else {
+                    showPasswordError();
+                }
+            }
+        }
+
+        function showPasswordError() {
+            const err = document.getElementById('password-error');
+            err.classList.remove('hidden');
+
+            const box = document.getElementById('lock-screen');
+            box.classList.add('translate-x-2');
+            setTimeout(() => box.classList.remove('translate-x-2'), 100);
+            setTimeout(() => box.classList.add('-translate-x-2'), 200);
+            setTimeout(() => box.classList.remove('-translate-x-2'), 300);
+        }
+
+        // BẬT / TẮT XEM ẢNH PREVIEW CỦA LINK
+        function toggleImagePreview(index) {
+            imageToggleStates[index] = !imageToggleStates[index];
+            const imgContainer = document.getElementById(`img-preview-${index}`);
+            const btnIcon = document.getElementById(`img-btn-icon-${index}`);
+            const btnText = document.getElementById(`img-btn-text-${index}`);
+
+            if (imgContainer) {
+                if (imageToggleStates[index]) {
+                    imgContainer.classList.remove('hidden');
+                    if (btnIcon) btnIcon.className = "fa-solid fa-eye-slash text-cyan-400";
+                    if (btnText) btnText.innerText = "Ẩn ảnh";
+                } else {
+                    imgContainer.classList.add('hidden');
+                    if (btnIcon) btnIcon.className = "fa-solid fa-image text-cyan-400";
+                    if (btnText) btnText.innerText = "Xem ảnh";
+                }
+            }
+        }
+
+        // HIỂN THỊ DASHBOARD DỰA TRÊN CẤU HÌNH ĐÃ TỰ ĐỘNG XỬ LÝ
+        function showDashboard() {
+            showScreen('dashboard-screen');
+
+            if (config.name) {
+                document.getElementById('portal-title').innerText = config.name;
+            }
+
+            const container = document.getElementById('links-container');
+            container.innerHTML = '';
+
+            if (config.links.length === 0) {
+                container.innerHTML = `<div class="text-xs text-slate-500 italic text-center py-4">Chưa có liên kết nào trong file cấu hình</div>`;
+                return;
+            }
+
+            config.links.forEach((item, idx) => {
+                const isImageVisible = !!imageToggleStates[idx];
+                const card = document.createElement('div');
+                card.className = "bg-slate-950/80 border border-slate-800 hover:border-cyan-500/50 rounded-2xl p-3.5 transition duration-200 space-y-2.5";
+                
+                // Trạng thái tải trước (Preload Status Badge)
+                const preloadBadgeHtml = item.preloaded 
+                    ? `<span data-url-badge="${escapeHtml(item.url)}" class="text-[10px] font-mono text-emerald-400 bg-emerald-950/60 px-2 py-0.5 rounded-full border border-emerald-800/50 flex items-center"><i class="fa-solid fa-bolt text-yellow-400 mr-1"></i>Đã tải trước</span>`
+                    : `<span data-url-badge="${escapeHtml(item.url)}" class="text-[10px] font-mono text-cyan-400 bg-cyan-950/60 px-2 py-0.5 rounded-full border border-cyan-800/50 flex items-center"><i class="fa-solid fa-spinner animate-spin mr-1"></i>Đang tải trước...</span>`;
+
+                // Nút Bật/Tắt xem ảnh (chỉ hiển thị nếu có link ảnh)
+                const imageToggleButtonHtml = item.image ? `
+                    <button onclick="toggleImagePreview(${idx})" class="text-[11px] font-medium text-slate-300 bg-slate-800/80 hover:bg-slate-700/80 px-2.5 py-1 rounded-lg border border-slate-700 flex items-center gap-1.5 transition active:scale-95">
+                        <i id="img-btn-icon-${idx}" class="fa-solid ${isImageVisible ? 'fa-eye-slash' : 'fa-image'} text-cyan-400"></i>
+                        <span id="img-btn-text-${idx}">${isImageVisible ? 'Ẩn ảnh' : 'Xem ảnh'}</span>
+                    </button>
+                ` : '';
+
+                // Khung hiển thị hình ảnh Preview (Hiển thị mượt và không bị lỗi vỡ ảnh)
+                const imagePreviewHtml = item.image ? `
+                    <div id="img-preview-${idx}" class="${isImageVisible ? '' : 'hidden'} overflow-hidden rounded-xl border border-slate-800 bg-slate-900/90 relative mt-2 group">
+                        <img src="${escapeHtml(item.image)}" alt="Preview" 
+                             class="w-full h-36 object-cover rounded-xl transition duration-300 hover:scale-105"
+                             onerror="this.onerror=null; this.parentElement.innerHTML='<div class=\'p-3 text-center text-xs text-red-400 bg-red-950/30 border border-red-900/50 rounded-xl\'><i class=\'fa-solid fa-circle-exclamation mr-1\'></i>Không thể tải ảnh minh họa</div>';">
+                    </div>
+                ` : '';
+
+                card.innerHTML = `
+                    <div class="flex items-center justify-between text-xs">
+                        <span class="font-bold text-slate-100 truncate max-w-[180px]" title="${escapeHtml(item.title)}">${escapeHtml(item.title)}</span>
+                        ${preloadBadgeHtml}
+                    </div>
+
+                    <div class="text-[11px] font-mono text-slate-400 truncate">${escapeHtml(item.url)}</div>
+
+                    ${imagePreviewHtml}
+
+                    <div class="flex items-center gap-2 pt-1">
+                        ${imageToggleButtonHtml}
+                        <button onclick="handleLinkClick(${idx})" class="grow py-2 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-bold text-xs rounded-xl shadow-lg shadow-cyan-500/10 transition active:scale-95 flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-lock text-[10px]"></i> Mở Link Có Mật Khẩu
+                        </button>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function handleLinkClick(index) {
+            const linkObj = config.links[index];
+            if (linkObj) {
+                promptLockScreen('link', linkObj);
+            }
+        }
+
+        function openIframe(url) {
+            let target = url;
+            if (!target.startsWith('http://') && !target.startsWith('https://')) {
+                target = 'https://' + target;
+            }
+            const iframe = document.getElementById('app-iframe');
+            iframe.src = target;
+            document.getElementById('iframe-view').classList.remove('hidden');
+        }
+
+        function reloadIframe() {
+            const iframe = document.getElementById('app-iframe');
+            if (iframe.src && iframe.src !== 'about:blank') {
+                iframe.src = iframe.src;
+            }
+        }
+
+        function closeIframeView() {
+            document.getElementById('app-iframe').src = 'about:blank';
+            document.getElementById('iframe-view').classList.add('hidden');
+            showDashboard();
+        }
+
+        function lockMainApp() {
+            isMainAuthenticated = false;
+            promptLockScreen('main');
+        }
+
+        function lockFromIframe() {
+            closeIframeView();
+            lockMainApp();
+        }
+
+        function redirectToGoogle() {
+            window.location.href = 'https://www.google.com';
+        }
+
+        function showScreen(screenId) {
+            const screens = ['loading-screen', 'connection-error-screen', 'lock-screen', 'dashboard-screen'];
+            screens.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) {
+                    if (id === screenId) el.classList.remove('hidden');
+                    else el.classList.add('hidden');
+                }
+            });
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+        }
+    </script>
+</body>
+</html>

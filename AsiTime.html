@@ -17,7 +17,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
     
     <style>
-        /* Cấm bôi xanh, cấm kéo giãn trang, cấm chạm giữ trên iOS */
+        /* Cấm bôi xanh, cấm kéo giãn trang, cấm chạm giữ trên iOS (ngoại trừ ô nhập text) */
         * {
             -webkit-user-select: none;
             -moz-user-select: none;
@@ -26,6 +26,11 @@
             -webkit-touch-callout: none;
             -webkit-tap-highlight-color: transparent;
             box-sizing: border-box;
+        }
+
+        input[type="text"] {
+            -webkit-user-select: text;
+            user-select: text;
         }
 
         html, body {
@@ -139,9 +144,23 @@
             animation: floatingMotion 5s ease-in-out infinite;
         }
 
-        /* Đèn phát sáng cho số */
+        /* Hiệu ứng lơ lửng nhẹ cho thanh gạch phía dưới */
+        @keyframes barFloatingMotion {
+            0%, 100% { transform: translate(-50%, 0px); }
+            50% { transform: translate(-50%, -6px); }
+        }
+        .bar-floating-active {
+            animation: barFloatingMotion 3.8s ease-in-out infinite;
+        }
+
+        /* Đèn phát sáng cho số & thanh gạch */
         .digital-glow {
             text-shadow: 0 0 12px var(--glow-color), 0 0 28px var(--glow-color), 0 0 48px var(--glow-color);
+        }
+
+        .bar-glow {
+            box-shadow: 0 0 22px var(--glow-color), 0 4px 16px rgba(0, 0, 0, 0.25);
+            text-shadow: 0 0 10px var(--glow-color);
         }
 
         /* Đèn phát sáng cho đồng hồ kim */
@@ -352,7 +371,7 @@
                 justify-content: center;
                 gap: 1.75rem;
                 padding-top: calc(3.8rem + env(safe-area-inset-top));
-                padding-bottom: calc(1.2rem + env(safe-area-inset-bottom));
+                padding-bottom: calc(2.2rem + env(safe-area-inset-bottom));
             }
             #analog-wrapper {
                 width: min(74vw, 44dvh);
@@ -370,7 +389,7 @@
                 justify-content: center;
                 gap: 3rem;
                 padding-top: calc(3.5rem + env(safe-area-inset-top));
-                padding-bottom: calc(1rem + env(safe-area-inset-bottom));
+                padding-bottom: calc(2rem + env(safe-area-inset-bottom));
             }
             #analog-wrapper {
                 width: min(62dvh, 42vw);
@@ -541,7 +560,7 @@
     </header>
 
     <!-- Thông báo nhỏ hướng dẫn chạm 2 lần (ẩn UI) hoặc chạm 3 lần (thoát phóng to) -->
-    <div id="hide-toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 px-4 py-2 rounded-full bg-black/80 text-white text-xs backdrop-blur-md pointer-events-none opacity-0 transition-opacity duration-500 whitespace-nowrap shadow-lg">
+    <div id="hide-toast" class="fixed bottom-12 left-1/2 -translate-x-1/2 z-40 px-4 py-2 rounded-full bg-black/80 text-white text-xs backdrop-blur-md pointer-events-none opacity-0 transition-opacity duration-500 whitespace-nowrap shadow-lg">
         Chạm 2 lần vào khoảng trống để hiện lại nút
     </div>
 
@@ -620,13 +639,18 @@
                 </div>
             </div>
 
-            <!-- Ngày tháng năm & Thứ -->
+            <!-- Ngày tháng năm & Thứ (Vị trí cũ dưới đồng hồ số) -->
             <div id="date-display" class="mt-2.5 text-xs sm:text-sm opacity-75 font-medium tracking-wide"></div>
         </div>
     </main>
 
+    <!-- ==================== THANH HIỂN THỊ TRÊN GẠCH IPHONE (BOTTOM HOME BAR OVERLAY) ==================== -->
+    <div id="home-bar-widget" class="fixed left-1/2 -translate-x-1/2 z-20 hidden items-center justify-center px-4 py-1 rounded-full backdrop-blur-md transition-all duration-300 pointer-events-none" style="bottom: max(8px, env(safe-area-inset-bottom)); background: transparent;">
+        <span id="home-bar-text" class="font-medium tracking-wider whitespace-nowrap text-xs opacity-70">Thứ Bảy, 14/11/2026</span>
+    </div>
+
     <!-- ==================== BẢNG THU NHỎ XEM TRƯỚC 5 GIÂY (MINI LIVE PREVIEW) ==================== -->
-    <div id="mini-preview-box" class="fixed bottom-4 right-4 z-50 hidden flex-col items-center justify-center w-48 sm:w-56 p-3.5 rounded-3xl border border-white/25 shadow-2xl backdrop-blur-xl transition-all duration-300" style="background: var(--panel-bg); color: inherit;">
+    <div id="mini-preview-box" class="fixed bottom-12 right-4 z-50 hidden flex-col items-center justify-center w-48 sm:w-56 p-3.5 rounded-3xl border border-white/25 shadow-2xl backdrop-blur-xl transition-all duration-300" style="background: var(--panel-bg); color: inherit;">
         <div class="w-full flex items-center justify-between text-[10px] font-bold uppercase tracking-wider opacity-75 mb-2">
             <span id="txt-preview-label">👁️ Xem trước (5s)</span>
             <button id="btn-close-preview" type="button" class="px-1.5 py-0.5 rounded-md bg-white/10 hover:bg-white/20 text-[10px]">✕</button>
@@ -652,6 +676,9 @@
             <div id="preview-digital-text" class="font-mono-clock font-bold text-base sm:text-lg tracking-tight">12h 00’ 00s</div>
             <div id="preview-date-text" class="text-[10px] opacity-70 mt-0.5"></div>
         </div>
+
+        <!-- Preview thanh gạch thu nhỏ nếu đang bật -->
+        <div id="preview-bar-pill" class="hidden mt-1.5 px-2 py-0.5 text-[10px] font-medium tracking-wider truncate max-w-full opacity-70"></div>
 
         <!-- Thanh tiến trình 5 giây -->
         <div class="w-full h-1 bg-white/10 rounded-full overflow-hidden mt-2.5">
@@ -718,10 +745,82 @@
                         <input id="chk-dig-symbols" type="checkbox" class="w-5 h-5 accent-sky-500">
                     </label>
 
-                    <label class="flex items-center justify-between p-3 rounded-2xl bg-white/5 cursor-pointer">
-                        <span id="txt-dig-date">Hiển thị ngày tháng năm & thứ</span>
-                        <input id="chk-dig-date" type="checkbox" class="w-5 h-5 accent-sky-500">
-                    </label>
+                    <!-- Ngày tháng năm thứ + Hiển thị trên gạch & Sửa đổi -->
+                    <div class="rounded-2xl bg-white/5 border border-current/10 overflow-hidden">
+                        <label class="flex items-center justify-between p-3 cursor-pointer">
+                            <span id="txt-dig-date" class="font-medium">Hiển thị ngày tháng năm & thứ</span>
+                            <input id="chk-dig-date" type="checkbox" class="w-5 h-5 accent-sky-500">
+                        </label>
+
+                        <!-- Tùy chọn hiển thị trên gạch (Chỉ hiện khi bật Ngày tháng năm & thứ) -->
+                        <div id="date-bar-options" class="px-3 pb-3 pt-2 border-t border-current/10 space-y-2.5 bg-black/15">
+                            <div class="flex items-center justify-between gap-2">
+                                <label class="flex items-center gap-2.5 cursor-pointer flex-1">
+                                    <input id="chk-bar-enable" type="checkbox" class="w-4 h-4 accent-sky-500 rounded">
+                                    <div>
+                                        <div id="txt-bar-enable" class="text-xs font-semibold">Hiển thị trên gạch iPhone</div>
+                                        <div id="txt-bar-enable-sub" class="text-[11px] opacity-65">Đưa nội dung xuống thanh gạch đáy màn hình</div>
+                                    </div>
+                                </label>
+                                <button id="btn-edit-bar" type="button" class="px-3 py-1.5 rounded-xl bg-sky-500/20 border border-sky-400/40 text-sky-300 text-xs font-semibold hover:bg-sky-500/30 active:scale-95 transition">
+                                    ✏️ <span id="txt-btn-edit-bar">Sửa đổi</span>
+                                </button>
+                            </div>
+
+                            <!-- Bảng tùy chỉnh nội dung thanh gạch -->
+                            <div id="bar-custom-panel" class="hidden p-3 rounded-xl bg-black/25 border border-current/10 space-y-3">
+                                <div>
+                                    <label id="txt-bar-mode-label" class="block text-[11px] font-bold uppercase opacity-70 mb-1.5">Chọn nội dung hiển thị trên gạch</label>
+                                    <select id="select-bar-mode" class="w-full bg-zinc-900/90 border border-white/20 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-sky-400">
+                                        <option value="date">📅 Ngày tháng năm & thứ</option>
+                                        <option value="custom">✍️ Tự ghi nội dung (Custom)</option>
+                                        <option value="author">👨‍💻 Tên nhà phát hành: Nguyễn Trọng An</option>
+                                        <option value="webname">🌐 Tên Web: AsiTime</option>
+                                    </select>
+                                    <p id="txt-bar-fallback-note" class="hidden text-[11px] text-amber-300/90 mt-1.5">
+                                        * Khi chọn mục khác, ngày tháng năm & thứ sẽ tự động quay về vị trí cũ dưới đồng hồ số.
+                                    </p>
+                                </div>
+
+                                <!-- Ô nhập content tự ghi (Chỉ hiện khi chọn "Tự ghi") -->
+                                <div id="bar-custom-input-wrap" class="hidden">
+                                    <label id="txt-bar-custom-label" class="block text-[11px] font-medium opacity-75 mb-1">Nhập nội dung hiển thị trên gạch:</label>
+                                    <input id="input-bar-custom-text" type="text" maxlength="45" placeholder="Nhập chữ hiển thị trên thanh gạch..." class="w-full bg-zinc-900/90 border border-white/20 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-sky-400">
+                                </div>
+
+                                <!-- Thanh trượt chỉnh độ mờ (Opacity) của chữ trên gạch -->
+                                <div>
+                                    <div class="flex items-center justify-between text-[11px] mb-1">
+                                        <span id="txt-bar-opacity-label" class="font-medium opacity-75">Độ mờ chữ trên gạch:</span>
+                                        <span id="bar-opacity-val" class="font-mono text-sky-400 font-bold">70%</span>
+                                    </div>
+                                    <input id="range-bar-opacity" type="range" min="20" max="100" value="70" class="w-full accent-sky-500 cursor-pointer">
+                                </div>
+
+                                <!-- Toggle hiệu ứng lơ lửng trên gạch -->
+                                <label class="flex items-center justify-between py-1 cursor-pointer">
+                                    <span id="txt-bar-float" class="text-xs font-medium">Hiệu ứng lơ lửng</span>
+                                    <input id="chk-bar-float" type="checkbox" class="w-4 h-4 accent-sky-500">
+                                </label>
+
+                                <!-- Toggle phát sáng trên gạch -->
+                                <label class="flex items-center justify-between py-1 cursor-pointer">
+                                    <span id="txt-bar-glow" class="text-xs font-medium">Hiệu ứng phát sáng</span>
+                                    <input id="chk-bar-glow" type="checkbox" class="w-4 h-4 accent-sky-500">
+                                </label>
+
+                                <!-- Danh sách Size 3 mức -->
+                                <div>
+                                    <label id="txt-bar-size-label" class="block text-[11px] font-medium opacity-75 mb-1.5">Kích thước chữ trên gạch (3 mức)</label>
+                                    <div class="grid grid-cols-3 gap-1.5">
+                                        <button type="button" data-barsize="sm" class="bar-size-btn py-1.5 px-2 rounded-lg border border-current/20 text-xs font-semibold transition">Nhỏ (S)</button>
+                                        <button type="button" data-barsize="md" class="bar-size-btn py-1.5 px-2 rounded-lg border border-current/20 text-xs font-semibold transition">Vừa (M)</button>
+                                        <button type="button" data-barsize="lg" class="bar-size-btn py-1.5 px-2 rounded-lg border border-current/20 text-xs font-semibold transition">Lớn (L)</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
                     <label class="flex items-center justify-between p-3 rounded-2xl bg-white/5 cursor-pointer">
                         <span id="txt-dig-ms">Hiển thị số nhỏ ms (mili-giây)</span>
@@ -808,7 +907,6 @@
                         </svg>
                     </button>
 
-                    <!-- 3 Nút/Mục tùy chỉnh riêng cho từng kim -->
                     <div id="hands-sub-panel" class="hidden px-3.5 pb-3.5 pt-1 space-y-2.5 border-t border-current/10">
                         <!-- 1. Kim giây -->
                         <div class="flex items-center justify-between p-2.5 rounded-xl bg-black/20">
@@ -912,10 +1010,10 @@
                 <div class="p-4 rounded-2xl bg-sky-500/10 border border-sky-400/25 space-y-2">
                     <div id="txt-guide-heading" class="font-bold text-sky-400 text-base">📖 Hướng dẫn sử dụng</div>
                     <ul class="space-y-1.5 text-xs opacity-90 list-disc pl-4 leading-relaxed">
+                        <li><b>Hiển thị trên gạch iPhone:</b> Trong mục <i>Cài đặt → Hiển thị ngày tháng năm & thứ</i>, bật <b>Hiển thị trên gạch iPhone</b> và nhấn <b>Sửa đổi</b> để tùy chỉnh nội dung, hiệu ứng lơ lửng, phát sáng, kích thước và thanh trượt điều chỉnh <b>độ mờ (opacity)</b> của chữ.</li>
                         <li><b>Phóng to trang (Zoom Focus):</b> Nhấn biểu tượng <b>Phóng to (4 mũi tên)</b> trên thanh công cụ để phóng lớn đồng hồ và ẩn nút. Chạm <b>3 lần liên tiếp (Triple-tap)</b> vào màn hình để trở lại bình thường.</li>
                         <li><b>Chế độ ẩn nút:</b> Nhấn biểu tượng <b>Con mắt</b> để ẩn thanh nút. Chạm <b>2 lần (Double-tap)</b> vào khoảng trống bất kỳ để hiện lại.</li>
                         <li><b>Xem trước trực tiếp 5s:</b> Khi bật/tắt tính năng trong Cài đặt, khung thu nhỏ góc dưới sẽ tự động hiển thị kết quả trong 5 giây.</li>
-                        <li><b>Thêm vào màn hình chính iPhone:</b> Mở bằng Safari → Nhấn nút <b>Chia sẻ (Share)</b> → Chọn <b>"Thêm vào MH chính" (Add to Home Screen)</b>.</li>
                     </ul>
                 </div>
 
@@ -929,10 +1027,10 @@
                             <span class="text-[11px] px-2 py-0.5 rounded-full bg-sky-500/20 text-sky-300 font-mono">Current</span>
                         </div>
                         <ul class="text-xs opacity-90 space-y-1 list-disc pl-4 leading-relaxed">
-                            <li><b>Bảng thu nhỏ xem trước 5s:</b> Tự động hiện khung xem trước trực tiếp 5 giây mỗi khi chỉnh sửa tính năng đồng hồ số hoặc đồng hồ kim.</li>
-                            <li><b>Đổi từng chữ số độc lập & Nhấp nháy:</b> Chỉ chữ số nào thay đổi mới chạy hiệu ứng (VD: <code>15</code> → <code>16</code> chỉ đổi số <code>5</code> sang <code>6</code>), kèm công tắc bật/tắt hiệu ứng nhấp nháy chữ số vừa đổi.</li>
-                            <li><b>Tùy chỉnh 3 cây kim riêng biệt:</b> Phân tách 3 mục cho Kim giây, Kim phút, Kim giờ (ẩn/hiện & đổi màu từng kim; tắt cả 3 kim sẽ tự động ẩn đồng hồ kim).</li>
-                            <li><b>Nút phóng to trang:</b> Phóng lớn không gian hiển thị đồng hồ, chạm <b>3 lần</b> để quay lại trạng thái bình thường.</li>
+                            <li><b>Tùy chỉnh độ mờ thanh gạch & Bỏ viền:</b> Hoàn toàn loại bỏ viền của thanh gạch dưới đáy iPhone, làm nét chữ mờ đẹp tinh tế, đi kèm thanh trượt điều chỉnh mức độ mờ (Opacity) trực tiếp trong phần Sửa đổi.</li>
+                            <li><b>Hiển thị trên gạch iPhone & Tùy chỉnh nội dung:</b> Đưa Ngày tháng năm & thứ lên thanh gạch dưới đáy, hỗ trợ nút <b>Sửa đổi</b> để chuyển sang nội dung <i>Tự ghi</i>, <i>Người tạo web này: Nguyễn Trọng An</i>, hoặc <i>Tên Web: AsiTime</i>.</li>
+                            <li><b>Hiệu ứng thanh gạch:</b> Hỗ trợ bật/tắt hiệu ứng lơ lửng, phát sáng và danh sách 3 mức kích thước (Nhỏ / Vừa / Lớn).</li>
+                            <li><b>Bảng thu nhỏ xem trước 5s:</b> Tự động hiện khung xem trước trực tiếp 5 giây mỗi khi chỉnh sửa tính năng.</li>
                         </ul>
                     </div>
 
@@ -959,7 +1057,7 @@
         /**
          * ==================== QUẢN LÝ TRẠNG THÁI & LƯU LOCALSTORAGE ====================
          */
-        const STORAGE_KEY = 'AsiTime_Config_v1_3';
+        const STORAGE_KEY = 'AsiTime_Config_v1_3_bar_opacity';
 
         const defaultConfig = {
             setupDone: false,
@@ -986,7 +1084,7 @@
             showSecHand: true,
             showMinHand: true,
             showHourHand: true,
-            secHandColor: '', // Rỗng = theo màu chủ đề mặc định
+            secHandColor: '',
             minHandColor: '',
             hourHandColor: '',
 
@@ -998,14 +1096,23 @@
             digitalBlink: false,
             digitalGlow: false,
             digitalAmPm: false,
-            digitalFloat: false
+            digitalFloat: false,
+
+            // Tính năng hiển thị trên gạch iPhone
+            barEnabled: false,
+            barMode: 'date', // 'date' | 'custom' | 'author' | 'webname'
+            barCustomText: 'AsiTime • Nguyễn Trọng An',
+            barFloat: false,
+            barGlow: false,
+            barSize: 'md', // 'sm' | 'md' | 'lg'
+            barOpacity: 70 // Mặc định độ mờ chữ là 70%
         };
 
         let config = loadConfig();
 
         function loadConfig() {
             try {
-                const raw = localStorage.getItem(STORAGE_KEY) || localStorage.getItem('AsiTime_Config_v1_2');
+                const raw = localStorage.getItem(STORAGE_KEY) || localStorage.getItem('AsiTime_Config_v1_3_bar');
                 if (raw) {
                     return { ...defaultConfig, ...JSON.parse(raw) };
                 }
@@ -1045,6 +1152,16 @@
                 digSymbols: 'Ký hiệu h ‘ s',
                 digSymbolsSub: 'Tắt để thay thế bằng dấu “:”',
                 digDate: 'Hiển thị ngày tháng năm & thứ',
+                barEnable: 'Hiển thị trên gạch iPhone',
+                barEnableSub: 'Đưa nội dung xuống thanh gạch đáy màn hình',
+                btnEditBar: 'Sửa đổi',
+                barModeLabel: 'Chọn nội dung hiển thị trên gạch',
+                barFallbackNote: '* Khi chọn mục khác, ngày tháng năm & thứ sẽ tự động quay về vị trí cũ dưới đồng hồ số.',
+                barCustomLabel: 'Nhập nội dung hiển thị trên gạch:',
+                barOpacityLabel: 'Độ mờ chữ trên gạch:',
+                barFloat: 'Hiệu ứng lơ lửng',
+                barGlow: 'Hiệu ứng phát sáng',
+                barSizeLabel: 'Kích thước chữ trên gạch (3 mức)',
                 digMs: 'Hiển thị số nhỏ ms (mili-giây)',
                 digFade: 'Hiệu ứng chuyển từng chữ số',
                 digFadeSub: 'Chỉ đổi chữ số thay đổi (VD: 15 → 16 chỉ đổi số 5)',
@@ -1058,8 +1175,8 @@
                 changeLang: 'Ngôn ngữ: Tiếng Việt',
                 analogTitle: 'Tùy chỉnh đồng hồ kim',
                 handMotion: 'Chuyển động cây kim',
-                motionSweep: 'Chuyển động liền',
-                motionTick: 'Chuyển động nhảy',
+                motionSweep: 'Trôi liền mạch',
+                motionTick: 'Nhảy từng nhịp',
                 handsCustomBtn: 'Tùy chỉnh kim riêng (Giây / Phút / Giờ)',
                 handSecLabel: '1. Kim giây',
                 handMinLabel: '2. Kim phút',
@@ -1079,6 +1196,8 @@
                 previewLabel: '👁️ Xem trước (5s)',
                 hideToast: 'Chạm 2 lần vào chỗ trống để hiển thị lại nút',
                 zoomToast: 'Đã phóng to trang • Chạm 3 lần để trở lại bình thường',
+                authorText: 'Người tạo web này: Nguyễn Trọng An',
+                webNameText: 'AsiTime',
                 periods: {
                     dawn: 'Bình minh',
                     morning: 'Sáng',
@@ -1108,6 +1227,16 @@
                 digSymbols: 'Symbols h ‘ s',
                 digSymbolsSub: 'Turn off to replace with “:” colons',
                 digDate: 'Show Date, Month, Year & Weekday',
+                barEnable: 'Display on iPhone Home Bar',
+                barEnableSub: 'Move content onto the bottom home indicator bar',
+                btnEditBar: 'Edit',
+                barModeLabel: 'Choose Home Bar Content',
+                barFallbackNote: '* Selecting another option moves Date & Weekday back under the digital clock.',
+                barCustomLabel: 'Enter custom text for the home bar:',
+                barOpacityLabel: 'Home Bar Text Opacity:',
+                barFloat: 'Floating Effect',
+                barGlow: 'Glow Effect',
+                barSizeLabel: 'Home Bar Text Size (3 Levels)',
                 digMs: 'Show small ms (milliseconds)',
                 digFade: 'Individual Digit Transition',
                 digFadeSub: 'Only animate changed digits (e.g., 15 → 16 only changes 5)',
@@ -1142,6 +1271,8 @@
                 previewLabel: '👁️ Live Preview (5s)',
                 hideToast: 'Double-tap empty space to show buttons again',
                 zoomToast: 'Page Zoomed • Triple-tap anywhere to restore normal size',
+                authorText: 'Developer: Nguyễn Trọng An',
+                webNameText: 'AsiTime',
                 periods: {
                     dawn: 'Dawn',
                     morning: 'Morning',
@@ -1167,7 +1298,6 @@
             box.classList.remove('hidden');
             box.classList.add('flex');
 
-            // Reset thanh đếm ngược 5 giây
             bar.classList.remove('preview-bar-anim');
             void bar.offsetWidth;
             bar.classList.add('preview-bar-anim');
@@ -1380,6 +1510,17 @@
             document.getElementById('txt-dig-symbols').textContent = t.digSymbols;
             document.getElementById('txt-dig-symbols-sub').textContent = t.digSymbolsSub;
             document.getElementById('txt-dig-date').textContent = t.digDate;
+            document.getElementById('txt-bar-enable').textContent = t.barEnable;
+            document.getElementById('txt-bar-enable-sub').textContent = t.barEnableSub;
+            document.getElementById('txt-btn-edit-bar').textContent = t.btnEditBar;
+            document.getElementById('txt-bar-mode-label').textContent = t.barModeLabel;
+            document.getElementById('txt-bar-fallback-note').textContent = t.barFallbackNote;
+            document.getElementById('txt-bar-custom-label').textContent = t.barCustomLabel;
+            document.getElementById('txt-bar-opacity-label').textContent = t.barOpacityLabel;
+            document.getElementById('txt-bar-float').textContent = t.barFloat;
+            document.getElementById('txt-bar-glow').textContent = t.barGlow;
+            document.getElementById('txt-bar-size-label').textContent = t.barSizeLabel;
+
             document.getElementById('txt-dig-ms').textContent = t.digMs;
             document.getElementById('txt-dig-fade').textContent = t.digFade;
             document.getElementById('txt-dig-fade-sub').textContent = t.digFadeSub;
@@ -1460,7 +1601,7 @@
                 btnAnalogSettings.classList.add('hidden');
             }
 
-            // Ẩn/hiện và màu của từng cây kim (chính & preview)
+            // Ẩn/hiện và màu của từng cây kim
             const secStroke = config.secHandColor || 'var(--hand-sec)';
             const minStroke = config.minHandColor || 'var(--hand-min)';
             const hourStroke = config.hourHandColor || 'var(--hand-hour)';
@@ -1537,9 +1678,72 @@
             document.getElementById('colon-2').classList.toggle('hidden', useSymbols);
             document.getElementById('colon-ms').classList.toggle('hidden', useSymbols || !config.digitalMs);
 
-            // Ngày tháng năm & thứ
-            document.getElementById('date-display').classList.toggle('hidden', !config.digitalShowDate);
-            document.getElementById('preview-date-text').classList.toggle('hidden', !config.digitalShowDate);
+            // ==================== XỬ LÝ NGÀY THÁNG NĂM & THANH GẠCH IPHONE ====================
+            const dateBarOptions = document.getElementById('date-bar-options');
+            dateBarOptions.classList.toggle('hidden', !config.digitalShowDate);
+
+            document.getElementById('chk-bar-enable').checked = config.barEnabled;
+            document.getElementById('select-bar-mode').value = config.barMode;
+            document.getElementById('input-bar-custom-text').value = config.barCustomText;
+            document.getElementById('range-bar-opacity').value = config.barOpacity;
+            document.getElementById('bar-opacity-val').textContent = `${config.barOpacity}%`;
+            document.getElementById('chk-bar-float').checked = config.barFloat;
+            document.getElementById('chk-bar-glow').checked = config.barGlow;
+
+            // Hiển thị ô nhập tự ghi nếu chọn mode = 'custom'
+            document.getElementById('bar-custom-input-wrap').classList.toggle('hidden', config.barMode !== 'custom');
+            // Ghi chú khi chọn mục khác (ngày tháng năm quay về chỗ cũ)
+            document.getElementById('txt-bar-fallback-note').classList.toggle('hidden', config.barMode === 'date');
+
+            // Highlight nút kích thước 3 mức
+            document.querySelectorAll('.bar-size-btn').forEach(btn => {
+                if (btn.dataset.barsize === config.barSize) {
+                    btn.classList.add('ring-2', 'ring-sky-400', 'bg-sky-500/20');
+                } else {
+                    btn.classList.remove('ring-2', 'ring-sky-400', 'bg-sky-500/20');
+                }
+            });
+
+            const showBarWidget = config.digitalShowDate && config.barEnabled;
+            const dateMovedToBar = showBarWidget && config.barMode === 'date';
+            const showOldDatePosition = config.digitalShowDate && !dateMovedToBar;
+
+            document.getElementById('date-display').classList.toggle('hidden', !showOldDatePosition);
+            document.getElementById('preview-date-text').classList.toggle('hidden', !showOldDatePosition);
+
+            const homeBarWidget = document.getElementById('home-bar-widget');
+            const homeBarText = document.getElementById('home-bar-text');
+            const previewBarPill = document.getElementById('preview-bar-pill');
+
+            if (showBarWidget) {
+                homeBarWidget.classList.remove('hidden');
+                homeBarWidget.classList.add('flex');
+                previewBarPill.classList.remove('hidden');
+            } else {
+                homeBarWidget.classList.add('hidden');
+                homeBarWidget.classList.remove('flex');
+                previewBarPill.classList.add('hidden');
+            }
+
+            // Áp dụng độ mờ (Opacity) cho chữ trên thanh gạch
+            const opacityDecimal = config.barOpacity / 100;
+            homeBarText.style.opacity = opacityDecimal;
+            previewBarPill.style.opacity = opacityDecimal;
+
+            // 3 mức kích thước chữ trên gạch
+            homeBarText.classList.remove('text-[11px]', 'text-xs', 'sm:text-sm', 'text-sm', 'sm:text-base');
+            if (config.barSize === 'sm') {
+                homeBarText.classList.add('text-[11px]');
+            } else if (config.barSize === 'lg') {
+                homeBarText.classList.add('text-sm', 'sm:text-base');
+            } else {
+                homeBarText.classList.add('text-xs', 'sm:text-sm');
+            }
+
+            // Hiệu ứng lơ lửng & phát sáng trên gạch
+            homeBarWidget.classList.toggle('bar-floating-active', config.barFloat);
+            homeBarWidget.classList.toggle('bar-glow', config.barGlow);
+            previewBarPill.classList.toggle('bar-glow', config.barGlow);
 
             // Số nhỏ ms
             const msWrapper = document.getElementById('ms-wrapper');
@@ -1603,6 +1807,52 @@
             });
         });
 
+        // Mở/đóng bảng Sửa đổi thanh gạch
+        document.getElementById('btn-edit-bar').addEventListener('click', () => {
+            const panel = document.getElementById('bar-custom-panel');
+            panel.classList.toggle('hidden');
+            if (!panel.classList.contains('hidden') && !config.barEnabled) {
+                config.barEnabled = true;
+                saveConfig();
+                applyAllSettingsToUI();
+                triggerMiniPreview();
+            }
+        });
+
+        // Chọn chế độ hiển thị trên gạch
+        document.getElementById('select-bar-mode').addEventListener('change', (e) => {
+            config.barMode = e.target.value;
+            if (!config.barEnabled) config.barEnabled = true;
+            saveConfig();
+            applyAllSettingsToUI();
+            triggerMiniPreview();
+        });
+
+        // Nhập nội dung tự ghi trên gạch
+        document.getElementById('input-bar-custom-text').addEventListener('input', (e) => {
+            config.barCustomText = e.target.value;
+            saveConfig();
+            triggerMiniPreview();
+        });
+
+        // Thanh trượt điều chỉnh độ mờ chữ trên gạch
+        document.getElementById('range-bar-opacity').addEventListener('input', (e) => {
+            config.barOpacity = parseInt(e.target.value, 10);
+            saveConfig();
+            applyAllSettingsToUI();
+            triggerMiniPreview();
+        });
+
+        // Chọn 3 mức size của thanh gạch
+        document.querySelectorAll('.bar-size-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                config.barSize = btn.dataset.barsize;
+                saveConfig();
+                applyAllSettingsToUI();
+                triggerMiniPreview();
+            });
+        });
+
         // Mở/đóng bảng phân tách 3 cây kim
         document.getElementById('btn-toggle-hands-panel').addEventListener('click', () => {
             const panel = document.getElementById('hands-sub-panel');
@@ -1659,6 +1909,9 @@
             ['chk-show-digital', 'showDigital'],
             ['chk-dig-symbols', 'digitalSymbols'],
             ['chk-dig-date', 'digitalShowDate'],
+            ['chk-bar-enable', 'barEnabled'],
+            ['chk-bar-float', 'barFloat'],
+            ['chk-bar-glow', 'barGlow'],
             ['chk-dig-ms', 'digitalMs'],
             ['chk-dig-fade', 'digitalFade'],
             ['chk-dig-blink', 'digitalBlink'],
@@ -1678,7 +1931,6 @@
 
         checkboxBindings.forEach(([elemId, configKey]) => {
             document.getElementById(elemId).addEventListener('change', (e) => {
-                // Nếu bật lại đồng hồ kim trong khi cả 3 kim đang tắt -> bật lại cả 3 kim
                 if (configKey === 'showAnalog' && e.target.checked) {
                     if (!config.showSecHand && !config.showMinHand && !config.showHourHand) {
                         config.showSecHand = true;
@@ -1689,7 +1941,6 @@
 
                 config[configKey] = e.target.checked;
 
-                // Nếu tắt cả 3 kim -> tự động tắt đồng hồ kim
                 if (['showSecHand', 'showMinHand', 'showHourHand'].includes(configKey)) {
                     if (!config.showSecHand && !config.showMinHand && !config.showHourHand) {
                         config.showAnalog = false;
@@ -1697,14 +1948,13 @@
                     }
                 }
 
-                // Đảm bảo ít nhất 1 trong 2 đồng hồ (kim hoặc số) luôn hiển thị
                 if (!config.showAnalog && !config.showDigital) {
                     config.showDigital = true;
                 }
 
                 saveConfig();
                 applyAllSettingsToUI();
-                triggerMiniPreview(); // Hiển thị bảng thu nhỏ xem trước 5s khi ấn bật/tắt tính năng
+                triggerMiniPreview();
 
                 if (configKey === 'showAnalog' && e.target.checked) {
                     startIntroAnimation();
@@ -1756,7 +2006,6 @@
             showToastMessage(t.hideToast, 2600);
         });
 
-        // Xử lý chạm 2 lần (thoát ẩn UI) & chạm 3 lần (thoát phóng to trang)
         let tapTimes = [];
         document.body.addEventListener('pointerup', (e) => {
             if (!document.getElementById('settings-modal').classList.contains('hidden')) return;
@@ -1767,7 +2016,6 @@
             tapTimes = tapTimes.filter(ts => now - ts < 650);
             tapTimes.push(now);
 
-            // Chạm 3 lần liên tiếp: khôi phục trang phóng to về bình thường
             if (config.pageZoomed && tapTimes.length >= 3) {
                 config.pageZoomed = false;
                 config.uiHidden = false;
@@ -1778,7 +2026,6 @@
                 return;
             }
 
-            // Chạm 2 lần liên tiếp: hiện lại thanh nút khi đang ẩn UI (không ở chế độ zoom)
             if (config.uiHidden && !config.pageZoomed && tapTimes.length >= 2) {
                 config.uiHidden = false;
                 saveConfig();
@@ -1807,7 +2054,6 @@
                 return;
             }
 
-            // Nếu tắt hiệu ứng rơi số nhưng bật hiệu ứng nhấp nháy số bị đổi
             if (!config.digitalFade && config.digitalBlink) {
                 slot.innerHTML = `<span class="digit-blink-only">${newChar}</span>`;
                 return;
@@ -1868,6 +2114,28 @@
 
             updateDynamicThemeByHour(realHours24);
 
+            // Tính toán chuỗi ngày tháng năm & thứ
+            const t = i18n[config.lang] || i18n.vi;
+            const dayName = t.days[targetDate.getDay()];
+            const dd = String(targetDate.getDate()).padStart(2, '0');
+            const mm = String(targetDate.getMonth() + 1).padStart(2, '0');
+            const yyyy = targetDate.getFullYear();
+            const fullDateStr = `${dayName}, ${dd}/${mm}/${yyyy}`;
+
+            // Cập nhật nội dung thanh gạch iPhone (nếu bật)
+            if (config.digitalShowDate && config.barEnabled) {
+                let barDisplayStr = fullDateStr;
+                if (config.barMode === 'custom') {
+                    barDisplayStr = config.barCustomText.trim() || 'AsiTime';
+                } else if (config.barMode === 'author') {
+                    barDisplayStr = t.authorText;
+                } else if (config.barMode === 'webname') {
+                    barDisplayStr = t.webNameText;
+                }
+                document.getElementById('home-bar-text').textContent = barDisplayStr;
+                document.getElementById('preview-bar-pill').textContent = barDisplayStr;
+            }
+
             // Hiệu ứng khởi động từ 12:00:00 đến giờ thực tế
             let progress = 1;
             if (introActive) {
@@ -1906,7 +2174,6 @@
                 const strM = String(dispM).padStart(2, '0');
                 const strS = String(dispS).padStart(2, '0');
 
-                // Chỉ cập nhật từng chữ số bị thay đổi
                 if (strH[0] !== prevH1) { updateSingleDigitSlot('slot-h1', strH[0], introActive); prevH1 = strH[0]; }
                 if (strH[1] !== prevH2) { updateSingleDigitSlot('slot-h2', strH[1], introActive); prevH2 = strH[1]; }
                 if (strM[0] !== prevM1) { updateSingleDigitSlot('slot-m1', strM[0], introActive); prevM1 = strM[0]; }
@@ -1923,7 +2190,6 @@
                     document.getElementById('dig-ampm').textContent = ampmText;
                 }
 
-                // Đồng bộ chữ trong bảng Preview 5s
                 let previewStr = config.digitalSymbols
                     ? `${strH}h ${strM}’ ${strS}s`
                     : `${strH}:${strM}:${strS}`;
@@ -1932,12 +2198,6 @@
                 document.getElementById('preview-digital-text').textContent = previewStr;
 
                 if (config.digitalShowDate) {
-                    const t = i18n[config.lang] || i18n.vi;
-                    const dayName = t.days[targetDate.getDay()];
-                    const dd = String(targetDate.getDate()).padStart(2, '0');
-                    const mm = String(targetDate.getMonth() + 1).padStart(2, '0');
-                    const yyyy = targetDate.getFullYear();
-                    const fullDateStr = `${dayName}, ${dd}/${mm}/${yyyy}`;
                     document.getElementById('date-display').textContent = fullDateStr;
                     document.getElementById('preview-date-text').textContent = fullDateStr;
                 }

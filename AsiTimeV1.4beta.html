@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="AsiTime">
+<meta name="theme-color" content="#09090b">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='112' fill='%230f172a'/%3E%3Ccircle cx='256' cy='256' r='180' fill='none' stroke='%2338bdf8' stroke-width='20'/%3E%3Cpath d='M256 130v126l84 50' fill='none' stroke='%23f8fafc' stroke-width='22' stroke-linecap='round'/%3E%3C/svg%3E">
+<title>AsiTime V1.4</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent}
+input[type=text],input[type=number]{-webkit-user-select:text;user-select:text}
+[hidden]{display:none!important}
+html,body{margin:0;height:100%;overflow:hidden;font-family:Inter,sans-serif;touch-action:manipulation}
+body{background:#09090b;color:#f4f4f5;--hr:#fff;--mn:#d4d4d8;--sc:#f43f5e;--gl:rgba(255,255,255,.35);--pn:rgba(24,24,27,.97);--as:1;--ds:1;--dy:1;--z:1;--df:'JetBrains Mono',monospace;transition:color .8s}
+body.aurora{animation:aur 14s ease infinite}
+@keyframes aur{0%,100%{background-position:0 50%}50%{background-position:100% 50%}}
+.mono{font-family:'JetBrains Mono',monospace}
+
+/* ===== Stage ===== */
+#stage{position:fixed;inset:0;container-type:size;display:flex;align-items:center;justify-content:center;transition:all .45s cubic-bezier(.22,1,.36,1)}
+#combo{--aw:min(calc(78cqw*var(--z)),calc(46cqh*var(--z)),94cqw,62cqh);position:relative;display:flex;flex-direction:column;align-items:center;gap:2.2cqh;max-width:100%}
+#combo.l-above.both{flex-direction:column-reverse}
+#aw{position:relative;flex:none;width:calc(var(--aw)*var(--as));height:calc(var(--aw)*var(--as));border-radius:50%;background:rgba(128,128,128,.12);border:2px solid rgba(128,128,128,.35)}
+#aw.sq{border-radius:1.5rem;border:none;background:transparent!important}
+#aw.lt{box-shadow:0 0 38px var(--gl),inset 0 0 28px var(--gl)}
+#aw svg{position:relative;width:100%;height:100%;overflow:visible}
+#spin{position:absolute;inset:-7px;border-radius:50%;background:conic-gradient(from 0deg,transparent 0 55%,var(--sc) 100%);-webkit-mask:radial-gradient(farthest-side,transparent calc(100% - 3px),#000 calc(100% - 2px));mask:radial-gradient(farthest-side,transparent calc(100% - 3px),#000 calc(100% - 2px));animation:spin 4s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+#dig{text-align:center;font-size:calc(min(11cqw,15cqh)*var(--ds))}
+#dig.fl{animation:flo 5s ease-in-out infinite}
+@keyframes flo{0%,100%{transform:translateY(0)}25%{transform:translateY(-7px)}75%{transform:translateY(7px)}}
+#dt{display:flex;flex-wrap:wrap;justify-content:center;align-items:baseline;gap:0 .25em;font-family:var(--df);font-weight:700;font-variant-numeric:tabular-nums;transform:scaleY(var(--dy));padding-block:max(0em,calc((var(--dy) - 1)*.3em));line-height:1.1}
+#dt.glow{text-shadow:0 0 .15em var(--gl),0 0 .45em var(--gl)}
+.u{display:inline-flex;align-items:baseline}
+.d{display:inline-block;min-width:.62em;text-align:center}
+.l{opacity:.75}
+.sym .l{font-size:.5em;margin-left:.05em}
+.word .l{font-size:.3em;margin:0 .4em 0 .2em}
+#ms{font-size:.4em;opacity:.75;margin-left:.2em}
+#ap{font-size:.3em;border:1px solid currentColor;border-radius:.4em;padding:0 .35em;margin-left:.5em;opacity:.85}
+#dd{font-family:Inter,sans-serif;font-size:max(12px,.22em);opacity:.75;margin-top:.4em;letter-spacing:.03em}
+.d.chg{animation:dig .35s cubic-bezier(.22,1,.36,1) both}
+.d.bl{animation:flash .45s ease-out}
+.d.chg.bl{animation:dig .35s cubic-bezier(.22,1,.36,1),flash .45s ease-out}
+@keyframes dig{from{opacity:0;transform:translateY(-60%)}to{opacity:1;transform:none}}
+@keyframes flash{0%{filter:brightness(2.4)}40%{opacity:.2}70%{opacity:1;filter:brightness(1.8)}100%{filter:none}}
+#alarm{font-weight:600;font-size:max(13px,2.6cqmin);text-align:center;padding:.35rem .9rem;border-radius:999px;background:rgba(0,0,0,.4);color:#fff}
+body.ring #combo{animation:rg .5s ease-in-out infinite alternate}
+@keyframes rg{from{filter:drop-shadow(0 0 6px var(--gl));transform:translateX(-2px)}to{filter:drop-shadow(0 0 28px var(--gl)) drop-shadow(0 0 56px var(--gl));transform:translateX(2px)}}
+@media(orientation:landscape){
+ #combo{--aw:min(calc(70cqh*var(--z)),calc(42cqw*var(--z)),92cqh)}
+ #combo.both{flex-direction:row;gap:3cqw}
+ #combo.both.l-above{flex-direction:row-reverse}
+ #combo.both #dig{font-size:calc(min(6cqw,13cqh)*var(--ds))}
+}
+#combo.l-inside.both #dig{position:absolute;left:50%;top:62%;transform:translateX(-50%);font-size:calc(var(--aw)*var(--as)*.11*var(--ds));white-space:nowrap}
+#combo.l-inside.both #dig.fl{animation:none}
+
+/* ===== iPhone bar ===== */
+#hb{position:fixed;left:0;right:0;bottom:max(8px,env(safe-area-inset-bottom));text-align:center;pointer-events:none;z-index:20;font-weight:500;letter-spacing:.08em;white-space:nowrap}
+#hb.sm{font-size:11px}#hb.md{font-size:13px}#hb.lg{font-size:16px}
+#hb.glow{text-shadow:0 0 8px var(--gl),0 0 18px var(--gl)}
+#hb.fl{animation:hfl 3.8s ease-in-out infinite}
+@keyframes hfl{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+#hbg{position:fixed;left:0;right:0;bottom:0;height:130px;pointer-events:none;z-index:19;background:radial-gradient(ellipse at 50% 100%,var(--gl),transparent 70%)}
+
+/* ===== Toolbar ===== */
+#top{position:fixed;top:0;left:0;right:0;z-index:30;display:flex;justify-content:space-between;align-items:center;padding:max(.8rem,env(safe-area-inset-top)) 1rem .4rem;transition:all .5s}
+#top.off{opacity:0;pointer-events:none;transform:translateY(-1rem)}
+body.so #top{display:none}
+.ib{width:42px;height:42px;border-radius:1rem;border:1px solid rgba(128,128,128,.4);background:rgba(128,128,128,.18);backdrop-filter:blur(10px);color:inherit;display:inline-flex;align-items:center;justify-content:center;font-size:1.1rem;margin-left:.35rem;cursor:pointer}
+.ib:active{transform:scale(.9)}
+
+/* ===== Settings (preview left / panel right) ===== */
+#set{position:fixed;z-index:40;display:none;flex-direction:column;background:var(--pn);backdrop-filter:blur(18px);right:0;top:0;bottom:0;width:50%;border-left:1px solid rgba(128,128,128,.3)}
+body.so #set{display:flex}
+body.so #stage{right:50%}
+@media(orientation:portrait){
+ #set{width:auto;left:0;top:44%;border-left:none;border-top:1px solid rgba(128,128,128,.3)}
+ body.so #stage{right:0;bottom:56%}
+}
+#tabs{display:flex;gap:.4rem;padding:max(.7rem,env(safe-area-inset-top)) .8rem .6rem;border-bottom:1px solid rgba(128,128,128,.25);align-items:center}
+.tb{flex:1;padding:.55rem .3rem;border-radius:.9rem;border:1px solid rgba(128,128,128,.35);background:transparent;color:inherit;font:inherit;font-size:.78rem;font-weight:600;cursor:pointer}
+.tb.act{background:rgba(56,189,248,.28);border-color:#38bdf8}
+#sc{flex:1;overflow-y:auto;padding:.8rem .8rem calc(2rem + env(safe-area-inset-bottom))}
+#sc::-webkit-scrollbar{width:5px}#sc::-webkit-scrollbar-thumb{background:rgba(128,128,128,.4);border-radius:9px}
+.row{display:flex;align-items:center;justify-content:space-between;gap:.7rem;padding:.65rem .8rem;border-radius:1rem;background:rgba(128,128,128,.13);margin-bottom:.45rem;font-size:.85rem}
+.row.col{flex-direction:column;align-items:stretch;gap:.45rem}
+.gh{font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;opacity:.65;margin:.9rem .2rem .4rem;font-weight:700}
+select,input[type=text],input[type=number],input[type=time]{background:rgba(128,128,128,.2);color:inherit;border:1px solid rgba(128,128,128,.35);border-radius:.7rem;padding:.45rem .6rem;font:inherit;font-size:.85rem;max-width:58%}
+option{color:#000}
+.row.col input[type=text],.row.col input[type=time]{max-width:none;width:100%}
+input[type=range]{width:100%;accent-color:#38bdf8}
+input[type=checkbox]{width:1.15rem;height:1.15rem;accent-color:#38bdf8}
+input[type=color]{width:34px;height:30px;border:none;background:none;padding:0}
+.btn{padding:.45rem .8rem;border-radius:.8rem;border:1px solid rgba(128,128,128,.45);background:rgba(56,189,248,.22);color:inherit;font:inherit;font-size:.8rem;cursor:pointer}
+.btn:active{transform:scale(.95)}
+.days{display:flex;flex-wrap:wrap;gap:.35rem}
+.dy{display:inline-flex;align-items:center;gap:.2rem;font-size:.78rem;padding:.25rem .45rem;border-radius:.6rem;background:rgba(128,128,128,.18)}
+
+/* ===== Modals / toast ===== */
+.modal{position:fixed;inset:0;z-index:60;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.6);backdrop-filter:blur(8px);padding:1rem}
+.modal.on{display:flex}
+.card{background:var(--pn);color:inherit;border-radius:1.5rem;padding:1.3rem;max-width:30rem;width:100%;max-height:86dvh;overflow:auto;border:1px solid rgba(128,128,128,.3);font-size:.85rem;line-height:1.5}
+.card h2{margin:0 0 .6rem;font-size:1.25rem}.card ul{padding-left:1.1rem;margin:.3rem 0}
+#setup .card{background:#18181b;color:#f4f4f5}
+#setup label{display:block;font-size:.75rem;opacity:.7;margin:.8rem 0 .3rem}
+#setup select,#setup input{max-width:none;width:100%}
+.lg2{display:flex;gap:.5rem}.lg2 .btn{flex:1}.lg2 .btn.act{background:rgba(56,189,248,.5);border-color:#38bdf8}
+#toast{position:fixed;left:50%;bottom:3.4rem;transform:translateX(-50%);z-index:70;padding:.55rem 1rem;border-radius:999px;background:rgba(0,0,0,.82);color:#fff;font-size:.78rem;max-width:92vw;text-align:center;opacity:0;pointer-events:none;transition:opacity .4s}
+#toast.on{opacity:1}
+</style>
+</head>
+<body>
+
+<div id="hbg" hidden></div>
+
+<main id="stage">
+  <div id="combo" class="l-under">
+    <div id="aw" hidden>
+      <div id="spin" hidden></div>
+      <svg viewBox="0 0 300 300">
+        <g id="tk"></g><g id="nm"></g>
+        <line id="hh" x1="150" y1="162" x2="150" y2="82" stroke-width="6.5" stroke-linecap="round"/>
+        <line id="hm" x1="150" y1="168" x2="150" y2="48" stroke-width="4.2" stroke-linecap="round"/>
+        <g id="hsg"><line id="hs" x1="150" y1="178" x2="150" y2="34" stroke-width="2" stroke-linecap="round"/><circle id="hsd" cx="150" cy="150" r="5"/></g>
+        <circle cx="150" cy="150" r="2.4" fill="#fff"/>
+      </svg>
+    </div>
+    <div id="dig">
+      <div id="dt" class="sym">
+        <span class="u"><span class="d" id="h1">1</span><span class="d" id="h2">2</span><span class="l" id="lh"></span></span>
+        <span class="u"><span class="d" id="m1">0</span><span class="d" id="m2">0</span><span class="l" id="lm"></span></span>
+        <span class="u"><span class="d" id="s1">0</span><span class="d" id="s2">0</span><span class="l" id="ls"></span></span>
+        <span id="ms" hidden></span><span id="ap" hidden></span>
+      </div>
+      <div id="dd"></div>
+    </div>
+    <div id="alarm" hidden></div>
+  </div>
+</main>
+
+<div id="hb" hidden><span id="hbt"></span></div>
+
+<header id="top">
+  <span style="font-weight:700;letter-spacing:.06em;font-size:.9rem;opacity:.85">AsiTime <small class="mono" style="opacity:.7">V1.4</small></span>
+  <span>
+    <button class="ib" id="b-info" type="button" title="Info">ⓘ</button><button class="ib" id="b-zoom" type="button" title="Zoom">⛶</button><button class="ib" id="b-set" type="button" title="Settings">⚙︎</button><button class="ib" id="b-hide" type="button" title="Hide">🙈</button>
+  </span>
+</header>
+
+<section id="set"><div id="tabs"></div><div id="sc"></div></section>
+
+<div id="info" class="modal"><div class="card" id="info-c"></div></div>
+<div id="note" class="modal"><div class="card" id="note-c"></div></div>
+<div id="toast"></div>
+
+<div id="setup" class="modal on"><div class="card">
+  <h2>AsiTime <small class="mono" style="color:#38bdf8">V1.4</small></h2>
+  <label>Country / Quốc gia</label>
+  <select id="su-c">
+    <option value="7">🇻🇳 Vietnam (UTC+7)</option><option value="9">🇯🇵 Japan / Korea (UTC+9)</option><option value="8">🇸🇬 Singapore / China (UTC+8)</option>
+    <option value="0">🇬🇧 United Kingdom (UTC+0)</option><option value="1">🇫🇷 France / Germany (UTC+1)</option><option value="-5">🇺🇸 New York (UTC-5)</option>
+    <option value="-8">🇺🇸 California (UTC-8)</option><option value="10">🇦🇺 Sydney (UTC+10)</option><option value="custom">🌐 Custom…</option>
+  </select>
+  <label>Timezone offset / Số múi giờ (+7, -5, +5.5)</label>
+  <div class="lg2"><input id="su-o" type="text" value="+7"><button class="btn" id="su-now" type="button">Current / Hiện tại</button></div>
+  <label>Language / Ngôn ngữ</label>
+  <div class="lg2"><button class="btn act" data-l="en" type="button">🇺🇸 English</button><button class="btn" data-l="vi" type="button">🇻🇳 Tiếng Việt</button></div>
+  <button class="btn" id="su-go" type="button" style="width:100%;margin-top:1.2rem;padding:.8rem;background:#38bdf8;color:#09090b;font-weight:700">Start / Bắt đầu →</button>
+</div></div>
+
+<script>
+/* ==================== CONFIG ==================== */
+const $=id=>document.getElementById(id),KEY='AsiTime_v1_4';
+const D={setupDone:false,tz:7,lang:'en',theme:'dark',autoHide:30,layout:'under',showAnalog:false,showDigital:true,
+ motion:'sweep',as:1,sq:false,lt:false,nums:true,roman:false,dashMain:false,ticks:true,spin:false,
+ hS:true,hM:true,hH:true,cS:'',cM:'',cH:'',bgType:'none',bgA:'#1e293b',bgB:'#0ea5e9',bgAng:135,bgImg:'',
+ ds:1,dy:1,lab:'sym',date:true,ms:false,ampm:false,fade:true,blink:false,glow:false,float:false,font:'JetBrains Mono',fontUrl:'',
+ barOn:false,barMode:'date',barText:'AsiTime • Nguyễn Trọng An',barOp:70,barSize:'md',barFloat:false,barGlow:true,barUp:false,
+ imgThemes:[],timers:[],noteSeen:false};
+let cfg=load();
+function load(){const c={...D};
+ try{const o=JSON.parse(localStorage.getItem('AsiTime_Config_v1_3_bar_opacity')||'null');
+  if(o){c.setupDone=!!o.setupDone;c.tz=o.timezoneOffset??7;c.lang=o.lang||'en';c.theme=o.theme||'dark';c.showAnalog=!!o.showAnalog;c.ampm=!!o.digitalAmPm;c.glow=!!o.digitalGlow;c.barOn=!!o.barEnabled;c.barMode=o.barMode||'date';c.barText=o.barCustomText||c.barText;c.barOp=o.barOpacity||70}}catch(e){}
+ try{const n=JSON.parse(localStorage.getItem(KEY)||'null');if(n)Object.assign(c,n)}catch(e){}
+ return c}
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(cfg))}catch(e){}};
+const t=(v,e)=>cfg.lang==='vi'?v:e;
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const p2=n=>String(n).padStart(2,'0');
+const DAYS={vi:['Chủ Nhật','Thứ Hai','Thứ Ba','Thứ Tư','Thứ Năm','Thứ Sáu','Thứ Bảy'],en:['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday']};
+const dn=()=>cfg.lang==='vi'?['CN','T2','T3','T4','T5','T6','T7']:['Su','Mo','Tu','We','Th','Fr','Sa'];
+function now(){const n=new Date();return new Date(n.getTime()+n.getTimezoneOffset()*60000+cfg.tz*3600000)}
+function toast(m,ms=3200){const e=$('toast');e.textContent=m;e.classList.add('on');clearTimeout(toast.h);toast.h=setTimeout(()=>e.classList.remove('on'),ms)}
+
+/* ==================== THEMES ==================== */
+const mk=(bg,fg,hr,mn,sc,gl,pn)=>({bg,fg,hr,mn,sc,gl,pn});
+const TH={
+ dark:mk('radial-gradient(circle,#18181b,#09090b)','#f4f4f5','#fff','#d4d4d8','#f43f5e','rgba(255,255,255,.35)','rgba(24,24,27,.97)'),
+ light:mk('radial-gradient(circle,#fff,#e2e8f0)','#0f172a','#0f172a','#334155','#e11d48','rgba(14,165,233,.45)','rgba(255,255,255,.97)'),
+ neon:mk('radial-gradient(circle,#090d16,#02040a)','#00f3ff','#00f3ff','#ff00ea','#ffe600','rgba(0,243,255,.65)','rgba(6,14,28,.97)'),
+ vibrant:mk('linear-gradient(135deg,#4f46e5,#db2777 50%,#f59e0b)','#fff','#fff','#fef08a','#38bdf8','rgba(253,224,71,.65)','rgba(30,27,75,.95)'),
+ aurora:mk('linear-gradient(-45deg,#090d16,#1e1b4b,#0f766e,#4c1d95,#0369a1)','#f0f9ff','#fff','#7dd3fc','#f472b6','rgba(56,189,248,.65)','rgba(15,23,42,.95)'),
+ dawn:mk('linear-gradient(180deg,#1e1b4b,#831843 45%,#f97316)','#fff7ed','#ffedd5','#fed7aa','#fb923c','rgba(251,146,60,.6)','rgba(30,27,75,.95)'),
+ morning:mk('linear-gradient(180deg,#0284c7,#38bdf8 55%,#bae6fd)','#082f49','#082f49','#0369a1','#e11d48','rgba(255,255,255,.8)','rgba(240,249,255,.96)'),
+ noon:mk('linear-gradient(180deg,#0ea5e9,#7dd3fc 50%,#fef9c3)','#0c4a6e','#0c4a6e','#0284c7','#ea580c','rgba(253,224,71,.75)','rgba(255,255,255,.96)'),
+ afternoon:mk('linear-gradient(180deg,#2563eb,#60a5fa 55%,#fde68a)','#1e3a8a','#1e3a8a','#1d4ed8','#dc2626','rgba(253,230,138,.7)','rgba(239,246,255,.96)'),
+ sunset:mk('linear-gradient(180deg,#311042,#9d174d 45%,#ea580c 85%,#facc15)','#fef3c7','#fef3c7','#fde68a','#fb7185','rgba(249,115,22,.65)','rgba(49,16,66,.95)'),
+ evening:mk('linear-gradient(180deg,#0f172a,#1e1b4b 60%,#312e81)','#e0e7ff','#e0e7ff','#a5b4fc','#f43f5e','rgba(129,140,248,.5)','rgba(15,23,42,.95)'),
+ night:mk('radial-gradient(circle at top,#090d16,#020408)','#cbd5e1','#f8fafc','#94a3b8','#38bdf8','rgba(56,189,248,.35)','rgba(9,13,22,.96)')
+};
+let lastTheme='';
+function themeId(h){let id=cfg.theme;
+ if(id==='system')id=matchMedia('(prefers-color-scheme: light)').matches?'light':'dark';
+ if(id==='dynamic'){id=h>=5&&h<7?'dawn':h>=7&&h<11?'morning':h>=11&&h<14?'noon':h>=14&&h<17?'afternoon':h>=17&&h<19?'sunset':h>=19&&h<22?'evening':'night'}
+ return id}
+function applyTheme(force,h){
+ const id=themeId(h===undefined?now().getHours():h);
+ if(!force&&id===lastTheme)return;lastTheme=id;
+ let th=TH[id];
+ if(id.startsWith('img:')){
+  const it=cfg.imgThemes.find(x=>x.id===id.slice(4));
+  th=it?{...TH.night,fg:'#fff',hr:'#fff',mn:'#e5e7eb',pn:'rgba(9,13,22,.93)',bg:`linear-gradient(rgba(0,0,0,.3),rgba(0,0,0,.3)),url("${it.url.replace(/"/g,'%22')}") center/cover no-repeat`}:TH.dark;
+ }
+ th=th||TH.dark;
+ const b=document.body,s=b.style;
+ s.background=th.bg;s.backgroundSize=id==='aurora'?'400% 400%':'cover';s.color=th.fg;
+ s.setProperty('--hr',th.hr);s.setProperty('--mn',th.mn);s.setProperty('--sc',th.sc);s.setProperty('--gl',th.gl);s.setProperty('--pn',th.pn);
+ b.classList.toggle('aurora',id==='aurora');
+ document.querySelector('meta[name=theme-color]').content=th.pn.replace(/rgba\((\d+),(\d+),(\d+).*/,'rgb($1,$2,$3)');
+}
+matchMedia('(prefers-color-scheme: light)').addEventListener&&matchMedia('(prefers-color-scheme: light)').addEventListener('change',()=>applyTheme(true));
+
+/* ==================== FONTS ==================== */
+const FONTS=['JetBrains Mono','Inter','Orbitron','Share Tech Mono','Georgia','custom'];
+function loadFont(){
+ let fam=cfg.font,href='';
+ if(fam==='custom'){
+  const u=(cfg.fontUrl||'').trim();
+  if(!u){fam='JetBrains Mono'}
+  else if(/^https?:/i.test(u)){const m=u.match(/family=([^&:;]+)/);fam=m?decodeURIComponent(m[1].replace(/\+/g,' ')):'sans-serif';href=u}
+  else{fam=u;href='https://fonts.googleapis.com/css2?family='+encodeURIComponent(u).replace(/%20/g,'+')+':wght@400;700&display=swap'}
+ }else if(fam==='Orbitron'||fam==='Share Tech Mono'){href='https://fonts.googleapis.com/css2?family='+fam.replace(/ /g,'+')+':wght@400;700&display=swap'}
+ let l=$('cf');
+ if(href){if(!l){l=document.createElement('link');l.id='cf';l.rel='stylesheet';document.head.appendChild(l)}if(l.href!==href)l.href=href}
+ document.body.style.setProperty('--df',`'${fam.replace(/'/g,'')}',monospace`);
+}
+
+/* ==================== SETTINGS SCHEMA ==================== */
+const themeOpts=()=>[['system','🖥️ Theo máy','🖥️ System'],['dark','🌑 Tối','🌑 Dark'],['light','☀️ Sáng','☀️ Light'],['neon','💠 Neon','💠 Neon'],['vibrant','🌈 Nổi bật','🌈 Vibrant'],['aurora','✨ Aurora','✨ Aurora'],['dynamic','🌅 Theo giờ','🌅 Time of day'],...cfg.imgThemes.map(x=>['img:'+x.id,'🖼️ '+x.name,'🖼️ '+x.name])];
+const S=[
+['m','h',null,'Giao diện','Appearance'],
+['m','sel','theme','Chủ đề','Theme',themeOpts],
+['m','imgs'],
+['m','sel','layout','Bố cục đồng hồ','Clock layout',[['under','Số dưới kim','Digital below'],['above','Số trên kim','Digital above'],['inside','Số trong kim','Digital inside']]],
+['m','chk','showAnalog','Đồng hồ kim','Analog clock'],
+['m','chk','showDigital','Đồng hồ số','Digital clock'],
+['m','h',null,'Thanh công cụ','Toolbar'],
+['m','num','autoHide','Tự ẩn sau (giây, 5–180)','Auto-hide after (sec, 5–180)'],
+['m','h',null,'Chữ trên gạch iPhone','iPhone home bar text'],
+['m','chk','barOn','Hiển thị trên gạch','Show on home bar'],
+['m','sel','barMode','Nội dung','Content',[['date','📅 Ngày tháng năm & thứ','📅 Date & weekday'],['custom','✍️ Tự ghi','✍️ Custom text'],['author','👨‍💻 Tên nhà phát hành','👨‍💻 Developer'],['webname','🌐 Tên web: AsiTime','🌐 Web name: AsiTime']]],
+['m','txt','barText','Nội dung tự ghi','Custom text','Nhập chữ…'],
+['m','rng','barOp','Độ mờ chữ (%)','Text opacity (%)',[20,100,1]],
+['m','sel','barSize','Cỡ chữ','Text size',[['sm','Nhỏ (S)','Small (S)'],['md','Vừa (M)','Medium (M)'],['lg','Lớn (L)','Large (L)']]],
+['m','chk','barFloat','Hiệu ứng lơ lửng','Floating effect'],
+['m','chk','barGlow','Chữ phát sáng (không viền)','Glowing text (no border)'],
+['m','chk','barUp','Phát sáng đáy chiếu lên','Glow rising from the bottom'],
+['m','h',null,'Hệ thống','System'],
+['m','txt','tz','Múi giờ (VD: +7, -5, +5.5)','Timezone (e.g. +7, -5, +5.5)'],
+['m','sel','lang','Ngôn ngữ','Language',[['vi','Tiếng Việt','Tiếng Việt'],['en','English','English']]],
+
+['a','h',null,'Chuyển động & kích cỡ','Motion & size'],
+['a','sel','motion','Chuyển động kim','Hand motion',[['sweep','🌊 Trôi liền mạch','🌊 Smooth sweep'],['tick','⏱️ Nhảy từng nhịp','⏱️ Ticking']]],
+['a','rng','as','Kích cỡ đồng hồ kim','Analog size',[.5,1.3,.05]],
+['a','h',null,'Mặt đồng hồ','Dial'],
+['a','chk','nums','Hiện số (tắt = hiện dấu gạch)','Show numbers (off = dashes)'],
+['a','chk','roman','Số La Mã','Roman numerals'],
+['a','chk','dashMain','Gạch thay số (trừ 12, 3, 6, 9)','Dashes except 12, 3, 6, 9'],
+['a','chk','ticks','60 vạch phút & giây','60 minute/second ticks'],
+['a','chk','spin','Viền quay có hiệu ứng','Spinning border'],
+['a','chk','lt','Đèn đồng hồ (phát sáng)','Dial glow'],
+['a','chk','sq','Bỏ viền & phóng to hình vuông (mất nền)','Borderless square (disables background)'],
+['a','h',null,'Kim','Hands'],
+['a','chk','hS','Kim giây','Second hand'],['a','col','cS','Màu kim giây','Second hand color'],
+['a','chk','hM','Kim phút','Minute hand'],['a','col','cM','Màu kim phút','Minute hand color'],
+['a','chk','hH','Kim giờ','Hour hand'],['a','col','cH','Màu kim giờ','Hour hand color'],
+['a','h',null,'Nền đồng hồ kim riêng','Analog background'],
+['a','sel','bgType','Loại nền','Background type',[['none','Theo chủ đề','Follow theme'],['color','Màu','Color'],['gradient','Gradient','Gradient'],['image','Ảnh (link)','Image (link)']]],
+['a','colv','bgA','Màu 1','Color 1'],['a','colv','bgB','Màu 2 (gradient)','Color 2 (gradient)'],
+['a','rng','bgAng','Góc gradient (°)','Gradient angle (°)',[0,360,5]],
+['a','txt','bgImg','Link ảnh nền','Background image link','https://…'],
+
+['d','h',null,'Kích thước & font','Size & font'],
+['d','rng','ds','Kích cỡ số','Digital size',[.5,1.2,.05]],
+['d','rng','dy','Chiều cao (kéo dáng)','Height (stretch)',[.7,1.8,.05]],
+['d','sel','font','Font','Font',FONTS.map(f=>[f,f==='custom'?'Tuỳ chỉnh (Google Font)':f,f==='custom'?'Custom (Google Font)':f])],
+['d','txt','fontUrl','Tên hoặc link Google Font','Google Font name or link','Orbitron / https://fonts.googleapis.com/…'],
+['d','h',null,'Hiển thị','Display'],
+['d','sel','lab','Ký hiệu giờ phút giây','Time labels',[['sym','h ’ s','h ’ s'],['colon','Dấu hai chấm :','Colons :'],['vi','Giờ Phút Giây (Việt)','Giờ Phút Giây (Vietnamese)'],['en','Hr Min Sec (English)','Hr Min Sec (English)']]],
+['d','chk','date','Ngày tháng năm & thứ','Date & weekday'],
+['d','chk','ms','Mili-giây','Milliseconds'],
+['d','chk','ampm','12 giờ (AM / PM)','12-hour (AM / PM)'],
+['d','chk','fade','Hiệu ứng đổi từng chữ số','Per-digit transition'],
+['d','chk','blink','Nhấp nháy số thay đổi','Blink changed digit'],
+['d','chk','glow','Đèn số (phát sáng)','Digit glow'],
+['d','chk','float','Lơ lửng','Floating motion']
+];
+function row(s){const [,ty,k,vi,en,x]=s,L=t(vi,en);
+ switch(ty){
+ case 'h':return `<div class="gh">${L}</div>`;
+ case 'chk':return `<label class="row"><span>${L}</span><input type="checkbox" data-k="${k}"></label>`;
+ case 'rng':return `<div class="row col"><span>${L}: <b data-v="${k}"></b></span><input type="range" data-k="${k}" min="${x[0]}" max="${x[1]}" step="${x[2]}"></div>`;
+ case 'sel':{const o=typeof x==='function'?x():x;return `<label class="row"><span>${L}</span><select data-k="${k}">${o.map(a=>`<option value="${esc(a[0])}">${esc(t(a[1],a[2]||a[1]))}</option>`).join('')}</select></label>`}
+ case 'txt':return `<label class="row col"><span>${L}</span><input type="text" data-k="${k}" ${x?`placeholder="${esc(x)}"`:''}></label>`;
+ case 'num':return `<label class="row"><span>${L}</span><input type="number" data-k="${k}" min="5" max="180" inputmode="numeric"></label>`;
+ case 'col':return `<div class="row"><span>${L}</span><span><button class="btn" type="button" data-auto="${k}">Auto</button> <input type="color" data-k="${k}"></span></div>`;
+ case 'colv':return `<div class="row"><span>${L}</span><input type="color" data-k="${k}"></div>`;
+ case 'imgs':return `<div class="gh">${t('Theme ảnh (link)','Image theme (link)')}</div><div class="row col"><input type="text" id="it-n" maxlength="30" placeholder="${t('Tên theme','Theme name')}"><input type="text" id="it-u" placeholder="https://…jpg"><div><button class="btn" type="button" id="it-ok">${t('Lưu theme','Save theme')}</button> <button class="btn" type="button" id="it-x" hidden>${t('Huỷ sửa','Cancel edit')}</button></div></div><div id="it-l"></div>`;
+ }return ''}
+function timerPane(){return `<div id="tl"></div><div class="gh" id="tf-h">${t('Hẹn giờ mới','New timer')}</div><div class="row col"><input type="time" step="1" id="tf-t" value="07:00:00"><input type="text" id="tf-n" maxlength="60" placeholder="${t('Tiêu đề / nội dung nhắc','Title / message')}"><div class="days">${[1,2,3,4,5,6,0].map(i=>`<label class="dy"><input type="checkbox" value="${i}" checked>${dn()[i]}</label>`).join('')}</div><label class="row" style="margin:0"><span>${t('Rung chuông (phút)','Ring time (min)')}</span><select id="tf-d">${[1,2,3,4,5].map(n=>`<option>${n}</option>`).join('')}</select></label><label class="row" style="margin:0"><span>${t('Âm thanh','Sound')}</span><input type="checkbox" id="tf-s" checked></label><div><button class="btn" type="button" id="tf-ok">${t('Lưu hẹn giờ','Save timer')}</button> <button class="btn" type="button" id="tf-x">${t('Huỷ','Cancel')}</button></div></div>`}
+
+let tab='m';
+const TABS=[['m','Chính','Main'],['a','Kim','Analog'],['d','Số','Digital'],['t','Hẹn giờ','Timers']];
+function build(){
+ $('tabs').innerHTML=TABS.map(a=>`<button class="tb" type="button" data-t="${a[0]}">${t(a[1],a[2])}</button>`).join('')+`<button class="ib" type="button" id="set-x" style="margin-left:.2rem;flex:none">✕</button>`;
+ $('sc').innerHTML=['m','a','d'].map(p=>`<div class="pane" data-p="${p}">${S.filter(s=>s[0]===p).map(row).join('')}</div>`).join('')+`<div class="pane" data-p="t">${timerPane()}</div>`;
+ showTab();renderImgs();renderTimers();sync();fillInfo();
+}
+function showTab(){document.querySelectorAll('.pane').forEach(p=>p.hidden=p.dataset.p!==tab);document.querySelectorAll('.tb').forEach(b=>b.classList.toggle('act',b.dataset.t===tab))}
+function sync(){
+ document.querySelectorAll('#sc [data-k]').forEach(el=>{const k=el.dataset.k;let v=cfg[k];
+  if(k==='tz')v=(v>=0?'+':'')+v;
+  if(el.type==='checkbox')el.checked=!!v;else if(el.type==='color')el.value=v||'#888888';else el.value=v});
+ document.querySelectorAll('#sc [data-v]').forEach(b=>b.textContent=cfg[b.dataset.v]);
+}
+function fillTheme(){const s=document.querySelector('#sc select[data-k=theme]');if(s){s.innerHTML=themeOpts().map(a=>`<option value="${esc(a[0])}">${esc(t(a[1],a[2]))}</option>`).join('');s.value=cfg.theme}}
+
+/* ==================== SETTINGS EVENTS ==================== */
+$('sc').addEventListener('input',e=>{
+ if(e.target.dataset.ton){const a=cfg.timers.find(x=>x.id===e.target.dataset.ton);if(a){a.on=e.target.checked;save()}return}
+ const el=e.target.closest('[data-k]');if(!el)return;const k=el.dataset.k;let v;
+ if(el.type==='checkbox')v=el.checked;
+ else if(el.type==='range')v=+el.value;
+ else if(el.type==='number'){v=parseInt(el.value,10);if(isNaN(v))return;v=Math.max(5,Math.min(180,v))}
+ else v=el.value;
+ if(k==='tz'){v=parseFloat(String(v).replace(',','.'));if(isNaN(v))return;v=Math.max(-12,Math.min(14,v))}
+ cfg[k]=v;
+ if(k==='showAnalog'&&v&&!cfg.hS&&!cfg.hM&&!cfg.hH)cfg.hS=cfg.hM=cfg.hH=true;
+ if(['hS','hM','hH'].includes(k)&&!cfg.hS&&!cfg.hM&&!cfg.hH)cfg.showAnalog=false;
+ if(!cfg.showAnalog&&!cfg.showDigital)cfg.showDigital=true;
+ save();
+ if(k==='lang'){build()}
+ else if(el.type!=='text'&&el.type!=='number')sync();
+ apply();
+ if(k==='showAnalog'&&v)intro();
+ if(k==='autoHide')bump();
+});
+$('sc').addEventListener('change',e=>{if(e.target.type==='text'||e.target.type==='number')sync()});
+$('sc').addEventListener('click',e=>{
+ const b=e.target.closest('button');if(!b)return;
+ if(b.dataset.auto){cfg[b.dataset.auto]='';save();sync();apply();return}
+ if(b.dataset.use){cfg.theme='img:'+b.dataset.use;save();fillTheme();apply();return}
+ if(b.dataset.ied){const it=cfg.imgThemes.find(x=>x.id===b.dataset.ied);if(it){$('it-n').value=it.name;$('it-u').value=it.url;editI=it.id;$('it-x').hidden=false}return}
+ if(b.dataset.idel){cfg.imgThemes=cfg.imgThemes.filter(x=>x.id!==b.dataset.idel);if(cfg.theme==='img:'+b.dataset.idel)cfg.theme='dark';save();fillTheme();renderImgs();apply();return}
+ if(b.dataset.ted){const a=cfg.timers.find(x=>x.id===b.dataset.ted);if(a){editT=a.id;$('tf-t').value=a.t;$('tf-n').value=a.title;$('tf-d').value=a.dur;$('tf-s').checked=a.snd;document.querySelectorAll('.days input').forEach(c=>c.checked=a.days.includes(+c.value));$('tf-h').textContent=t('Sửa hẹn giờ','Edit timer')}return}
+ if(b.dataset.tdel){cfg.timers=cfg.timers.filter(x=>x.id!==b.dataset.tdel);save();renderTimers();return}
+ switch(b.id){
+  case 'it-ok':saveImg();break;
+  case 'it-x':resetImg();break;
+  case 'tf-ok':saveTimer();break;
+  case 'tf-x':resetTimer();break;
+ }
+});
+$('tabs').addEventListener('click',e=>{
+ const b=e.target.closest('button');if(!b)return;
+ if(b.id==='set-x'){document.body.classList.remove('so');bump();return}
+ if(b.dataset.t){tab=b.dataset.t;showTab();$('sc').scrollTop=0}
+});
+
+/* image themes */
+let editI=null;
+function renderImgs(){const l=$('it-l');if(!l)return;
+ l.innerHTML=cfg.imgThemes.map(x=>`<div class="row"><span>🖼️ ${esc(x.name)}</span><span><button class="btn" type="button" data-use="${x.id}">${t('Dùng','Use')}</button> <button class="btn" type="button" data-ied="${x.id}">✏️</button> <button class="btn" type="button" data-idel="${x.id}">🗑</button></span></div>`).join('')}
+function resetImg(){editI=null;$('it-n').value='';$('it-u').value='';$('it-x').hidden=true}
+function saveImg(){
+ const name=$('it-n').value.trim(),url=$('it-u').value.trim();
+ if(!name||!/^(https?:\/\/|data:image\/)/i.test(url)){toast(t('Nhập tên và link ảnh hợp lệ (http/https)','Enter a name and a valid image link (http/https)'));return}
+ let id=editI;
+ if(id){const it=cfg.imgThemes.find(x=>x.id===id);if(it){it.name=name;it.url=url}}
+ else{id=Date.now().toString(36);cfg.imgThemes.push({id,name,url})}
+ cfg.theme='img:'+id;save();resetImg();fillTheme();renderImgs();lastTheme='';apply();
+}
+
+/* ==================== TIMERS ==================== */
+let editT=null,ring=null,ac=null,beepT=null,lastCheck=-1;
+function renderTimers(){const l=$('tl');if(!l)return;
+ l.innerHTML=cfg.timers.length?cfg.timers.map(a=>`<div class="row"><span><b class="mono">${a.t}</b> ${esc(a.title||'')}<br><small style="opacity:.7">${a.days.length===7?t('Mỗi ngày','Daily'):[1,2,3,4,5,6,0].filter(i=>a.days.includes(i)).map(i=>dn()[i]).join(' ')} · ${a.dur} min</small></span><span><input type="checkbox" data-ton="${a.id}" ${a.on?'checked':''}> <button class="btn" type="button" data-ted="${a.id}">✏️</button> <button class="btn" type="button" data-tdel="${a.id}">🗑</button></span></div>`).join(''):`<div class="row"><span>${t('Chưa có hẹn giờ nào','No timers yet')}</span></div>`}
+function resetTimer(){editT=null;$('tf-t').value='07:00:00';$('tf-n').value='';$('tf-d').value='1';$('tf-s').checked=true;document.querySelectorAll('.days input').forEach(c=>c.checked=true);$('tf-h').textContent=t('Hẹn giờ mới','New timer')}
+function saveTimer(){
+ let v=$('tf-t').value;if(!v){toast(t('Chọn giờ phút giây','Pick a time'));return}
+ if(v.length===5)v+=':00';
+ const days=[...document.querySelectorAll('.days input:checked')].map(c=>+c.value);
+ if(!days.length){toast(t('Chọn ít nhất 1 ngày','Pick at least one day'));return}
+ const o={t:v,title:$('tf-n').value.trim(),days,dur:+$('tf-d').value,snd:$('tf-s').checked,on:true};
+ if(editT){const a=cfg.timers.find(x=>x.id===editT);if(a)Object.assign(a,o)}else cfg.timers.push({id:Date.now().toString(36),...o});
+ save();resetTimer();renderTimers();
+}
+function beep(){
+ if(!ring||!ring.a.snd)return;
+ try{ac=ac||new(window.AudioContext||window.webkitAudioContext)();if(ac.state==='suspended')ac.resume();
+  const o=ac.createOscillator(),g=ac.createGain(),n=ac.currentTime;o.type='sine';o.frequency.value=880;
+  g.gain.setValueAtTime(.0001,n);g.gain.exponentialRampToValueAtTime(.35,n+.02);g.gain.exponentialRampToValueAtTime(.0001,n+.3);
+  o.connect(g);g.connect(ac.destination);o.start();o.stop(n+.32)}catch(e){}
+}
+function startRing(a){
+ ring={a,until:Date.now()+a.dur*60000};
+ document.body.classList.add('ring');$('alarm').hidden=false;
+ clearInterval(beepT);beep();beepT=setInterval(()=>{beep();navigator.vibrate&&navigator.vibrate(300)},900);
+ navigator.vibrate&&navigator.vibrate([400,200,400]);
+}
+function stopRing(){ring=null;document.body.classList.remove('ring');$('alarm').hidden=true;clearInterval(beepT);navigator.vibrate&&navigator.vibrate(0)}
+setInterval(()=>{
+ const d=now(),s=d.getSeconds();
+ if(s!==lastCheck){lastCheck=s;const hs=`${p2(d.getHours())}:${p2(d.getMinutes())}:${p2(s)}`,wd=d.getDay();
+  cfg.timers.forEach(a=>{if(a.on&&a.t===hs&&a.days.includes(wd))startRing(a)})}
+ if(ring){const left=ring.until-Date.now();
+  if(left<=0)stopRing();
+  else{const sec=Math.ceil(left/1000);$('alarm').textContent=`🔔 ${ring.a.title||ring.a.t} · ${p2(Math.floor(sec/60))}:${p2(sec%60)}`}}
+},250);
+document.addEventListener('pointerdown',e=>{
+ try{ac=ac||new(window.AudioContext||window.webkitAudioContext)();if(ac.state==='suspended')ac.resume()}catch(x){}
+ if(ring&&!e.target.closest('button,input,select,#set,.modal'))stopRing();
+});
+
+/* ==================== DIAL ==================== */
+const ROM=['XII','I','II','III','IV','V','VI','VII','VIII','IX','X','XI'],ARA=['12','1','2','3','4','5','6','7','8','9','10','11'],NS='http://www.w3.org/2000/svg';
+function ln(x1,y1,x2,y2,w,op){const l=document.createElementNS(NS,'line');l.setAttribute('x1',x1);l.setAttribute('y1',y1);l.setAttribute('x2',x2);l.setAttribute('y2',y2);l.setAttribute('stroke','currentColor');l.setAttribute('stroke-width',w);l.setAttribute('stroke-opacity',op);l.setAttribute('stroke-linecap','round');return l}
+function renderDial(){
+ const tk=$('tk'),nm=$('nm');tk.innerHTML='';nm.innerHTML='';
+ if(cfg.ticks)for(let i=0;i<60;i++){const a=i*6*Math.PI/180,m=i%5===0,ri=m?132:135.5;
+  tk.appendChild(ln(150+ri*Math.sin(a),150-ri*Math.cos(a),150+140*Math.sin(a),150-140*Math.cos(a),m?2.2:1.1,m?.9:.45))}
+ for(let h=0;h<12;h++){const a=h*30*Math.PI/180,main=h%3===0;
+  if(!cfg.nums||(cfg.dashMain&&!main)){nm.appendChild(ln(150+109*Math.sin(a),150-109*Math.cos(a),150+123*Math.sin(a),150-123*Math.cos(a),3,.85))}
+  else{const x=document.createElementNS(NS,'text');x.setAttribute('x',150+113*Math.sin(a));x.setAttribute('y',150-113*Math.cos(a));x.setAttribute('fill','currentColor');x.setAttribute('font-size',cfg.roman?15.5:17.5);x.setAttribute('font-weight',700);x.setAttribute('text-anchor','middle');x.setAttribute('dominant-baseline','central');x.textContent=cfg.roman?ROM[h]:ARA[h];nm.appendChild(x)}}
+}
+
+/* ==================== APPLY ==================== */
+let hidden=false,zoom=false;
+function apply(){
+ const b=document.body,s=b.style;
+ applyTheme(true);
+ s.setProperty('--as',cfg.as);s.setProperty('--ds',cfg.ds);s.setProperty('--dy',cfg.dy);s.setProperty('--z',zoom?1.18:1);
+ b.classList.toggle('zoom',zoom);
+ const an=cfg.showAnalog&&(cfg.hS||cfg.hM||cfg.hH),dg=cfg.showDigital;
+ $('aw').hidden=!an;$('dig').hidden=!dg;
+ $('combo').className='l-'+cfg.layout+(an&&dg?' both':'');
+ const aw=$('aw');
+ aw.classList.toggle('sq',cfg.sq);aw.classList.toggle('lt',cfg.lt&&!cfg.sq);
+ aw.style.background=cfg.sq||cfg.bgType==='none'?'':cfg.bgType==='color'?cfg.bgA:cfg.bgType==='gradient'?`linear-gradient(${cfg.bgAng}deg,${cfg.bgA},${cfg.bgB})`:(cfg.bgImg?`url("${cfg.bgImg.replace(/"/g,'%22')}") center/cover no-repeat`:'');
+ $('spin').hidden=!(cfg.spin&&!cfg.sq);
+ $('hh').style.display=cfg.hH?'':'none';$('hm').style.display=cfg.hM?'':'none';$('hsg').style.display=cfg.hS?'':'none';
+ $('hh').style.stroke=cfg.cH||'var(--hr)';$('hm').style.stroke=cfg.cM||'var(--mn)';
+ $('hs').style.stroke=cfg.cS||'var(--sc)';$('hsd').style.fill=cfg.cS||'var(--sc)';
+ renderDial();
+ const L={sym:['h','’','s'],colon:[':',':',''],vi:['giờ','phút','giây'],en:['hr','min','sec']}[cfg.lab]||['h','’','s'];
+ ['h','m','s'].forEach((p,i)=>$('l'+p).textContent=L[i]);
+ $('dt').className=(cfg.glow?'glow ':'')+(cfg.lab==='vi'||cfg.lab==='en'?'word':'sym');
+ $('dig').classList.toggle('fl',cfg.float);
+ $('ms').hidden=!cfg.ms;$('ap').hidden=!cfg.ampm;
+ $('dd').hidden=!cfg.date||(cfg.barOn&&cfg.barMode==='date');
+ loadFont();
+ const hb=$('hb');
+ hb.hidden=!cfg.barOn;hb.className=(cfg.barFloat?'fl ':'')+(cfg.barGlow?'glow ':'')+cfg.barSize;hb.style.opacity=cfg.barOp/100;
+ $('hbg').hidden=!(cfg.barOn&&cfg.barUp);
+ $('top').classList.toggle('off',hidden||zoom);
+ lastSec=-1;
+}
+
+/* ==================== INTRO + LOOP ==================== */
+let introAt=0;const INTRO=1450;
+function intro(){introAt=performance.now();for(const k in dc)delete dc[k]}
+const dc={};
+function setD(id,ch){
+ if(dc[id]===ch)return;dc[id]=ch;const el=$(id);el.textContent=ch;
+ if(introAt||(!cfg.fade&&!cfg.blink))return;
+ el.classList.remove('chg','bl');void el.offsetWidth;
+ if(cfg.fade)el.classList.add('chg');if(cfg.blink)el.classList.add('bl');
+}
+let lastSec=-1;
+function texts(d){
+ const dt=`${DAYS[cfg.lang][d.getDay()]}, ${p2(d.getDate())}/${p2(d.getMonth()+1)}/${d.getFullYear()}`;
+ if($('dd').textContent!==dt)$('dd').textContent=dt;
+ if(cfg.barOn){const x=cfg.barMode==='custom'?(cfg.barText.trim()||'AsiTime'):cfg.barMode==='author'?t('Người tạo web này: Nguyễn Trọng An','Developer: Nguyễn Trọng An'):cfg.barMode==='webname'?'AsiTime':dt;
+  if($('hbt').textContent!==x)$('hbt').textContent=x}
+}
+function loop(ts){
+ const d=now(),H=d.getHours(),M=d.getMinutes(),S=d.getSeconds(),ms=d.getMilliseconds();
+ applyTheme(false,H);
+ let p=1;
+ if(introAt){const e=Math.max(0,ts-introAt);if(e>=INTRO){introAt=0;for(const k in dc)delete dc[k]}else p=1-Math.pow(1-e/INTRO,3)}
+ if(S!==lastSec){lastSec=S;texts(d)}
+ if(cfg.showDigital){
+  const h=cfg.ampm?(H%12||12):H;let a=h,b=M,c=S;
+  if(introAt){a=Math.round(12+(h-12)*p);b=Math.round(M*p);c=Math.round(S*p)}
+  const A=p2(a),B=p2(b),C=p2(c);
+  setD('h1',A[0]);setD('h2',A[1]);setD('m1',B[0]);setD('m2',B[1]);setD('s1',C[0]);setD('s2',C[1]);
+  if(cfg.ms)$('ms').textContent=(cfg.lab==='sym'?'.':':')+p2(Math.floor(ms/10));
+  if(cfg.ampm)$('ap').textContent=H>=12?'PM':'AM';
+ }
+ if(cfg.showAnalog){
+  const sm=cfg.motion==='sweep'?S+ms/1000:S,mm=M+sm/60,hh=(H%12)+mm/60;
+  const f=x=>introAt?x*p:x;
+  $('hh').setAttribute('transform',`rotate(${f(hh*30)} 150 150)`);
+  $('hm').setAttribute('transform',`rotate(${f(mm*6)} 150 150)`);
+  $('hsg').setAttribute('transform',`rotate(${f(sm*6)} 150 150)`);
+ }
+ requestAnimationFrame(loop);
+}
+
+/* ==================== TOOLBAR, AUTO-HIDE, TAPS ==================== */
+let hideT;
+function bump(){clearTimeout(hideT);hideT=setTimeout(()=>{if(!document.body.classList.contains('so')&&!document.querySelector('.modal.on')){hidden=true;apply()}},Math.max(5,Math.min(180,cfg.autoHide||30))*1000)}
+['pointerdown','keydown'].forEach(ev=>addEventListener(ev,bump,{passive:true}));
+const modalOpen=()=>document.body.classList.contains('so')||!!document.querySelector('.modal.on');
+
+$('b-set').onclick=e=>{e.stopPropagation();document.body.classList.add('so');sync();clearTimeout(hideT)};
+$('b-hide').onclick=e=>{e.stopPropagation();hidden=true;apply();toast(t('Chạm 2 lần vào chỗ trống để hiện lại nút','Double-tap empty space to show the buttons again'),2600)};
+$('b-info').onclick=e=>{e.stopPropagation();$('info').classList.add('on')};
+$('b-zoom').onclick=e=>{
+ e.stopPropagation();zoom=true;apply();
+ const de=document.documentElement,rq=de.requestFullscreen||de.webkitRequestFullscreen;
+ try{rq&&rq.call(de)}catch(x){}
+ toast(t('Đã phóng to • Chạm 3 lần để quay lại. Dùng “Thêm vào Màn hình chính” để ẩn thanh trình duyệt','Zoomed • Triple-tap to restore. Use “Add to Home Screen” to hide the browser bar'),4200);
+};
+let taps=[];
+document.body.addEventListener('pointerup',e=>{
+ if(modalOpen()||e.target.closest('button'))return;
+ const n=Date.now();taps=taps.filter(x=>n-x<650);taps.push(n);
+ if(zoom&&taps.length>=3){zoom=false;hidden=false;taps=[];apply();try{const ex=document.exitFullscreen||document.webkitExitFullscreen;document.fullscreenElement&&ex&&ex.call(document)}catch(x){}return}
+ if(hidden&&!zoom&&taps.length>=2){hidden=false;taps=[];apply();$('toast').classList.remove('on')}
+});
+
+/* ==================== INFO / NOTES ==================== */
+const ICON='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><path d="M12 3v12M8 7l4-4 4 4M6 11H5v10h14V11h-1"/></svg>';
+const installTxt=()=>t(`Nếu bạn sử dụng Safari vui lòng ấn vào nút chia sẻ ${ICON}, sau đó kéo xuống và ấn vào nút “Thêm vào Màn hình chính” và ấn vào nút Thêm bên góc phải và sử dụng web app như bình thường.`,`If you use Safari, tap the Share button ${ICON}, scroll down and tap “Add to Home Screen”, then tap Add in the top-right corner and use the web app as normal.`);
+const rotateTxt=()=>t('Để trải nghiệm tốt hơn, hãy xoay iPhone từ dọc sang ngang.','For a better experience, rotate your iPhone from portrait to landscape.');
+function fillInfo(){
+ $('info-c').innerHTML=`<h2>AsiTime <small class="mono" style="color:#38bdf8">V1.4 BETA</small></h2>
+ <div class="gh">${t('Có gì mới','What is new')}</div><ul>
+ <li>${t('Giao diện cài đặt mới: xem trước trực tiếp bên cạnh, chia tab Chính / Kim / Số / Hẹn giờ','New settings: live preview beside the panel, tabs Main / Analog / Digital / Timers')}</li>
+ <li>${t('Chủ đề theo máy, theme ảnh bằng link (lưu, sửa, xoá)','System theme, image-link themes (save, edit, delete)')}</li>
+ <li>${t('Tự ẩn thanh công cụ (5–180 giây)','Auto-hide toolbar (5–180 sec)')}</li>
+ <li>${t('Hẹn giờ lưu cục bộ: chọn thứ, rung chuông 1–5 phút, âm thanh, phát sáng, chạm để tắt','Local timers: weekdays, 1–5 min ringing, sound, glow, tap to stop')}</li>
+ <li>${t('Chữ gạch iPhone phát sáng, không viền, thêm sáng đáy chiếu lên','Glowing home bar text, no border, plus a rising bottom glow')}</li>
+ <li>${t('Kích cỡ đồng hồ kim & số, kéo dáng, đổi font Google, nhãn Giờ Phút Giây Việt/Anh','Analog & digital size, stretch, Google fonts, Vietnamese/English time labels')}</li>
+ <li>${t('Đồng hồ kim: nền màu / gradient / ảnh, viền quay, tắt số hiện gạch; bố cục số dưới / trên / trong','Analog: color / gradient / image background, spinning border, dashes instead of numbers; digital below / above / inside layouts')}</li>
+ <li>${t('Phóng to tự vừa màn hình','Zoom that fits the screen')}</li></ul>
+ <div class="gh">${t('Cài vào Màn hình chính','Install to Home Screen')}</div><p>${installTxt()}</p><p>${rotateTxt()}</p>
+ <button class="btn" type="button" id="info-x" style="width:100%;padding:.7rem">OK</button>`;
+ $('info-x').onclick=()=>$('info').classList.remove('on');
+}
+$('info').addEventListener('click',e=>{if(e.target.id==='info')$('info').classList.remove('on')});
+function showNotes(){
+ const ios=/iPhone|iPad|iPod/.test(navigator.userAgent),standalone=navigator.standalone||matchMedia('(display-mode: standalone)').matches;
+ if(ios&&!standalone&&!cfg.noteSeen){
+  $('note-c').innerHTML=`<h2>📲 ${t('Thông báo','Notice')}</h2><p>${installTxt()}</p><p>${rotateTxt()}</p><button class="btn" type="button" id="note-x" style="width:100%;padding:.7rem">OK</button>`;
+  $('note').classList.add('on');
+  $('note-x').onclick=()=>{$('note').classList.remove('on');cfg.noteSeen=true;save()};
+ }else if(ios&&matchMedia('(orientation: portrait)').matches){toast(rotateTxt(),5000)}
+}
+
+/* ==================== SETUP ==================== */
+let setupLang='en';
+$('su-c').addEventListener('change',e=>{if(e.target.value!=='custom'){const v=parseFloat(e.target.value);$('su-o').value=v>=0?'+'+v:''+v}else $('su-o').focus()});
+$('su-now').onclick=()=>{const v=-new Date().getTimezoneOffset()/60;$('su-o').value=v>=0?'+'+v:''+v;$('su-c').value='custom'};
+document.querySelectorAll('#setup [data-l]').forEach(b=>b.onclick=()=>{setupLang=b.dataset.l;document.querySelectorAll('#setup [data-l]').forEach(x=>x.classList.toggle('act',x===b))});
+$('su-go').onclick=()=>{
+ const v=parseFloat($('su-o').value.replace(',','.'));
+ cfg.tz=isNaN(v)?7:Math.max(-12,Math.min(14,v));cfg.lang=setupLang;cfg.setupDone=true;save();
+ $('setup').classList.remove('on');build();apply();intro();showNotes();bump();
+};
+
+/* ==================== START ==================== */
+window.addEventListener('DOMContentLoaded',()=>{
+ build();apply();
+ if(cfg.setupDone){$('setup').classList.remove('on');intro();showNotes();bump()}
+ requestAnimationFrame(loop);
+});
+</script>
+</body>
+</html>

@@ -63,7 +63,7 @@ select{font-size:16px;min-height:44px;border-radius:10px;border:1px solid var(--
 <div id="lm" hidden><div class="mbox"><div class="mh"><b>Danh sách công thức</b><div style="display:flex;gap:6px"><button id="lAll">Tải tất cả</button><button id="lClose">Đóng</button></div></div>
 <div class="ltabs" id="ltabs"><button data-m="f2l" class="on">F2L</button><button data-m="oll">OLL</button><button data-m="pll">PLL</button></div>
 <div id="lbody"></div>
-<div class="row"><input id="fname" placeholder="Tên mục nhỏ mới" autocomplete="off"><button id="fAdd">+ Tạo mục</button></div></div></div>
+<div class="row"><input id="fname" placeholder="Tên mục mới (tạo trong mục đang mở)" autocomplete="off"><button id="fAdd">+ Tạo mục</button></div></div></div>
 <div id="kb" hidden>
 <div class="kl"><button data-k="x" class="k1">x</button><button data-k="U" class="kw">U</button><button data-k="y" class="k1">y</button><button data-k="L" class="kw">L</button><button data-k="F" class="k1">F</button><button data-k="R" class="kw">R</button><button data-k="z" class="k1">z</button><button data-k="D" class="kw">D</button><button data-k="B" class="k1">B</button><button data-k="w" class="kd">w</button><button data-k="’" class="kd">’</button><button data-k="2" class="kd">2</button></div>
 
@@ -237,7 +237,7 @@ function loadLib(){try{const j=JSON.parse(localStorage.getItem(LK2));if(j&&j.ite
  LIB={items:libGet().map(o=>({id:o.id,mode:o.mode,folder:null,data:o.data})),folders:[]}}
 function saveLib(){try{localStorage.setItem(LK2,JSON.stringify(LIB));return true}catch(e){return false}}
 function refreshSaveUI(){const s=$('saveFolder'),cur=s.value;s.innerHTML='';s.add(new Option('Lưu vào: chưa phân mục',''));
- LIB.folders.filter(f=>f.mode==mode).forEach(f=>s.add(new Option('Lưu vào mục: '+f.name,f.id)));
+ folderOpts(mode).forEach(o=>s.add(new Option('Lưu vào mục: '+o.l,o.id)));
  const it=editId&&LIB.items.find(x=>x.id==editId&&x.mode==mode);
  s.value=it?(it.folder||''):cur;if(s.selectedIndex<0)s.selectedIndex=0;
  $('btnSave').textContent=it?'Cập nhật':'Lưu vào danh sách';$('btnSaveNew').hidden=!it}
@@ -253,22 +253,34 @@ function armDel(b,fn){let a=false,t;b.onclick=()=>{if(a){clearTimeout(t);fn();re
 function itemEl(i){const d=el('div','it'),t=el('div'),nb=el('b'),sm=el('small');nb.textContent=i.data.name||'(không tên)';sm.textContent=(i.data.sol||'').trim();t.append(nb,sm);
  const r=el('div','r'),eb=el('button'),sel=el('select'),del=el('button','del');
  eb.textContent='Sửa';eb.onclick=()=>{st[i.mode]=JSON.parse(JSON.stringify(i.data));$('lm').hidden=true;setMode(i.mode);editId=i.id;refreshSaveUI()};
- sel.add(new Option('Chưa phân mục',''));LIB.folders.filter(f=>f.mode==i.mode).forEach(f=>sel.add(new Option(f.name,f.id)));sel.value=i.folder||'';if(sel.selectedIndex<0)sel.selectedIndex=0;
+ fillSel(sel,i.mode);sel.value=i.folder||'';if(sel.selectedIndex<0)sel.selectedIndex=0;
  sel.onchange=()=>{i.folder=sel.value||null;saveLib();renderList()};
  del.textContent='Xoá';armDel(del,()=>{LIB.items=LIB.items.filter(x=>x!==i);if(editId==i.id)editId=null;saveLib();renderList();refreshSaveUI()});
  r.append(eb,sel,del);d.append(t,r);return d}
+let listCur=null;
+function fPath(id){const a=[];let f=LIB.folders.find(x=>x.id==id),g=0;while(f&&g++<200){a.unshift(f);const p=f.parent;f=LIB.folders.find(x=>x.id==p)}return a}
+function fLabel(id){return fPath(id).map(f=>f.name).join(' › ')}
+function folderOpts(m){return LIB.folders.filter(f=>f.mode==m).map(f=>({id:f.id,l:fLabel(f.id)})).sort((a,b)=>a.l.localeCompare(b.l))}
+function fillSel(sel,m){sel.add(new Option('Chưa phân mục',''));folderOpts(m).forEach(o=>sel.add(new Option(o.l,o.id)))}
 function renderList(){const b=$('lbody');b.innerHTML='';const m=listMode;
  document.querySelectorAll('#ltabs button').forEach(x=>x.classList.toggle('on',x.dataset.m==m));
- const fs=LIB.folders.filter(f=>f.mode==m),items=LIB.items.filter(i=>i.mode==m);
- const empty=()=>{const e=el('div','lh');e.textContent='(trống)';b.appendChild(e)};
- const root=items.filter(i=>!i.folder||!fs.some(f=>f.id==i.folder));
- const h0=el('div','lh');h0.textContent='Chưa phân mục';b.appendChild(h0);if(!root.length)empty();root.forEach(i=>b.appendChild(itemEl(i)));
- fs.forEach(f=>{const h=el('div','fh'),inp=el('input'),del=el('button');inp.value=f.name;
-  inp.onchange=()=>{f.name=inp.value.trim()||f.name;inp.value=f.name;saveLib();refreshSaveUI();renderList()};
-  del.textContent='Xoá mục';armDel(del,()=>{LIB.folders=LIB.folders.filter(x=>x!==f);LIB.items.forEach(i=>{if(i.folder==f.id)i.folder=null});saveLib();renderList();refreshSaveUI()});
-  h.append(inp,del);b.appendChild(h);const list=items.filter(i=>i.folder==f.id);if(!list.length)empty();list.forEach(i=>b.appendChild(itemEl(i)))})}
-document.querySelectorAll('#ltabs button').forEach(b=>b.onclick=()=>{listMode=b.dataset.m;renderList()});
-$('btnList').onclick=()=>{listMode=mode;$('lm').hidden=false;renderList()};
+ if(listCur&&!LIB.folders.some(f=>f.id==listCur&&f.mode==m))listCur=null;
+ const cur=listCur?LIB.folders.find(f=>f.id==listCur):null;
+ const nav=el('div','fh');
+ if(cur){const up=el('button');up.textContent='← Thoát';up.onclick=()=>{listCur=cur.parent||null;renderList()};nav.append(up)}
+ const path=el('div','lh');path.style.flex='1';path.textContent=[m.toUpperCase()].concat(fPath(listCur).map(f=>f.name)).join(' › ');nav.append(path);b.appendChild(nav);
+ if(cur){const h=el('div','fh'),inp=el('input'),del=el('button');inp.value=cur.name;
+  inp.onchange=()=>{cur.name=inp.value.trim()||cur.name;inp.value=cur.name;saveLib();refreshSaveUI();renderList()};
+  del.textContent='Xoá mục';armDel(del,()=>{const p=cur.parent||null;LIB.folders.forEach(f=>{if(f.parent==cur.id)f.parent=p});LIB.items.forEach(i=>{if(i.folder==cur.id)i.folder=p});LIB.folders=LIB.folders.filter(x=>x!==cur);listCur=p;saveLib();renderList();refreshSaveUI()});
+  h.append(inp,del);b.appendChild(h)}
+ const subs=LIB.folders.filter(f=>f.mode==m&&(f.parent||null)==listCur);
+ subs.forEach(f=>{const r=el('button'),n=LIB.folders.filter(x=>x.parent==f.id).length+LIB.items.filter(i=>i.folder==f.id).length;
+  r.style.textAlign='left';r.style.fontWeight='600';r.textContent='📁 '+f.name+'  ('+n+')';r.onclick=()=>{listCur=f.id;renderList()};b.appendChild(r)});
+ const list=LIB.items.filter(i=>i.mode==m&&(i.folder||null)==listCur);
+ list.forEach(i=>b.appendChild(itemEl(i)));
+ if(!subs.length&&!list.length){const e=el('div','lh');e.textContent='(trống)';b.appendChild(e)}}
+document.querySelectorAll('#ltabs button').forEach(b=>b.onclick=()=>{listMode=b.dataset.m;listCur=null;renderList()});
+$('btnList').onclick=()=>{listMode=mode;listCur=null;$('lm').hidden=false;renderList()};
 $('lClose').onclick=()=>{$('lm').hidden=true};
 
 /* ---------- tải tất cả (zip) ---------- */
@@ -288,15 +300,15 @@ $('lAll').onclick=async()=>{const b=$('lAll'),o=b.textContent;
  if(!LIB.items.length){b.textContent='Danh sách trống';setTimeout(()=>{b.textContent=o},1500);return}
  b.disabled=true;b.textContent='Đang tạo…';
  try{const files=[],used={};
-  for(const it of LIB.items){const fo=LIB.folders.find(f=>f.id==it.folder);
-   const base=[it.mode.toUpperCase(),fo?fo.name:null,it.data.name||'khong-ten'].filter(Boolean).map(s=>s.replace(/[\\/:*?"<>|]+/g,'_').trim()||'_');
+  for(const it of LIB.items){
+   const base=[it.mode.toUpperCase(),...fPath(it.folder).map(f=>f.name),it.data.name||'khong-ten'].filter(Boolean).map(s=>s.replace(/[\\/:*?"<>|]+/g,'_').trim()||'_');
    let nm=base.join('/'),k=1;while(used[nm]){k++;nm=base.join('/')+'_'+k}used[nm]=1;
    const cv=document.createElement('canvas');cv.width=cv.height=1000;const old=st[it.mode];st[it.mode]=it.data;
    try{drawCard(cv.getContext('2d'),1000,it.mode)}finally{st[it.mode]=old}
    const bl=await new Promise(r=>cv.toBlob(r,'image/png'));files.push({name:nm+'.png',data:new Uint8Array(await bl.arrayBuffer())})}
   await saveFile('Minh-Thanh-Cube-IRubik.zip',makeZip(files))}catch(e){}
  b.disabled=false;b.textContent=o};
-$('fAdd').onclick=()=>{const n=$('fname').value.trim();if(!n)return;LIB.folders.push({id:uid(),mode:listMode,name:n});$('fname').value='';saveLib();renderList();refreshSaveUI()};
+$('fAdd').onclick=()=>{const n=$('fname').value.trim();if(!n)return;LIB.folders.push({id:uid(),mode:listMode,name:n,parent:listCur});$('fname').value='';saveLib();renderList();refreshSaveUI()};
 
 /* ---------- chống zoom ---------- */
 ["gesturestart","gesturechange","gestureend"].forEach(t=>document.addEventListener(t,e=>e.preventDefault()));
